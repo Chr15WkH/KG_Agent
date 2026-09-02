@@ -1,0 +1,966 @@
+{
+  "dataset_name": "KQA Pro Pilot",
+  "schema_version": "0.1",
+  "source_dataset": "KQA Pro",
+  "sample_count": 12,
+  "samples": [
+    {
+      "sample_id": "kqapro_qn_01",
+      "val_index": 44,
+      "question": "Star Trek: The Animated Series is based on which TV series?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "locate the anchor entity Star Trek: The Animated Series",
+          "traverse the based on relation in the forward direction",
+          "filter the retrieved entities to the television series concept",
+          "return the remaining entity name"
+        ],
+        "graph_pattern": "single-anchor linear relation traversal",
+        "answer_type": "entity",
+        "hop_count": 1,
+        "qualifier_requirement": "none",
+        "agent_capabilities": [
+          "entity identification",
+          "relation traversal",
+          "concept filtering",
+          "entity answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "Star Trek: The Original Series",
+        "choices": [
+          "Mission: Impossible",
+          "Edge of Darkness",
+          "Search for Tomorrow",
+          "Bleak House",
+          "Red Dwarf",
+          "Avatar: The Last Airbender",
+          "24",
+          "Robot Chicken",
+          "American Horror Story",
+          "Star Trek: The Original Series"
+        ],
+        "gold_program": [
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Star Trek: The Animated Series"
+            ]
+          },
+          {
+            "function": "Relate",
+            "dependencies": [
+              0
+            ],
+            "inputs": [
+              "based on",
+              "forward"
+            ]
+          },
+          {
+            "function": "FilterConcept",
+            "dependencies": [
+              1
+            ],
+            "inputs": [
+              "television series"
+            ]
+          },
+          {
+            "function": "What",
+            "dependencies": [
+              2
+            ],
+            "inputs": []
+          }
+        ],
+        "gold_sparql": "SELECT DISTINCT ?e WHERE { ?e <pred:instance_of> ?c . ?c <pred:name> \"television series\" . ?e_1 <based_on> ?e . ?e_1 <pred:name> \"Star Trek: The Animated Series\" .   }"
+      }
+    },
+    {
+      "sample_id": "kqapro_qn_02",
+      "val_index": 120,
+      "question": "What award was won by Joss Whedon in 2013?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "locate Joss Whedon",
+          "traverse the winner relation in the backward direction",
+          "filter the winner facts by the point in time qualifier equal to 2013",
+          "filter the retrieved entities to the award concept",
+          "return the remaining award name"
+        ],
+        "graph_pattern": "single-anchor relation traversal with qualifier constraint",
+        "answer_type": "entity",
+        "hop_count": 2,
+        "qualifier_requirement": "relation qualifier: point in time",
+        "agent_capabilities": [
+          "entity identification",
+          "relation traversal",
+          "qualifier-aware filtering",
+          "temporal constraint handling",
+          "concept filtering",
+          "entity answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "Saturn Award for Best Director",
+        "choices": [
+          "Saturn Award for Best Director",
+          "Independent Spirit Award for Best Female Lead",
+          "Genie Award for Best Achievement in Editing",
+          "Academy Award for Best Supporting Actor",
+          "Grammy Award for Best Reggae Album",
+          "AACTA Award for Best Actress in a Leading Role",
+          "Latin Grammy Award for Best Male Pop Vocal Album",
+          "Royal Victorian Chain",
+          "Grammy Award for Best Metal Performance",
+          "Golden Globe Award for Best Animated Feature Film"
+        ],
+        "gold_program": [
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Joss Whedon"
+            ]
+          },
+          {
+            "function": "Relate",
+            "dependencies": [
+              0
+            ],
+            "inputs": [
+              "winner",
+              "backward"
+            ]
+          },
+          {
+            "function": "QFilterYear",
+            "dependencies": [
+              1
+            ],
+            "inputs": [
+              "point in time",
+              "2013",
+              "="
+            ]
+          },
+          {
+            "function": "FilterConcept",
+            "dependencies": [
+              2
+            ],
+            "inputs": [
+              "award"
+            ]
+          },
+          {
+            "function": "What",
+            "dependencies": [
+              3
+            ],
+            "inputs": []
+          }
+        ],
+        "gold_sparql": "SELECT DISTINCT ?e WHERE { ?e <pred:instance_of> ?c . ?c <pred:name> \"award\" . ?e <winner> ?e_1 . ?e_1 <pred:name> \"Joss Whedon\" .  [ <pred:fact_h> ?e ; <pred:fact_r> <winner> ; <pred:fact_t> ?e_1 ] <point_in_time> ?qpv . ?qpv <pred:year> 2013 .  }"
+      }
+    },
+    {
+      "sample_id": "kqapro_sb_01",
+      "val_index": 69,
+      "question": "Which movie is longer, Date Night or Big Fish?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "locate Date Night",
+          "locate Big Fish",
+          "retrieve the duration attribute of both entities",
+          "compare the two duration values",
+          "return the entity with the greater duration"
+        ],
+        "graph_pattern": "two explicit anchors with attribute comparison",
+        "answer_type": "entity",
+        "hop_count": 3,
+        "qualifier_requirement": "none",
+        "agent_capabilities": [
+          "multi-anchor entity identification",
+          "attribute retrieval",
+          "numeric comparison",
+          "entity selection",
+          "entity answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "Big Fish",
+        "choices": [
+          "The Hunchback of Notre Dame",
+          "A Prairie Home Companion",
+          "Pleasantville",
+          "Date Night",
+          "Training Day",
+          "The Fifth Element",
+          "Big Fish",
+          "Curse of the Golden Flower",
+          "The Towering Inferno",
+          "Talk to Her"
+        ],
+        "gold_program": [
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Date Night"
+            ]
+          },
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Big Fish"
+            ]
+          },
+          {
+            "function": "SelectBetween",
+            "dependencies": [
+              0,
+              1
+            ],
+            "inputs": [
+              "duration",
+              "greater"
+            ]
+          }
+        ],
+        "gold_sparql": "SELECT ?e WHERE { { ?e <pred:name> \"Date Night\" .  } UNION { ?e <pred:name> \"Big Fish\" .  } ?e <duration> ?pv . ?pv <pred:value> ?v .  } ORDER BY DESC(?v) LIMIT 1"
+      }
+    },
+    {
+      "sample_id": "kqapro_sb_02",
+      "val_index": 7,
+      "question": "Does My Neighbor Totoro or Hannah Arendt, originally in German, possess the longer run-time?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "locate My Neighbor Totoro",
+          "locate entities whose original language is German",
+          "intersect that set with the entity named Hannah Arendt",
+          "retrieve the duration attribute of both comparison candidates",
+          "compare the duration values",
+          "return the entity with the greater duration"
+        ],
+        "graph_pattern": "two-anchor comparison with relation-constrained entity disambiguation",
+        "answer_type": "entity",
+        "hop_count": 4,
+        "qualifier_requirement": "none",
+        "agent_capabilities": [
+          "multi-anchor entity identification",
+          "relation traversal",
+          "entity disambiguation",
+          "set intersection",
+          "attribute retrieval",
+          "numeric comparison",
+          "entity answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "Hannah Arendt",
+        "choices": [
+          "The Hunchback of Notre Dame",
+          "My Neighbor Totoro",
+          "A Prairie Home Companion",
+          "Curse of the Golden Flower",
+          "Rebecca",
+          "Talk to Her",
+          "Hannah Arendt",
+          "Training Day",
+          "The Fifth Element",
+          "The Towering Inferno"
+        ],
+        "gold_program": [
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "My Neighbor Totoro"
+            ]
+          },
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "German"
+            ]
+          },
+          {
+            "function": "Relate",
+            "dependencies": [
+              1
+            ],
+            "inputs": [
+              "original language of film or TV show",
+              "backward"
+            ]
+          },
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Hannah Arendt"
+            ]
+          },
+          {
+            "function": "And",
+            "dependencies": [
+              2,
+              3
+            ],
+            "inputs": []
+          },
+          {
+            "function": "SelectBetween",
+            "dependencies": [
+              0,
+              4
+            ],
+            "inputs": [
+              "duration",
+              "greater"
+            ]
+          }
+        ],
+        "gold_sparql": "SELECT ?e WHERE { { ?e <pred:name> \"My Neighbor Totoro\" .  } UNION { ?e <pred:name> \"Hannah Arendt\" . ?e <original_language_of_film_or_TV_show> ?e_1 . ?e_1 <pred:name> \"German\" .   } ?e <duration> ?pv . ?pv <pred:value> ?v .  } ORDER BY DESC(?v) LIMIT 1"
+      }
+    },
+    {
+      "sample_id": "kqapro_ct_01",
+      "val_index": 2,
+      "question": "How many musical compositions are named Yellow Submarine?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "retrieve all entities",
+          "filter entities whose title is Yellow Submarine",
+          "filter the remaining entities to the musical composition concept",
+          "count the resulting distinct entities"
+        ],
+        "graph_pattern": "single-set attribute filtering followed by aggregation",
+        "answer_type": "number",
+        "hop_count": 2,
+        "qualifier_requirement": "none",
+        "agent_capabilities": [
+          "attribute filtering",
+          "concept filtering",
+          "set construction",
+          "count aggregation",
+          "numeric answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "1",
+        "choices": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9"
+        ],
+        "gold_program": [
+          {
+            "function": "FindAll",
+            "dependencies": [],
+            "inputs": []
+          },
+          {
+            "function": "FilterStr",
+            "dependencies": [
+              0
+            ],
+            "inputs": [
+              "title",
+              "Yellow Submarine"
+            ]
+          },
+          {
+            "function": "FilterConcept",
+            "dependencies": [
+              1
+            ],
+            "inputs": [
+              "musical composition"
+            ]
+          },
+          {
+            "function": "Count",
+            "dependencies": [
+              2
+            ],
+            "inputs": []
+          }
+        ],
+        "gold_sparql": "SELECT (COUNT(DISTINCT ?e) AS ?count) WHERE { ?e <pred:instance_of> ?c . ?c <pred:name> \"musical composition\" . ?e <title> ?pv . ?pv <pred:value> \"Yellow Submarine\" .  }"
+      }
+    },
+    {
+      "sample_id": "kqapro_ct_02",
+      "val_index": 1,
+      "question": "How many Pennsylvania counties have a population greater than 7800 or a population less than 40000000?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "retrieve Pennsylvania counties whose population is greater than 7800",
+          "retrieve Pennsylvania counties whose population is less than 40000000",
+          "compute the union of the two entity sets",
+          "remove duplicate entities through set semantics",
+          "count the resulting entities"
+        ],
+        "graph_pattern": "two filtered entity sets combined by union and aggregation",
+        "answer_type": "number",
+        "hop_count": 4,
+        "qualifier_requirement": "none",
+        "agent_capabilities": [
+          "numeric attribute filtering",
+          "concept filtering",
+          "set union",
+          "duplicate-safe set handling",
+          "count aggregation",
+          "numeric answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "39",
+        "choices": [
+          "39",
+          "40",
+          "41",
+          "42",
+          "43",
+          "44",
+          "45",
+          "46",
+          "47",
+          "48"
+        ],
+        "gold_program": [
+          {
+            "function": "FindAll",
+            "dependencies": [],
+            "inputs": []
+          },
+          {
+            "function": "FilterNum",
+            "dependencies": [
+              0
+            ],
+            "inputs": [
+              "population",
+              "7800",
+              ">"
+            ]
+          },
+          {
+            "function": "FilterConcept",
+            "dependencies": [
+              1
+            ],
+            "inputs": [
+              "county of Pennsylvania"
+            ]
+          },
+          {
+            "function": "FindAll",
+            "dependencies": [],
+            "inputs": []
+          },
+          {
+            "function": "FilterNum",
+            "dependencies": [
+              3
+            ],
+            "inputs": [
+              "population",
+              "40000000",
+              "<"
+            ]
+          },
+          {
+            "function": "FilterConcept",
+            "dependencies": [
+              4
+            ],
+            "inputs": [
+              "county of Pennsylvania"
+            ]
+          },
+          {
+            "function": "Or",
+            "dependencies": [
+              2,
+              5
+            ],
+            "inputs": []
+          },
+          {
+            "function": "Count",
+            "dependencies": [
+              6
+            ],
+            "inputs": []
+          }
+        ],
+        "gold_sparql": "SELECT (COUNT(DISTINCT ?e) AS ?count) WHERE { ?e <pred:instance_of> ?c . ?c <pred:name> \"county of Pennsylvania\" .  { ?e <population> ?pv . ?pv <pred:unit> \"1\" . ?pv <pred:value> ?v . FILTER ( ?v > \"7800\"^^xsd:double ) .  } UNION { ?e <population> ?pv . ?pv <pred:unit> \"1\" . ?pv <pred:value> ?v . FILTER ( ?v < \"40000000\"^^xsd:double ) .  } }"
+      }
+    },
+    {
+      "sample_id": "kqapro_rl_01",
+      "val_index": 16,
+      "question": "What is the connection between Little Shop of Horrors to John Candy?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "locate Little Shop of Horrors",
+          "locate John Candy",
+          "identify the predicate connecting the first entity to the second entity",
+          "return the relation label"
+        ],
+        "graph_pattern": "direct relation discovery between two explicit anchors",
+        "answer_type": "relation",
+        "hop_count": 1,
+        "qualifier_requirement": "none",
+        "agent_capabilities": [
+          "multi-anchor entity identification",
+          "direct relation discovery",
+          "relation answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "cast member",
+        "choices": [
+          "performer",
+          "officeholder",
+          "designated as terrorist by",
+          "studies",
+          "art director",
+          "cast member",
+          "operating area",
+          "theme music",
+          "has parts of the class",
+          "located in time zone"
+        ],
+        "gold_program": [
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Little Shop of Horrors"
+            ]
+          },
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "John Candy"
+            ]
+          },
+          {
+            "function": "QueryRelation",
+            "dependencies": [
+              0,
+              1
+            ],
+            "inputs": []
+          }
+        ],
+        "gold_sparql": "SELECT DISTINCT ?p WHERE { ?e_1 <pred:name> \"Little Shop of Horrors\" . ?e_2 <pred:name> \"John Candy\" . ?e_1 ?p ?e_2 .  }"
+      }
+    },
+    {
+      "sample_id": "kqapro_rl_02",
+      "val_index": 74,
+      "question": "How is Davis Entertainment related to John Davis (the producer of Chronicle)?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "locate Davis Entertainment",
+          "locate Chronicle",
+          "traverse the producer relation from Chronicle",
+          "intersect the retrieved producer set with the entity named John Davis",
+          "identify the relation connecting Davis Entertainment to the disambiguated John Davis entity",
+          "return the relation label"
+        ],
+        "graph_pattern": "relation discovery with a derived and disambiguated second anchor",
+        "answer_type": "relation",
+        "hop_count": 2,
+        "qualifier_requirement": "none",
+        "agent_capabilities": [
+          "multi-anchor entity identification",
+          "relation traversal",
+          "entity disambiguation",
+          "set intersection",
+          "derived-anchor relation discovery",
+          "relation answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "founded by",
+        "choices": [
+          "country",
+          "opposite of",
+          "geography of topic",
+          "studies",
+          "founded by",
+          "conflict",
+          "allegiance",
+          "candidacy in election",
+          "field of this occupation",
+          "capital of"
+        ],
+        "gold_program": [
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Davis Entertainment"
+            ]
+          },
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Chronicle"
+            ]
+          },
+          {
+            "function": "Relate",
+            "dependencies": [
+              1
+            ],
+            "inputs": [
+              "producer",
+              "forward"
+            ]
+          },
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "John Davis"
+            ]
+          },
+          {
+            "function": "And",
+            "dependencies": [
+              2,
+              3
+            ],
+            "inputs": []
+          },
+          {
+            "function": "QueryRelation",
+            "dependencies": [
+              0,
+              4
+            ],
+            "inputs": []
+          }
+        ],
+        "gold_sparql": "SELECT DISTINCT ?p WHERE { ?e_1 <pred:name> \"Davis Entertainment\" . ?e_2 <pred:name> \"John Davis\" . ?e_3 <producer> ?e_2 . ?e_3 <pred:name> \"Chronicle\" . ?e_1 ?p ?e_2 .  }"
+      }
+    },
+    {
+      "sample_id": "kqapro_qr_01",
+      "val_index": 13,
+      "question": "When was Richard Widmark nominated for an Academy Award for Best Supporting Actor?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "locate Richard Widmark",
+          "locate the Academy Award for Best Supporting Actor",
+          "identify the nominated for relation fact connecting the two entities",
+          "retrieve the point in time qualifier attached to that fact",
+          "return the qualifier value"
+        ],
+        "graph_pattern": "two explicit anchors connected by a qualified relation fact",
+        "answer_type": "date",
+        "hop_count": 2,
+        "qualifier_requirement": "relation qualifier: point in time",
+        "agent_capabilities": [
+          "multi-anchor entity identification",
+          "relation fact identification",
+          "temporal qualifier retrieval",
+          "date answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "1947-01-01",
+        "choices": [
+          "1933-06-16",
+          "1957-12-01",
+          "2003-08-01",
+          "2010-07-01",
+          "1972-01-25",
+          "2018-11-14",
+          "1947-01-01",
+          "2008-12-01",
+          "2019-01-12",
+          "2005-11-21"
+        ],
+        "gold_program": [
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Richard Widmark"
+            ]
+          },
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Academy Award for Best Supporting Actor"
+            ]
+          },
+          {
+            "function": "QueryRelationQualifier",
+            "dependencies": [
+              0,
+              1
+            ],
+            "inputs": [
+              "nominated for",
+              "point in time"
+            ]
+          }
+        ],
+        "gold_sparql": "SELECT DISTINCT ?qpv WHERE { ?e_1 <pred:name> \"Richard Widmark\" . ?e_2 <pred:name> \"Academy Award for Best Supporting Actor\" . ?e_1 <nominated_for> ?e_2 . [ <pred:fact_h> ?e_1 ; <pred:fact_r> <nominated_for> ; <pred:fact_t> ?e_2 ] <point_in_time> ?qpv .  }"
+      }
+    },
+    {
+      "sample_id": "kqapro_qr_02",
+      "val_index": 43,
+      "question": "For what work was Laurie Metcalf nominated for an Academy Award for Best Supporting Actress?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "locate Laurie Metcalf",
+          "locate the Academy Award for Best Supporting Actress",
+          "identify the nominated for relation fact connecting the two entities",
+          "retrieve the for work qualifier attached to that fact",
+          "return the qualifier entity"
+        ],
+        "graph_pattern": "two explicit anchors connected by a relation fact with an entity-valued qualifier",
+        "answer_type": "entity",
+        "hop_count": 2,
+        "qualifier_requirement": "relation qualifier: for work",
+        "agent_capabilities": [
+          "multi-anchor entity identification",
+          "relation fact identification",
+          "non-temporal qualifier retrieval",
+          "entity-valued qualifier handling",
+          "entity answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "Lady Bird",
+        "choices": [
+          "House of Flying Daggers",
+          "Life or Something Like It",
+          "The Ghost and the Darkness",
+          "Lady Bird",
+          "The Will Rogers Follies",
+          "East of Eden",
+          "My Cousin Vinny",
+          "Temptation: Confessions of a Marriage Counselor",
+          "Thief",
+          "Lena...Lovely and Alive"
+        ],
+        "gold_program": [
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Laurie Metcalf"
+            ]
+          },
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Academy Award for Best Supporting Actress"
+            ]
+          },
+          {
+            "function": "QueryRelationQualifier",
+            "dependencies": [
+              0,
+              1
+            ],
+            "inputs": [
+              "nominated for",
+              "for work"
+            ]
+          }
+        ],
+        "gold_sparql": "SELECT DISTINCT ?qpv WHERE { ?e_1 <pred:name> \"Laurie Metcalf\" . ?e_2 <pred:name> \"Academy Award for Best Supporting Actress\" . ?e_1 <nominated_for> ?e_2 . [ <pred:fact_h> ?e_1 ; <pred:fact_r> <nominated_for> ; <pred:fact_t> ?e_2 ] <for_work> ?qpv .  }"
+      }
+    },
+    {
+      "sample_id": "kqapro_vf_01",
+      "val_index": 321,
+      "question": "Is the population of Seville less than 910000 as of the date 2001-01-01?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "locate Seville",
+          "retrieve its population attribute under the point in time condition 2001-01-01",
+          "compare the retrieved population with 910000",
+          "return whether the population is less than the threshold"
+        ],
+        "graph_pattern": "single-anchor qualified attribute retrieval followed by numeric verification",
+        "answer_type": "boolean",
+        "hop_count": 3,
+        "qualifier_requirement": "attribute qualifier: point in time",
+        "agent_capabilities": [
+          "entity identification",
+          "qualifier-aware attribute retrieval",
+          "temporal constraint handling",
+          "numeric comparison",
+          "boolean verification",
+          "boolean answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "yes",
+        "choices": [
+          "yes",
+          "no",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown"
+        ],
+        "gold_program": [
+          {
+            "function": "Find",
+            "dependencies": [],
+            "inputs": [
+              "Seville"
+            ]
+          },
+          {
+            "function": "QueryAttrUnderCondition",
+            "dependencies": [
+              0
+            ],
+            "inputs": [
+              "population",
+              "point in time",
+              "2001-01-01"
+            ]
+          },
+          {
+            "function": "VerifyNum",
+            "dependencies": [
+              1
+            ],
+            "inputs": [
+              "910000",
+              "<"
+            ]
+          }
+        ],
+        "gold_sparql": "ASK { ?e <pred:name> \"Seville\" . ?e <population> ?pv . ?pv <pred:unit> \"1\" . ?pv <pred:value> ?v . FILTER ( ?v < \"910000\"^^xsd:double ) . [ <pred:fact_h> ?e ; <pred:fact_r> <population> ; <pred:fact_t> ?pv ] <point_in_time> ?qpv . ?qpv <pred:date> \"2001-01-01\"^^xsd:date .  }"
+      }
+    },
+    {
+      "sample_id": "kqapro_vf_02",
+      "val_index": 31,
+      "question": "Was the visual artwork whose official website is http://www.youvegotmail.com published after 2011 in Germany?",
+      "task_metadata": {
+        "expected_solving_strategy": [
+          "retrieve entities whose official website is http://www.youvegotmail.com",
+          "filter the entities to the visual artwork concept",
+          "retrieve publication date values whose place of publication qualifier is Germany",
+          "compare the publication year with 2011",
+          "return whether the year is greater than 2011"
+        ],
+        "graph_pattern": "attribute-based entity location followed by qualified attribute retrieval and temporal verification",
+        "answer_type": "boolean",
+        "hop_count": 4,
+        "qualifier_requirement": "attribute qualifier: place of publication",
+        "agent_capabilities": [
+          "attribute-based entity identification",
+          "concept filtering",
+          "qualifier-aware attribute retrieval",
+          "non-temporal qualifier constraint handling",
+          "year comparison",
+          "boolean verification",
+          "boolean answer generation"
+        ]
+      },
+      "ground_truth": {
+        "gold_answer": "no",
+        "choices": [
+          "yes",
+          "no",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown",
+          "unknown"
+        ],
+        "gold_program": [
+          {
+            "function": "FindAll",
+            "dependencies": [],
+            "inputs": []
+          },
+          {
+            "function": "FilterStr",
+            "dependencies": [
+              0
+            ],
+            "inputs": [
+              "official website",
+              "http://www.youvegotmail.com"
+            ]
+          },
+          {
+            "function": "FilterConcept",
+            "dependencies": [
+              1
+            ],
+            "inputs": [
+              "visual artwork"
+            ]
+          },
+          {
+            "function": "QueryAttrUnderCondition",
+            "dependencies": [
+              2
+            ],
+            "inputs": [
+              "publication date",
+              "place of publication",
+              "Germany"
+            ]
+          },
+          {
+            "function": "VerifyYear",
+            "dependencies": [
+              3
+            ],
+            "inputs": [
+              "2011",
+              ">"
+            ]
+          }
+        ],
+        "gold_sparql": "ASK { ?e <pred:instance_of> ?c . ?c <pred:name> \"visual artwork\" . ?e <official_website> ?pv_1 . ?pv_1 <pred:value> \"http://www.youvegotmail.com\" . ?e <publication_date> ?pv . ?pv <pred:year> ?v . FILTER ( ?v > 2011 ) . [ <pred:fact_h> ?e ; <pred:fact_r> <publication_date> ; <pred:fact_t> ?pv ] <place_of_publication> ?qpv . ?qpv <pred:value> \"Germany\" .  }"
+      }
+    }
+  ]
+}

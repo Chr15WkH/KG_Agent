@@ -1,0 +1,834 @@
+{
+  "dataset_info": {
+    "dataset_name": "GTSQA",
+    "source_split": "test",
+    "knowledge_graph": "ogbl-wikikg2",
+    "subset_name": "development",
+    "number_of_questions": 12
+  },
+  "field_definitions": {
+    "redundant": {
+      "description": "Whether the question can be answered using only a proper subset of its seed entities.",
+      "true": "At least one seed entity or its corresponding condition is unnecessary for answering the question.",
+      "false": "All seed entities and their corresponding conditions are necessary for answering the question."
+    }
+  },
+  "questions": [
+    {
+      "id": 13311,
+      "question_profile": {
+        "question": "What medical condition did the doctoral advisor of the founder of Silicon Graphics' doctoral advisor have?",
+        "n_hops": 4,
+        "graph_isomorphism": "(4)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Alzheimer's disease (Q11081)",
+        "answer_subgraph": [
+          [
+            "Silicon Graphics (Q623459)",
+            "founded by (P112)",
+            "James H. Clark (Q1373397)"
+          ],
+          [
+            "James H. Clark (Q1373397)",
+            "doctoral advisor (P184)",
+            "Ivan Sutherland (Q62866)"
+          ],
+          [
+            "Ivan Sutherland (Q62866)",
+            "doctoral advisor (P184)",
+            "Claude Shannon (Q92760)"
+          ],
+          [
+            "Claude Shannon (Q92760)",
+            "medical condition (P1050)",
+            "Alzheimer's disease (Q11081)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q623459 wdt:P112 ?founder. ?founder wdt:P184 ?advisor2. ?advisor2 wdt:P184 ?advisor1. ?advisor1 wdt:P1050 ?answer}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Silicon Graphics (Q623459)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q11081"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q62866",
+            "P184",
+            "Q92760"
+          ],
+          [
+            "Q623459",
+            "P112",
+            "Q1373397"
+          ],
+          [
+            "Q1373397",
+            "P184",
+            "Q62866"
+          ],
+          [
+            "Q92760",
+            "P1050",
+            "Q11081"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 37715,
+      "question_profile": {
+        "question": "Which heritage site contains the burial place of the chairperson of the political party that Ted Jolliffe was a member of?",
+        "n_hops": 4,
+        "graph_isomorphism": "(4)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Mont-Royal Heritage Site (Q15621281)",
+        "answer_subgraph": [
+          [
+            "Ted Jolliffe (Q7693351)",
+            "member of political party (P102)",
+            "Co-operative Commonwealth Federation (Q1104026)"
+          ],
+          [
+            "Co-operative Commonwealth Federation (Q1104026)",
+            "chairperson (P488)",
+            "F. R. Scott (Q3081656)"
+          ],
+          [
+            "F. R. Scott (Q3081656)",
+            "place of burial (P119)",
+            "Mount Royal Cemetery (Q1457377)"
+          ],
+          [
+            "Mount Royal Cemetery (Q1457377)",
+            "location (P276)",
+            "Mont-Royal Heritage Site (Q15621281)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q7693351 wdt:P102 ?party. ?party wdt:P488 ?chair. ?chair wdt:P119 ?cemetery. ?cemetery wdt:P276 ?answer}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Ted Jolliffe (Q7693351)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q15621281"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q7693351",
+            "P102",
+            "Q1104026"
+          ],
+          [
+            "Q1457377",
+            "P276",
+            "Q15621281"
+          ],
+          [
+            "Q3081656",
+            "P119",
+            "Q1457377"
+          ],
+          [
+            "Q1104026",
+            "P488",
+            "Q3081656"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 40154,
+      "question_profile": {
+        "question": "Which team in the Danish Women's Handball League plays at a venue designed by an architecture firm based in Aarhus?",
+        "n_hops": 3,
+        "graph_isomorphism": "(3)(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Aalborg DH (Q928991)",
+        "answer_subgraph": [
+          [
+            "Aalborg DH (Q928991)",
+            "league (P118)",
+            "Danish Women's Handball League (Q912431)"
+          ],
+          [
+            "Aalborg DH (Q928991)",
+            "home venue (P115)",
+            "Gigantium (Q1523646)"
+          ],
+          [
+            "Gigantium (Q1523646)",
+            "architect (P84)",
+            "Schmidt Hammer Lassen (Q1757868)"
+          ],
+          [
+            "Schmidt Hammer Lassen (Q1757868)",
+            "location of formation (P740)",
+            "Aarhus (Q25319)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {?answer wdt:P118 wd:Q912431; wdt:P115 ?venue. ?venue wdt:P84 ?architect. ?architect wdt:P740 wd:Q25319}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Danish Women's Handball League (Q912431)",
+          "Aarhus (Q25319)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q928991"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q928991",
+            "P118",
+            "Q912431"
+          ],
+          [
+            "Q1523646",
+            "P84",
+            "Q1757868"
+          ],
+          [
+            "Q928991",
+            "P115",
+            "Q1523646"
+          ],
+          [
+            "Q1757868",
+            "P740",
+            "Q25319"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 42587,
+      "question_profile": {
+        "question": "What award, named after Lajos Kossuth, did János Rajz's student, who acted in \"I'll Go to the Minister,\" receive?",
+        "n_hops": 3,
+        "graph_isomorphism": "(3)(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Kossuth Prize (Q637399)",
+        "answer_subgraph": [
+          [
+            "I'll Go to the Minister (Q5965835)",
+            "cast member (P161)",
+            "János Rajz (Q1245585)"
+          ],
+          [
+            "János Rajz (Q1245585)",
+            "student (P802)",
+            "Ilona Kassai (Q1105174)"
+          ],
+          [
+            "Ilona Kassai (Q1105174)",
+            "award received (P166)",
+            "Kossuth Prize (Q637399)"
+          ],
+          [
+            "Kossuth Prize (Q637399)",
+            "named after (P138)",
+            "Lajos Kossuth (Q157040)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q5965835 wdt:P161 ?actor. ?actor wdt:P802 ?student. ?student wdt:P166 ?answer. ?answer wdt:P138 wd:Q157040.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Lajos Kossuth (Q157040)",
+          "I'll Go to the Minister (Q5965835)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q637399"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q1105174",
+            "P166",
+            "Q637399"
+          ],
+          [
+            "Q637399",
+            "P138",
+            "Q157040"
+          ],
+          [
+            "Q1245585",
+            "P802",
+            "Q1105174"
+          ],
+          [
+            "Q5965835",
+            "P161",
+            "Q1245585"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 4519,
+      "question_profile": {
+        "question": "Which university did the authors of \"Woman on the Edge of Time\" and \"The School Story\" both go to?",
+        "n_hops": 2,
+        "graph_isomorphism": "(2)(2)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Northwestern University (Q309350)",
+        "answer_subgraph": [
+          [
+            "Woman on the Edge of Time (Q8030746)",
+            "author (P50)",
+            "Marge Piercy (Q273385)"
+          ],
+          [
+            "Marge Piercy (Q273385)",
+            "educated at (P69)",
+            "Northwestern University (Q309350)"
+          ],
+          [
+            "The School Story (Q7762526)",
+            "author (P50)",
+            "Andrew Clements (Q4756623)"
+          ],
+          [
+            "Andrew Clements (Q4756623)",
+            "educated at (P69)",
+            "Northwestern University (Q309350)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {  wd:Q8030746 wdt:P50 ?author1.  ?author1 wdt:P69 ?answer.  wd:Q7762526 wdt:P50 ?author2.  ?author2 wdt:P69 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Woman on the Edge of Time (Q8030746)",
+          "The School Story (Q7762526)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q309350"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q7762526",
+            "P50",
+            "Q4756623"
+          ],
+          [
+            "Q8030746",
+            "P50",
+            "Q273385"
+          ],
+          [
+            "Q4756623",
+            "P69",
+            "Q309350"
+          ],
+          [
+            "Q273385",
+            "P69",
+            "Q309350"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 8865,
+      "question_profile": {
+        "question": "Which language is the professional focus of Paul Nylén and also the official language of the organization that Wim De Smet belongs to?",
+        "n_hops": 2,
+        "graph_isomorphism": "(2)(2)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Esperanto (Q143)",
+        "answer_subgraph": [
+          [
+            "Paul Nylén (Q6019939)",
+            "occupation (P106)",
+            "Esperantist (Q860918)"
+          ],
+          [
+            "Esperantist (Q860918)",
+            "field of this occupation (P425)",
+            "Esperanto (Q143)"
+          ],
+          [
+            "Wim De Smet (Q195064)",
+            "member of (P463)",
+            "International Academy of Sciences San Marino (Q129516)"
+          ],
+          [
+            "International Academy of Sciences San Marino (Q129516)",
+            "official language (P37)",
+            "Esperanto (Q143)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q6019939 wdt:P106 ?occ. ?occ wdt:P425 ?answer. wd:Q195064 wdt:P463 ?org. ?org wdt:P37 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Paul Nylén (Q6019939)",
+          "Wim De Smet (Q195064)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q143"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q860918",
+            "P425",
+            "Q143"
+          ],
+          [
+            "Q129516",
+            "P37",
+            "Q143"
+          ],
+          [
+            "Q6019939",
+            "P106",
+            "Q860918"
+          ],
+          [
+            "Q195064",
+            "P463",
+            "Q129516"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 16154,
+      "question_profile": {
+        "question": "What time zone is the city, which borders Balatonkenese and is a twin town of one of Carcassonne's twin towns, in?",
+        "n_hops": 3,
+        "graph_isomorphism": "((2)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Central European Time (Q25989)",
+        "answer_subgraph": [
+          [
+            "Carcassonne (Q6582)",
+            "twinned administrative body (P190)",
+            "Eggenfelden (Q255201)"
+          ],
+          [
+            "Eggenfelden (Q255201)",
+            "twinned administrative body (P190)",
+            "Balatonalmádi (Q789256)"
+          ],
+          [
+            "Balatonalmádi (Q789256)",
+            "located in time zone (P421)",
+            "Central European Time (Q25989)"
+          ],
+          [
+            "Balatonalmádi (Q789256)",
+            "shares border with (P47)",
+            "Balatonkenese (Q646115)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q6582 wdt:P190 ?eggenfelden. ?eggenfelden wdt:P190 ?balatonalmadi. ?balatonalmadi wdt:P47 wd:Q646115. ?balatonalmadi wdt:P421 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Carcassonne (Q6582)",
+          "Balatonkenese (Q646115)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q25989"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q255201",
+            "P190",
+            "Q789256"
+          ],
+          [
+            "Q6582",
+            "P190",
+            "Q255201"
+          ],
+          [
+            "Q789256",
+            "P421",
+            "Q25989"
+          ],
+          [
+            "Q789256",
+            "P47",
+            "Q646115"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 31606,
+      "question_profile": {
+        "question": "Which company released the game that belongs to the same video game series as the engine used in Cricket 2005 and was made available on the Commodore 64?",
+        "n_hops": 3,
+        "graph_isomorphism": "((2)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Electronic Arts (Q173941)",
+        "answer_subgraph": [
+          [
+            "Cricket 2005 (Q5184947)",
+            "software engine (P408)",
+            "Madden NFL (Q1883234)"
+          ],
+          [
+            "John Madden Football (Q2073676)",
+            "part of the series (P179)",
+            "Madden NFL (Q1883234)"
+          ],
+          [
+            "John Madden Football (Q2073676)",
+            "publisher (P123)",
+            "Electronic Arts (Q173941)"
+          ],
+          [
+            "John Madden Football (Q2073676)",
+            "platform (P400)",
+            "Commodore 64 (Q99775)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { wd:Q5184947 wdt:P408 ?series. ?game wdt:P179 ?series; wdt:P400 wd:Q99775; wdt:P123 ?answer. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Cricket 2005 (Q5184947)",
+          "Commodore 64 (Q99775)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q173941"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q2073676",
+            "P123",
+            "Q173941"
+          ],
+          [
+            "Q2073676",
+            "P179",
+            "Q1883234"
+          ],
+          [
+            "Q2073676",
+            "P400",
+            "Q99775"
+          ],
+          [
+            "Q5184947",
+            "P408",
+            "Q1883234"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 33122,
+      "question_profile": {
+        "question": "Who from the Antwerp Guild of Saint Luke created a still life painting featuring a trumpet?",
+        "n_hops": 2,
+        "graph_isomorphism": "((1)(1))(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Franciscus Gijsbrechts (Q3081981)",
+        "answer_subgraph": [
+          [
+            "Vanitas (Q18809992)",
+            "creator (P170)",
+            "Franciscus Gijsbrechts (Q3081981)"
+          ],
+          [
+            "Vanitas (Q18809992)",
+            "depicts (P180)",
+            "trumpet (Q8338)"
+          ],
+          [
+            "Vanitas (Q18809992)",
+            "genre (P136)",
+            "still life (Q170571)"
+          ],
+          [
+            "Franciscus Gijsbrechts (Q3081981)",
+            "member of (P463)",
+            "Antwerp Guild of Saint Luke (Q18508801)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { ?painting wdt:P170 ?answer. ?painting wdt:P136 wd:Q170571. ?painting wdt:P180 wd:Q8338. ?answer wdt:P463 wd:Q18508801. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Antwerp Guild of Saint Luke (Q18508801)",
+          "trumpet (Q8338)",
+          "still life (Q170571)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q3081981"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q3081981",
+            "P463",
+            "Q18508801"
+          ],
+          [
+            "Q18809992",
+            "P170",
+            "Q3081981"
+          ],
+          [
+            "Q18809992",
+            "P136",
+            "Q170571"
+          ],
+          [
+            "Q18809992",
+            "P180",
+            "Q8338"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 40487,
+      "question_profile": {
+        "question": "Which political party linked to Christian democracy had a French-speaking member who took part in the Korean War?",
+        "n_hops": 2,
+        "graph_isomorphism": "((1)(1))(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Christian Social Party (Q3366715)",
+        "answer_subgraph": [
+          [
+            "Henri Moreau de Melen (Q1605951)",
+            "conflict (P607)",
+            "Korean War (Q8663)"
+          ],
+          [
+            "Henri Moreau de Melen (Q1605951)",
+            "languages spoken, written or signed (P1412)",
+            "French (Q150)"
+          ],
+          [
+            "Henri Moreau de Melen (Q1605951)",
+            "member of political party (P102)",
+            "Christian Social Party (Q3366715)"
+          ],
+          [
+            "Christian Social Party (Q3366715)",
+            "political ideology (P1142)",
+            "Christian democracy (Q209158)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {  ?person wdt:P607 wd:Q8663;          wdt:P1412 wd:Q150;          wdt:P102 ?answer.  ?answer wdt:P1142 wd:Q209158.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Christian democracy (Q209158)",
+          "French (Q150)",
+          "Korean War (Q8663)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q3366715"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q1605951",
+            "P607",
+            "Q8663"
+          ],
+          [
+            "Q3366715",
+            "P1142",
+            "Q209158"
+          ],
+          [
+            "Q1605951",
+            "P1412",
+            "Q150"
+          ],
+          [
+            "Q1605951",
+            "P102",
+            "Q3366715"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 1012,
+      "question_profile": {
+        "question": "What is the occupation of the head of government of the municipality that shares a border with both Cistella and Esponellà?",
+        "n_hops": 3,
+        "graph_isomorphism": "(2(1)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "politician (Q82955)",
+        "answer_subgraph": [
+          [
+            "Cistella (Q11291)",
+            "shares border with (P47)",
+            "Cabanelles (Q11247)"
+          ],
+          [
+            "Esponellà (Q13611)",
+            "shares border with (P47)",
+            "Cabanelles (Q11247)"
+          ],
+          [
+            "Cabanelles (Q11247)",
+            "head of government (P6)",
+            "Martí Espiguló Vallmajó (Q14074345)"
+          ],
+          [
+            "Martí Espiguló Vallmajó (Q14074345)",
+            "occupation (P106)",
+            "politician (Q82955)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { wd:Q11291 wdt:P47 ?place. wd:Q13611 wdt:P47 ?place. ?place wdt:P6 ?head. ?head wdt:P106 ?answer. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Cistella (Q11291)",
+          "Esponellà (Q13611)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q82955"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q14074345",
+            "P106",
+            "Q82955"
+          ],
+          [
+            "Q13611",
+            "P47",
+            "Q11247"
+          ],
+          [
+            "Q11291",
+            "P47",
+            "Q11247"
+          ],
+          [
+            "Q11247",
+            "P6",
+            "Q14074345"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 41371,
+      "question_profile": {
+        "question": "Which Olympic event took place after the one that followed the event featuring both Brendan O'Connell and Bernd Uhlig?",
+        "n_hops": 3,
+        "graph_isomorphism": "(2(1)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "1980 Summer Olympics (Q8450)",
+        "answer_subgraph": [
+          [
+            "Brendan O'Connell (Q4961038)",
+            "participant in (P1344)",
+            "1972 Summer Olympics (Q8438)"
+          ],
+          [
+            "Bernd Uhlig (Q4894072)",
+            "participant in (P1344)",
+            "1972 Summer Olympics (Q8438)"
+          ],
+          [
+            "1972 Summer Olympics (Q8438)",
+            "followed by (P156)",
+            "1976 Summer Olympics (Q8444)"
+          ],
+          [
+            "1976 Summer Olympics (Q8444)",
+            "followed by (P156)",
+            "1980 Summer Olympics (Q8450)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { wd:Q4961038 wdt:P1344 ?olympics. wd:Q4894072 wdt:P1344 ?olympics. ?olympics wdt:P156 ?next1. ?next1 wdt:P156 ?answer. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Brendan O'Connell (Q4961038)",
+          "Bernd Uhlig (Q4894072)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q8450"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q8444",
+            "P156",
+            "Q8450"
+          ],
+          [
+            "Q4961038",
+            "P1344",
+            "Q8438"
+          ],
+          [
+            "Q4894072",
+            "P1344",
+            "Q8438"
+          ],
+          [
+            "Q8438",
+            "P156",
+            "Q8444"
+          ]
+        ]
+      }
+    }
+  ]
+}

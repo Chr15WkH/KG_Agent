@@ -1,0 +1,55 @@
+{
+  "dataset_name": "KQA Pro Pilot Agent Input",
+  "schema_version": "0.1",
+  "sample_count": 12,
+  "samples": [
+    {
+      "sample_id": "kqapro_qn_01",
+      "question": "Star Trek: The Animated Series is based on which TV series?"
+    },
+    {
+      "sample_id": "kqapro_qn_02",
+      "question": "What award was won by Joss Whedon in 2013?"
+    },
+    {
+      "sample_id": "kqapro_sb_01",
+      "question": "Which movie is longer, Date Night or Big Fish?"
+    },
+    {
+      "sample_id": "kqapro_sb_02",
+      "question": "Does My Neighbor Totoro or Hannah Arendt, originally in German, possess the longer run-time?"
+    },
+    {
+      "sample_id": "kqapro_ct_01",
+      "question": "How many musical compositions are named Yellow Submarine?"
+    },
+    {
+      "sample_id": "kqapro_ct_02",
+      "question": "How many Pennsylvania counties have a population greater than 7800 or a population less than 40000000?"
+    },
+    {
+      "sample_id": "kqapro_rl_01",
+      "question": "What is the connection between Little Shop of Horrors to John Candy?"
+    },
+    {
+      "sample_id": "kqapro_rl_02",
+      "question": "How is Davis Entertainment related to John Davis (the producer of Chronicle)?"
+    },
+    {
+      "sample_id": "kqapro_qr_01",
+      "question": "When was Richard Widmark nominated for an Academy Award for Best Supporting Actor?"
+    },
+    {
+      "sample_id": "kqapro_qr_02",
+      "question": "For what work was Laurie Metcalf nominated for an Academy Award for Best Supporting Actress?"
+    },
+    {
+      "sample_id": "kqapro_vf_01",
+      "question": "Is the population of Seville less than 910000 as of the date 2001-01-01?"
+    },
+    {
+      "sample_id": "kqapro_vf_02",
+      "question": "Was the visual artwork whose official website is http://www.youvegotmail.com published after 2011 in Germany?"
+    }
+  ]
+}

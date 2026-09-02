@@ -1,0 +1,62 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python cache and build outputs
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.cache/
+
+# Experiment-generated outputs
+experiments/runs/
+experiments/outputs/
+results/raw/
+logs/
+
+
+# Dataset policy:
+# Ignore dataset contents by default, then explicitly allow
+# documentation, processing scripts, and small pilot samples.
+Dataset/*
+
+!Dataset/README.md
+!Dataset/*.py
+!Dataset/gtsqa_development_agent_input.jsonl
+!Dataset/gtsqa_development_gold.json
+!Dataset/gtsqa_graph_description.png
+!Dataset/gtsqa_without_graphs_test.parquet
+!Dataset/kqapro_pilot_agent_input.json
+!Dataset/kqapro_pilot_gold.json
+
