@@ -6,6 +6,7 @@ import random
 from typing import List, Any, Dict
 from langgraph.graph.state import CompiledStateGraph
 from langchain_ollama import ChatOllama
+from langchain_litellm import ChatLiteLLM
 from langchain_openai import ChatOpenAI
 
 
@@ -24,6 +25,10 @@ OPEN_ROUTER_MODELS = [
     "google/gemini-2.5-flash",
     "openai/gpt-5-chat",
     "openai/gpt-oss-120b",
+]
+LITELLM_MODELS = [
+    "qwen3.8:27b",
+    "qwen3.5:9b",
 ]
 OLLAMA_MODELS = ["llama3.2:latest", "qwq:latest", "qwen3:14b", "qwen3:8b"]
 
@@ -59,6 +64,24 @@ def get_llm(
             top_k=top_k,  # Set TopK
             seed=seed,  # Set seed
         )  # No repetition penalty)
+    elif name in LITELLM_MODELS:
+        api_key = os.getenv("LITELLM_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "Missing LITELLM_API_KEY. "
+                "Set it in agent/ark_v1/.env or your environment."
+            )
+        return ChatLiteLLM(
+            model=f"openai/{name}",
+            api_base=os.getenv(
+                "LITELLM_API_BASE",
+                "http://agiprobot.ifl.kit.edu:4000",
+            ),
+            api_key=api_key,
+            temperature=temperature,  # Set temperature
+            top_p=top_p,  # Set TopP
+            seed=seed,  # Set seed
+        ) 
     elif name in OPEN_ROUTER_MODELS:
         if not os.environ.get("OPENROUTER_API_KEY"):
             os.environ["OPENROUTER_API_KEY"] = getpass.getpass(
@@ -73,6 +96,11 @@ def get_llm(
                 "top_p": top_p,  # Set TopP
             },
             seed=seed,
+        )
+    else:
+        raise ValueError(
+            f"Model '{name}' is not supported. "
+            f"Supported models are: {LITELLM_MODELS + OPEN_ROUTER_MODELS}"
         )
 
 
