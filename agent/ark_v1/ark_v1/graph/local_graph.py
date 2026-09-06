@@ -6,7 +6,7 @@ import faiss
 
 class LocalGraph:
     def __init__(self):
-        self.graph = nx.DiGraph()
+        self.graph = nx.MultiDiGraph()
         self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
         self.node_embeddings = None
         self.node_index = None
@@ -57,9 +57,14 @@ class LocalGraph:
 
     def triple_exist(self, head, relation, tail) -> bool:
         """Check if a triple exists in the graph."""
-        return (
-            self.graph.has_edge(head, tail)
-            and self.graph[head][tail]["relation"] == relation
+        if not self.graph.has_edge(head, tail):
+            return False
+
+        edges_between_nodes = self.graph.get_edge_data(head, tail)
+
+        return any(
+            edge_data.get("relation") == relation
+            for edge_data in edges_between_nodes.values()
         )
 
     def get_close_nodes(self, query: str, k: int = 5) -> List[Dict]:
@@ -112,30 +117,45 @@ class LocalGraph:
             )
         return results
 
-    def get_triples(self, head: str, relations: Optional[List[str]] = None) -> List:
-        """Get triples [head, edge_dict, tail] for a given head and optional relation."""
+    def get_triples(
+        self,
+        head: str,
+        relations: Optional[List[str]] = None,
+    ) -> List:
+        """Get outgoing triples for a head and optional relations."""
         triples = []
-        for tail in self.graph.successors(head):
-            edge_data = self.graph[head][tail]
-            if relations is None or edge_data["relation"] in relations:
+
+        for _, tail, edge_data in self.graph.out_edges(
+            head,
+            data=True,
+        ):
+            if (
+                relations is None
+                or edge_data["relation"] in relations
+            ):
                 triples.append([head, edge_data, tail])
+
         return triples
 
     def get_relations(self, head) -> List[str]:
         """Get outgoing relations for a given entity."""
-        relations = []
-        for tail in self.graph.successors(head):
-            edge_data = self.graph[head][tail]
-            relations.append(edge_data["relation"])
-        return relations
+        return [
+            edge_data["relation"]
+            for _, _, edge_data in self.graph.out_edges(
+                head,
+                data=True,
+            )
+        ]
 
     def get_edges(self, head: str) -> List[Dict]:
-        """Get edges for a given head node."""
-        edges = []
-        for tail in self.graph.successors(head):
-            edge_data = self.graph[head][tail]
-            edges.append(edge_data)
-        return edges
+        """Get outgoing edges for a given head node."""
+        return [
+            edge_data
+            for _, _, edge_data in self.graph.out_edges(
+                head,
+                data=True,
+            )
+        ]
 
     def entities_exist(self, entities: List[str]) -> List[bool]:
         """Check if the entities exist in the graph."""
