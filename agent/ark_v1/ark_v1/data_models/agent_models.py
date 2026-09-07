@@ -241,9 +241,13 @@ class FinalAnswerYesNo(FinalAnswer):
 class FinalAnswerEntityList(FinalAnswer):
     """Final answer for entity list questions"""
 
-    answer: List[str] = Field(
-        description="The final answer to the user request, a list of entities that answer the user request",
-        default=[],
+    answer: Optional[List[str]] = Field(
+        description=(
+            "A list of knowledge graph entities that answer the user request. "
+            "Use None when the answer cannot be determined from the retrieved "
+            "knowledge graph information. Use an empty list only when the "
+            "question is answerable but has no matching entities."
+        )
     )
 
 

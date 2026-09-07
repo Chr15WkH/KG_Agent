@@ -43,6 +43,7 @@ from ark_v1.data_models.agent_models import (
     ReasoningStepResult,
     ReasoningStepResultVerified,
     FinalAnswerYesNo,
+    FinalAnswerEntityList,
 )
 
 
@@ -538,14 +539,24 @@ class ARK_V1(Agent):
 
         def generate_answer(state: RuntimeState) -> RuntimeState:
             """Generate the final answer based on the reasoning steps and the question type"""
-            answer = FinalAnswerYesNo
-            question_type_str = "The user request is a yes/no question. Therefore please set the finalAnswer accordingly."
             if self._question_type == QuestionTypes.YES_NO:
-                question_type_str = "The user request is a yes/no question. Therefore please set the finalAnswer accordingly."
                 answer = FinalAnswerYesNo
+                question_type_str = (
+                    "The user request is a yes/no question. "
+                    "Therefore please set the finalAnswer accordingly."
+                )
+            elif self._question_type == QuestionTypes.ENTITY_LIST:
+                answer = FinalAnswerEntityList
+                question_type_str = (
+                    "The user request requires a list of entities. "
+                    "Return entity names exactly as shown in the retrieved "
+                    "knowledge graph information, including IDs when present. "
+                    "Use null if the answer cannot be determined; use [] only "
+                    "when the answer is known to be an empty set."
+                )
             else:
-                NotImplementedError(
-                    f"Question type {self._question_type} is not yet implemented yet."
+                raise NotImplementedError(
+                    f"Question type {self._question_type} is not implemented."
                 )
 
             prompt = self.get_message_from_prompt_template(

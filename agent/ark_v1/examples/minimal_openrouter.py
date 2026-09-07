@@ -4,6 +4,7 @@ import logging
 from ark_v1.ark_v1 import ARK_V1
 from pathlib import Path
 from dotenv import load_dotenv
+from ark_v1.data_models.agent_models import QuestionTypes
 
 ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
 load_dotenv(dotenv_path=ENV_PATH)
@@ -37,7 +38,10 @@ def main():
         example_data = json.load(file)
 
     agent.load_graph_data(example_data["graph"])
-    agent.set_initial_state(question=example_data["question"])
+    agent.set_initial_state(
+        question=example_data["question"],
+        question_type=QuestionTypes.ENTITY_LIST,
+        )
     final_state = agent.run()
 
     logging.info(
