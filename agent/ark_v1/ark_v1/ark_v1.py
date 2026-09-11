@@ -709,7 +709,7 @@ class ARK_V1(Agent):
                 # print(f"Final answer: {event['finalAnswer']}")
                 final_state = RuntimeState.model_validate(event)
                 final_state_dump = final_state.model_dump()
-                if isinstance(final_state.finalAnswer, FinalAnswerYesNo):
+                if isinstance(final_state.finalAnswer, (FinalAnswerYesNo, FinalAnswerEntityList),):
                     final_state_dump["finalAnswer"] = (
                         final_state.finalAnswer.model_dump()
                     )

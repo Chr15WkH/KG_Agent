@@ -10,12 +10,22 @@ class LocalGraph:
         self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
         self.node_embeddings = None
         self.node_index = None
+        self.indexed_nodes = []
         self.relation_embeddings = None
         self.relation_index = None
+        self.indexed_relations = []
 
     def clear(self):
         self.graph.clear()
 
+        self.node_embeddings = None
+        self.node_index = None
+        self.indexed_nodes = []
+
+        self.relation_embeddings = None
+        self.relation_index = None
+        self.indexed_relations = []
+        
     def vectorize(self, head_nodes_only: bool = True):
         """Use a sentence transformer to create embeddings for each node and relation."""
 
@@ -32,6 +42,8 @@ class LocalGraph:
         if not nodes:
             raise ValueError("No head nodes found in the graph.")
 
+        self.indexed_nodes = list(nodes)
+
         self.node_embeddings = self.embedding_model.encode(
             nodes, normalize_embeddings=True, convert_to_numpy=True
         )
@@ -42,6 +54,9 @@ class LocalGraph:
                 edge_data["relation"] for _, _, edge_data in self.graph.edges(data=True)
             )
         )
+
+        self.indexed_relations = list(relations)
+
         self.relation_embeddings = self.embedding_model.encode(
             relations, normalize_embeddings=True, convert_to_numpy=True
         )
@@ -80,17 +95,21 @@ class LocalGraph:
         D, I = self.node_index.search(query_vec, k)
 
         results = []
-        nodes = list(self.graph.nodes())
-        for i in range(len(I[0])):
+        for index, score in zip(I[0], D[0]):
+            index = int(index)
+
+            if index < 0:
+                continue
+
             results.append(
                 {
-                    "node": nodes[int(I[0][i])],
-                    "distance": float(D[0][i]),
+                    "node": self.indexed_nodes[index],
+                    "distance": float(score),
                 }
             )
         return results
 
-    def get_close_relations(self, query: str, k: int = 5) -> Dict:
+    def get_close_relations(self, query: str, k: int = 5) -> List[Dict]:
         """Get the k closest relations to the query string based on embeddings."""
         if self.relation_embeddings is None:
             raise ValueError(
@@ -103,18 +122,19 @@ class LocalGraph:
         D, I = self.relation_index.search(query_vec, k)
 
         results = []
-        relations = list(
-            set(
-                edge_data["relation"] for _, _, edge_data in self.graph.edges(data=True)
-            )
-        )
-        for i in range(len(I[0])):
+        for index, score in zip(I[0], D[0]):
+            index = int(index)
+
+            if index < 0:
+                continue
+
             results.append(
                 {
-                    "relation": relations[int(I[0][i])],
-                    "distance": float(D[0][i]),
+                    "relation": self.indexed_relations[index],
+                    "distance": float(score),
                 }
             )
+
         return results
 
     def get_triples(
