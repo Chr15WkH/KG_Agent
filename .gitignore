@@ -47,16 +47,7 @@ logs/
 
 
 # Dataset policy:
-# Ignore dataset contents by default, then explicitly allow
-# documentation, processing scripts, and small pilot samples.
-Dataset/*
-
-!Dataset/README.md
-!Dataset/*.py
-!Dataset/gtsqa_development_agent_input.jsonl
-!Dataset/gtsqa_development_gold.json
-!Dataset/gtsqa_graph_description.png
-!Dataset/gtsqa_without_graphs_test.parquet
-!Dataset/kqapro_pilot_agent_input.json
-!Dataset/kqapro_pilot_gold.json
-
+# Track dataset files by default; exclude only these large source files.
+/Dataset/gtsqa_with_graphs_test.parquet
+/Dataset/kqapro_kb.json
+/Dataset/kqapro_original_val.json
