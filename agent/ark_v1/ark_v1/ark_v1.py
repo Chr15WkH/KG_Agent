@@ -290,7 +290,7 @@ class ARK_V1(Agent):
             relation_verified = current_reasoning_step.relation_selected
 
             summary = ""
-            if relation_verified.attempt > 1:
+            if relation_verified.attempt > 0:
                 summary = f'You have previously attempted to select the relation "{relation_verified.candidate.value}". The semantically closest relations to your selection were: {relation_verified.edge.alternatives}. \n'
 
             # Add the prompt for selecting relation candidates
@@ -299,6 +299,14 @@ class ARK_V1(Agent):
                 {
                     "iteration": state.iteration,
                     "attempt": relation_verified.attempt,
+                    "anchor": current_reasoning_step.anchor.anchor.value,
+                    "available_relations": json.dumps(
+                        list(dict.fromkeys(
+                            edge.get_relation()
+                            for edge in current_reasoning_step.relations_retrieved
+                        )),
+                        ensure_ascii=False,
+                    ),
                     "max_number_of_relations": 3,
                     "summary_previous_attempts": summary,
                     "schema": json.dumps(Relation.model_json_schema()),

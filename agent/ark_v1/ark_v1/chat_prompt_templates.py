@@ -62,13 +62,23 @@ def get_prompt_select_relation() -> ChatPromptTemplate:
         [
             (
                 "system",
-                "(Iteration {iteration}, Step 2.2, Attempt {attempt}): "
-                "The previous message contains a list of relations starting from your selected anchor entity. "
+                "(Iteration {iteration}, Step 2.2, Attempt {attempt}):\n"
+                "Current anchor entity: {anchor}\n"
+                "Available outgoing relations from this entity: "
+                "{available_relations}\n"
                 "{summary_previous_attempts}"
-                "Task: Select a relation that you want to use to explore the graph towards answering the user question. "
-                "Notes: "
-                "- When returning an empty string as the relation value, you will be routed back to Step 2.1 to select a new anchor entity. Please state in justification why you want to do so.\n"
-                "Return your answer in the following schema: \n{schema}",
+                "Task: Select exactly ONE relation from the available outgoing "
+                "relations to explore towards answering the user question.\n"
+                "Return the exact relation name, including its identifier "
+                "in parentheses. Return a relation name, not an entity name.\n"
+                "Any semantically closest relations mentioned in retry feedback "
+                "are suggestions from the whole graph; they are available here "
+                "only if they also appear in the outgoing relations above.\n"
+                "Notes:\n"
+                "- When returning an empty string as the relation value, "
+                "you will be routed back to Step 2.1 to select a new anchor "
+                "entity. Please state in justification why you want to do so.\n"
+                "Return your answer in the following schema:\n{schema}",
             )
         ]
     )
