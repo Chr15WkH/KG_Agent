@@ -9,13 +9,14 @@ from ark_v1.adapters.gtsqa import adapt_gtsqa_sample
 
 # Choose the dataset and question.
 DATASET = "gtsqa"  # "example" or "gtsqa"
+# DATASET = "example"  # "example" or "gtsqa"
 SAMPLE_ID = 13311
 
 EXAMPLES_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 ENV_PATH = EXAMPLES_DIR.parent / ".env"
-load_dotenv(dotenv_path=ENV_PATH)
+load_dotenv(dotenv_path=ENV_PATH, override=True)
 
 # Configure logging
 logging.basicConfig(
