@@ -11,6 +11,7 @@ from langchain_core.messages import (
     AIMessage,
     ToolMessage,
 )
+from langchain_core.runnables import RunnableConfig
 from ark_v1.utils import (
     draw_graph,
     get_llm,
@@ -676,17 +677,26 @@ class ARK_V1(Agent):
     def run_with_config(self, config: Dict[str, Any]) -> RuntimeState:
         self.load_configuration(config)
 
-    def run(self) -> dict:
-        """Run the agent and return the final state"""
+    def run(
+        self,
+        runnable_config: Optional[RunnableConfig] = None,
+    ) -> Optional[dict]:
+        """Run the agent with optional callbacks, execution metadata and return final answer."""
+        execution_config: RunnableConfig = {
+            "recursion_limit": self.recursion_limit,
+        }
+
+        if runnable_config is not None:
+            execution_config.update(runnable_config)
+
         events = self.graph.stream(
             self.initial_state,
             stream_mode="values",
-            config={
-                "recursion_limit": self.recursion_limit,
-            },
+            config=execution_config,
         )
 
         last_event = None
+        final_state_dump = None
 
         for event in events:
             if not event["messages"]:
@@ -722,4 +732,5 @@ class ARK_V1(Agent):
                         final_state.finalAnswer.model_dump()
                     )
                 final_state_dump.pop("currentState")
-                return final_state_dump
+
+        return final_state_dump

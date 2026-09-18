@@ -1,0 +1,10 @@
+{
+  "python-envs.defaultEnvManager": "ms-python.python:venv",
+  "python-envs.workspaceSearchPaths": [
+    "./.venv",
+    "./agent/ark_v1/.venv"
+  ],
+  "python.analysis.extraPaths": [
+    "./agent/ark_v1"
+  ]
+}
