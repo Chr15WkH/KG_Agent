@@ -186,7 +186,11 @@ class ARK_V1(Agent):
             current_anchor: AnchorVerified = current_reasoning_step.anchor
 
             failed_attempts_prompt = ""
-            if current_anchor.attempt > 1:
+            if (
+                current_anchor.attempt >= 1
+                and current_anchor.verificationResults is not None
+                and not current_anchor.valid
+            ):
                 failed_attempts_prompt += f"You previously selected the anchor candidate {current_anchor.anchor.value} which does not exist in the knowledge graph. \n"
                 for entity in current_anchor.verificationResults.results:
                     if not entity.verified:
@@ -367,9 +371,9 @@ class ARK_V1(Agent):
             if current_reasoning_step.relation_selected.attempt >= self.max_attempts:
                 return "generate_answer"
             elif current_reasoning_step.relation_selected.candidate is None:
-                return "select_anchor"
+                return "prompt_select_anchor"
             elif current_reasoning_step.relation_selected.candidate.value == "":
-                return "select_anchor"
+                return "prompt_select_anchor"
             elif current_reasoning_step.relation_selected.valid is True:
                 # If the relation candidates are valid, we continue with retrieving knowledge
                 return "retrieve_triples"
@@ -641,7 +645,7 @@ class ARK_V1(Agent):
             "select_relation",
             _route_select_relation,
             [
-                "select_anchor",
+                "prompt_select_anchor",
                 "prompt_select_relation",
                 "retrieve_triples",
                 "generate_answer",
