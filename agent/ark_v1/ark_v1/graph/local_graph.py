@@ -141,63 +141,113 @@ class LocalGraph:
         self,
         head: str,
         relations: Optional[List[str]] = None,
+        direction: str = "outgoing",
     ) -> List:
-        """Get outgoing triples for a head and optional relations."""
-        triples = []
+        """
+        Get triples in the selected direction relative to the anchor.
+        The parameter 'head' is retained for compatibility and represents
+        the anchor entity. Returned triples preserve their original direction.
+        """
+        if direction not in ("outgoing", "incoming"):
+            raise ValueError(
+                "direction must be 'outgoing' or 'incoming'"
+            )
 
-        for _, tail, edge_data in self.graph.out_edges(
-            head,
-            data=True,
-        ):
+        if direction == "outgoing":
+            edges = self.graph.out_edges(head, data=True)
+        else:
+            edges = self.graph.in_edges(head, data=True)
+
+        triples = []
+        for source, target, edge_data in edges:
             if (
                 relations is None
                 or edge_data["relation"] in relations
             ):
-                triples.append([head, edge_data, tail])
+                triples.append([source, edge_data, target])
 
         return triples
 
-    def get_relations(self, head) -> List[str]:
-        """Get outgoing relations for a given entity."""
+    def get_relations(
+        self,
+        head: str,
+        direction: str = "outgoing",
+    ) -> List[str]:
+        """Get relation names for a given entity in the selected direction."""
         return [
             edge_data["relation"]
-            for _, _, edge_data in self.graph.out_edges(
+            for edge_data in self.get_edges(
                 head,
-                data=True,
+                direction=direction,
             )
         ]
 
-    def get_edges(self, head: str) -> List[Dict]:
-        """Get outgoing edges for a given head node."""
-        return [
-            edge_data
+    def get_edges(
+        self,
+        head: str,
+        direction: str = "outgoing",
+    ) -> List[Dict]:
+        """Get relation candidates with directions relative to the anchor."""
+        if direction not in ("outgoing", "incoming", "both"):
+            raise ValueError(
+                "direction must be 'outgoing', 'incoming', or 'both'"
+            )
+
+        results = []
+
+        if direction in ("outgoing", "both"):
             for _, _, edge_data in self.graph.out_edges(
                 head,
                 data=True,
-            )
-        ]
+            ):
+                results.append({
+                    **edge_data,
+                    "direction": "outgoing",
+                })
+
+        if direction in ("incoming", "both"):
+            for _, _, edge_data in self.graph.in_edges(
+                head, data=True
+            ):
+                results.append({
+                    **edge_data,
+                    "direction": "incoming",
+                })
+
+        return results
 
     def entities_exist(self, entities: List[str]) -> List[bool]:
         """Check if the entities exist in the graph."""
         return [entity in self.graph for entity in entities]
 
     def relations_exist(
-        self, relations: List[str], head: Optional[str] = None
+        self,
+        relations: List[str],
+        head: Optional[str] = None,
+        direction: str = "outgoing",
     ) -> List[bool]:
-        """Check if the relations exist in the graph."""
-        if head is not None:
-            return [
-                any(
-                    edge_data["relation"] == relation
-                    for _, _, edge_data in self.graph.edges(head, data=True)
-                )
-                for relation in relations
-            ]
+        """
+        Check relations in the selected direction relative to the anchor.
+        If head is None, check relation existence across the whole graph.
+        """
+        if direction not in ("outgoing", "incoming"):
+            raise ValueError(
+                "direction must be 'outgoing' or 'incoming'"
+            )
+
+        if head is None:
+            edges = self.graph.edges(data=True)
+        elif direction == "outgoing":
+            edges = self.graph.out_edges(head, data=True)
         else:
-            return [
-                any(
-                    edge_data["relation"] == relation
-                    for _, _, edge_data in self.graph.edges(data=True)
-                )
-                for relation in relations
-            ]
+            edges = self.graph.in_edges(head, data=True)
+
+        available_relations = {
+            edge_data["relation"]
+            for _, _, edge_data in edges
+        }
+
+        return [
+            relation in available_relations
+            for relation in relations
+        ]

@@ -168,7 +168,7 @@ class ARK_V1(Agent):
         self.initial_state.append_message(HumanMessage(content=question))
 
         # vectorize the subgraph
-        self._graph_interface.graph.vectorize()
+        self._graph_interface.graph.vectorize(head_nodes_only=False)
 
     def _create_graph(self, draw: bool = True) -> CompiledStateGraph:
 
@@ -262,17 +262,28 @@ class ARK_V1(Agent):
             anchor_value: str = current_reasoning_step.anchor.anchor.value
 
             edges: QueryResultGetEdges = self.get_tool_by_name("get_edges").invoke(
-                {"entities": [anchor_value]}
+                {"entities": [anchor_value], "direction": "both"}
             )
+
             if not edges.success:
                 raise ValueError(
                     f"Failed to retrieve relations for anchor entity {anchor_value}: {edges.errors}"
                 )
             current_reasoning_step.relations_retrieved = edges.results
 
+            relation_pairs = dict.fromkeys(
+                (edge.get_relation(), edge.value["direction"])
+                for edge in edges.results
+            )
+
+            available_relations = [
+                {"relation": relation, "direction": direction}
+                for relation, direction in relation_pairs
+            ]
+
             state.append_message(
                 SystemMessage(
-                    content=f"Relations connected to entity {anchor_value}: {list(set(edge.get_relation() for edge in edges.results))}",
+                    content=f"Relations connected to entity {anchor_value}: {json.dumps(available_relations, ensure_ascii=False)}",
                 )
             )
             return state
@@ -296,8 +307,20 @@ class ARK_V1(Agent):
 
             summary = ""
             if relation_verified.attempt > 0:
-                summary = f'You have previously attempted to select the relation "{relation_verified.candidate.value}". The semantically closest relations to your selection were: {relation_verified.edge.alternatives}. \n'
+                summary = (
+                    f'You have previously attempted to select the relation "{relation_verified.candidate.value}" '
+                    f'with direction "{relation_verified.candidate.direction}". '
+                    f'The semantically closest relations to your selection were: {relation_verified.edge.alternatives}. \n'
+                )
+            relation_pairs = dict.fromkeys(
+                (edge.get_relation(), edge.value["direction"])
+                for edge in current_reasoning_step.relations_retrieved
+            )
 
+            available_relations = [
+                {"relation": relation, "direction": direction}
+                for relation, direction in relation_pairs
+            ]
             # Add the prompt for selecting relation candidates
             prompt = self.get_message_from_prompt_template(
                 "select_relation",
@@ -306,10 +329,7 @@ class ARK_V1(Agent):
                     "attempt": relation_verified.attempt,
                     "anchor": current_reasoning_step.anchor.anchor.value,
                     "available_relations": json.dumps(
-                        list(dict.fromkeys(
-                            edge.get_relation()
-                            for edge in current_reasoning_step.relations_retrieved
-                        )),
+                        available_relations,
                         ensure_ascii=False,
                     ),
                     "max_number_of_relations": 3,
@@ -351,16 +371,37 @@ class ARK_V1(Agent):
                 {
                     "relations": [relations_selected.value],
                     "head": current_reasoning_step.anchor.anchor.value,
+                    "direction": relations_selected.direction,
                     "retrieve_alternatives": True,
                     "num_alternatives": 2,
                 }
             )
+            if not tool_result.success:
+                raise ValueError(
+                    "Failed to verify relation "
+                    f"{relations_selected.value!r} "
+                    f"with direction {relations_selected.direction!r} "
+                    f"for anchor {current_reasoning_step.anchor.anchor.value!r}: "
+                    f"{tool_result.errors}"
+                )
+
+            if len(tool_result.results) != 1:
+                raise ValueError(
+                    "Expected exactly one relation verification result, "
+                    f"got {len(tool_result.results)}."
+                )
             relation_verified.edge = tool_result.results[0]
             relation_verified.valid = relation_verified.edge.verified
 
             state.append_message(
                 AIMessage(
-                    content=f"Result (Iteration {state.iteration}, Step 2.2., Attempt {relation_verified.attempt}): \nValid: {relation_verified.valid} \nSelected Relation: {relation_verified.candidate.value}"
+                    content=(
+                        f"Result (Iteration {state.iteration}, Step 2.2., "
+                        f"Attempt {relation_verified.attempt}): "
+                        f"\nValid: {relation_verified.valid}"
+                        f"\nSelected Relation: {relation_verified.candidate.value}"
+                        f"\nSelected Direction: {relation_verified.candidate.direction}"
+                    )  
                 )
             )
             return state
@@ -395,6 +436,9 @@ class ARK_V1(Agent):
                     "relations": [
                         current_reasoning_step.relation_selected.candidate.value
                     ],
+                    "direction": (
+                        current_reasoning_step.relation_selected.candidate.direction
+                    ),
                 }
             )
 

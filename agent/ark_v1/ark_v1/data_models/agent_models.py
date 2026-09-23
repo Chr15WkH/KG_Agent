@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Optional, Annotated, Dict, Any
+from typing import List, Optional, Annotated, Dict, Any, Literal
 from pydantic import BaseModel, Field, field_validator
 from langchain_core.messages import AnyMessage
 
@@ -101,8 +101,16 @@ class Relation(BaseModel):
         description="The relation that should be used to explore the knowledge graph.",
         default="",
     )
+    direction: Literal["outgoing", "incoming"] = Field(
+        description=(
+            "The direction of the selected relation relative to the anchor. "
+            "'outgoing': anchor -> another entity. "
+            "'incoming': another entity -> anchor."
+        ),
+        default="outgoing",
+    )
     justification: str = Field(
-        description="The reasoning behind selecting this relation.",
+        description="The reasoning behind selecting this relation and direction.",
         default="",
     )
 

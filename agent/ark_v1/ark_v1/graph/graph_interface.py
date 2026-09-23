@@ -25,10 +25,20 @@ GRAPH = LocalGraph()
 def get_triples(
     anchorEntity: str,
     relations: Optional[List[str]] = None,
+    direction: str = "outgoing",
 ) -> QueryResultGetTriples:
-    """Get a list of triples which relate the given entity which acts as a subject to other entiies"""
+    """
+    Get a list of triples for an anchor entity and optional relations.
+    direction must be 'outgoing' or 'incoming', relative to the anchor.
+    Returned triples preserve their original head and tail.
+    """
     try:
-        triples = GRAPH.get_triples(anchorEntity, relations)
+        triples = GRAPH.get_triples(
+            head=anchorEntity,
+            relations=relations,
+            direction=direction,
+        )
+
         results = []
         for triple in triples:
             head, edge_dict, tail = triple
@@ -114,13 +124,22 @@ def entities_exist(
 @tool
 def get_relations(
     entities: List[str],
+    direction: str = "outgoing",
 ) -> QueryResultGetRelations:
-    """Get outgoing relations for a list of entities."""
+    """
+    Get relation names for a list of entities in the selected direction.
+    direction must be 'outgoing', 'incoming', or 'both'.
+    Returns relation names only, without direction information.
+    """
     try:
         results = []
         for entity in entities:
-            relations = GRAPH.get_relations(entity)
+            relations = GRAPH.get_relations(
+                head=entity,
+                direction=direction,
+            )
             results.extend(list(set(relations)))  # Remove duplicates
+
         return QueryResultGetRelations(
             results=results,
             success=True,
@@ -137,15 +156,24 @@ def get_relations(
 @tool
 def get_edges(
     entities: List[str],
+    direction: str = "outgoing",
 ) -> QueryResultGetEdges:
-    """Get outgoing edges for a list of entities."""
+    """
+    Get relation candidates for entities in the selected direction.
+    direction must be 'outgoing', 'incoming', or 'both'.
+    Each candidate includes its direction relative to its anchor entity.
+    """
     try:
         results = []
         for entity in entities:
-            edges = GRAPH.get_edges(entity)
+            edges = GRAPH.get_edges(
+                head=entity,
+                direction=direction,
+            )
             for edge in edges:
                 verified_edge = EdgeVerified(value=edge, verified=True)
                 results.append(verified_edge.model_dump())
+
         return QueryResultGetEdges(
             results=results,
             success=True,
@@ -165,14 +193,23 @@ def relations_exist(
     head: Optional[str] = None,
     retrieve_alternatives: bool = False,
     num_alternatives: int = 5,
+    direction: str = "outgoing",
 ) -> QueryResultRelationsExist:
-    """Check if the relations exist in the graph."""
+    """
+    Check if the relations in the selected direction relative to an anchor exist in the graph.
+    direction must be 'outgoing' or 'incoming'.
+    If head is None, check relation existence across the whole graph.
+    """
     query_result = QueryResultRelationsExist()
     try:
-        results = GRAPH.relations_exist(relations, head=head)
+        results = GRAPH.relations_exist(
+            relations,
+            head=head,
+            direction=direction,
+        )
         for i, relation in enumerate(relations):
             verified_edge = EdgeVerified(
-                value={"relation": relation},
+                value={"relation": relation, "direction": direction},
                 verified=results[i],  # No alternatives provided in this context
             )
             if verified_edge.verified is True:
