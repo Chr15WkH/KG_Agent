@@ -1,5 +1,6 @@
 """Run a Langfuse dataset experiment with a selected Agent."""
 
+import os
 import logging
 from pathlib import Path
 
@@ -21,6 +22,9 @@ DATASET_NAME = "gtsqa-development"
 EXPERIMENT_NAME = "ark-v1-qwen3.5-9b-summary-check"
 ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
 
+# Print detailed Agent messages when debugging.
+AGENT_VERBOSE = False
+
 AGENT_CONFIG = {
     "llm": {
         # "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
@@ -40,9 +44,18 @@ def main() -> None:
 
     load_dotenv(ENV_FILE, override=True)
 
+    log_level = (
+        logging.INFO if AGENT_VERBOSE else logging.WARNING
+    )
+
     logging.basicConfig(
-        level=logging.INFO,
+        level=log_level,
         format="%(asctime)s - %(levelname)s - %(message)s",
+    )
+
+    # Set before the adapter lazily imports Agent/LiteLLM.
+    os.environ["LITELLM_LOG"] = (
+        "INFO" if AGENT_VERBOSE else "WARNING"
     )
 
     # Load only the selected Agent adapter.
@@ -96,9 +109,22 @@ def main() -> None:
             for item in dataset.items
         }
 
+        item_positions = {
+            item.id: position
+            for position, item in enumerate(dataset.items, start=1)
+        }
+        total_items = len(execution_records)
+
         def task(*, item, **kwargs):
             record = execution_records[item.id]
             record["execution_status"] = "running"
+
+            # Show the item's position and sample ID in progress messages.
+            progress_label = (
+                f"[{item_positions[item.id]}/{total_items}] "
+                f"sample={record['sample_id']}"
+            )
+            print(f"{progress_label} Started", flush=True)
 
             try:
                 sample_id = int(item.metadata["sample_id"])
@@ -116,6 +142,7 @@ def main() -> None:
                 output = run_agent(
                     sample=sample,
                     agent_config=AGENT_CONFIG,
+                    verbose=AGENT_VERBOSE,
                     runnable_config={
                         "callbacks": [callback],
                         "run_name": AGENT_VERSION,
@@ -133,6 +160,7 @@ def main() -> None:
                     error_type=error.error_type,
                     error_message=str(error),
                 )
+                print(f"{progress_label} Execution failed | {error.error_type}", flush=True,)
                 raise
 
             except Exception as error:
@@ -142,12 +170,17 @@ def main() -> None:
                     error_type=type(error).__name__,
                     error_message=str(error),
                 )
+                print(
+                    f"{progress_label} Task error | {type(error).__name__}", flush=True)
                 raise
 
             record.update(
                 execution_status=output["execution_status"],
                 answer_status=output["answer_status"],
             )
+
+            print(
+                f"{progress_label} Execution completed | {output['answer_status']} | Evaluation pending", flush=True)
 
             return output
 

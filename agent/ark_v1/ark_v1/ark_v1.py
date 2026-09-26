@@ -728,6 +728,8 @@ class ARK_V1(Agent):
     def run(
         self,
         runnable_config: Optional[RunnableConfig] = None,
+        *,
+        verbose: bool = True,
     ) -> Optional[dict]:
         """Run the agent with optional callbacks, execution metadata and return final answer."""
         execution_config: RunnableConfig = {
@@ -764,10 +766,12 @@ class ARK_V1(Agent):
             #     # Skip empty AI messages
             #     continue
 
-            print(
-                f"\n--------  MesssageType: {last_message.__class__.__name__} --------"
-            )
-            print(f"{last_message.content}")
+            if verbose:
+                print(
+                    f"\n--------  MesssageType: "
+                    f"{last_message.__class__.__name__} --------"
+                )
+                print(f"{last_message.content}")
 
             last_event = event
 

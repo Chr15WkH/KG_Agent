@@ -16,6 +16,7 @@ def run_ark_v1(
     sample: dict[str, Any],
     agent_config: dict[str, Any],
     runnable_config: RunnableConfig | None = None,
+    verbose: bool = True,
 ) -> dict[str, Any]:
     """Run ARK v1 on one raw GTSQA sample and return its answer."""
 
@@ -36,7 +37,7 @@ def run_ark_v1(
     )
 
     try:
-        final_state = agent.run(runnable_config=runnable_config)
+        final_state = agent.run(runnable_config=runnable_config, verbose=verbose)
     except Exception as error:
         raise AgentExecutionError(
             f"ARK v1 execution failed: "
