@@ -1,8 +1,9 @@
 KG Agent Master Thesis Project Status
 
-Last Updated: 2026-09-13
+Last Updated: 2026-09-22
 
 1. Project Goal
+
 本项目旨在设计、实现并定量评估一个面向专业领域知识图谱的 Knowledge Graph Agent，重点研究 Agent 是否能够：
 正确理解自然语言问题；
 完成多跳知识图谱推理；
@@ -10,8 +11,11 @@ Last Updated: 2026-09-13
 生成正确、完整且可自动评价的最终答案；
 在知识图谱信息不足时合理拒答；
 避免仅依靠语言模型的预训练知识或猜测作答。
+
 项目以现有第一版 KG Agent 原型为起点，而不是从零开始。论文将分析现有原型的架构和局限，设计至少一个改进版本，并与第一版原型及适当的基线方法进行比较。与此同时，项目需要分析现有 KGQA 数据集是否能够验证 Agent 真正使用了知识图谱；必要时定义或构建更适合专业工业场景的补充评测数据。
+
 项目未来的目标应用场景是导师团队正在设计和构建的 Circular Factory Knowledge Graph。该知识图谱预计采用 RDF/OWL，而不是 property graph，其结构将更接近 GTSQA 使用的知识图谱。由于该图谱目前尚未完成，当前论文实验将优先使用具有相关结构特征的现有数据集验证 Agent 架构和评测流程，并为未来迁移到 Circular Factory Knowledge Graph 做准备。
+
 项目最终可能包含：
 KG Agent 与 KGQA 相关文献调研；
 KGQA 数据集系统分析与选择；
@@ -23,12 +27,16 @@ Agent 能力与评测框架设计；
 硕士论文撰写。
 
 2. Current Phase
+
 当前主要阶段：
-GTSQA 开发数据核验、ARK_V1 最小适配收敛、Langfuse 实验追踪接入、最小 evaluator 实现和端到端 pilot 验证阶段。
-项目已经完成初步课题定义、评测框架设计、少量优先候选 KGQA 数据集的深入分析，以及第一阶段 GTSQA 数据和 ARK_V1 接入工作，但尚未进入改进版 Agent 的正式实现。第三次导师会议形成了以 KQA Pro 小型 pilot 为起点的阶段性方案；导师随后根据未来 Circular Factory Knowledge Graph 的 RDF/OWL 形式和预期结构，进一步确认并调整了数据集与实施顺序。第四次导师会议进一步将近期工作聚焦到 GTSQA pilot、ARK_V1、Langfuse tracing、自定义 evaluator 和实验结果提取组成的端到端工作流。
-当前重点不是从零开始筛选或重新提取 GTSQA 样本，也不是立即开发复杂 Agent，而是核验已经生成的 12 道 GTSQA Agent Input、Gold Evaluation Data 和 question-specific graphs 之间的一致性；完成 ARK_V1 运行 GTSQA 所需的剩余最小适配；将 Langfuse 接入当前实验流程；实现最小答案规范化和自动 evaluator；并在小型开发子集上验证可复现的端到端实验管线。CR-LT-KGQA 深入核验和 GTSQA_UA 构造仍属于后续核心工作，但不应阻塞当前 GTSQA pilot。
+GTSQA 开发数据核验、ARK_V1 对 GTSQA 的必要适配、Langfuse 小规模实验验证，以及第一版端到端评测流程的完善阶段。
+
+项目已经完成初步课题定义、评测框架设计、少量优先候选 KGQA 数据集的深入分析，以及第一阶段 GTSQA 数据和 ARK_V1 接入工作，但尚未进入改进版 Agent 的正式实现。第三次导师会议形成了以 KQA Pro 小型 pilot 为起点的阶段性方案；导师随后根据未来 Circular Factory Knowledge Graph 的 RDF/OWL 形式和预期结构，进一步确认并调整了数据集与实施顺序。第四次导师会议进一步将近期工作聚焦到 GTSQA pilot、ARK_V1、Langfuse tracing、自定义 evaluator 和实验结果提取组成的端到端工作流。最近一次会议确认：ARK_V1 已能在 GTSQA 上进行小规模试运行，Langfuse 实验流程已有初步实现；接下来需要优先补充 incoming relations，并完善评测后再分析 12 道开发题。
+
+当前重点不是从零开始筛选或重新提取 GTSQA 样本，也不是立即开发复杂 Agent，而是核验已经生成的 12 道 GTSQA Agent Input、Gold Evaluation Data 和 question-specific graphs 之间的一致性；完成 ARK_V1 运行 GTSQA 所需的剩余必要适配，尤其是 incoming relations；完善已经初步接入的 Langfuse 实验流程、答案规范化和 evaluator；并在小型开发子集上验证可复现的端到端实验管线。CR-LT-KGQA 深入核验和 GTSQA_UA 构造仍属于后续核心工作，但不应阻塞当前 GTSQA pilot。
+
 当前阶段的具体目标：
-将 Agent Capability、Test Task、Dataset Requirement、Ground Truth、Logging Requirement、Evaluation Metric 和 Implementation Method 明确区分并建立对应关系。
+将 Agent Capability、Test Task、Dataset Requirement、 Ground Truth、Logging Requirement、Evaluation Metric 和 Implementation Method 明确区分并建立对应关系。
 确定硕士论文的最小可执行评测范围，避免同时实现过多能力、指标、数据集和 Agent 版本。
 继续核验与当前实验直接相关的 GTSQA 数据和实际样本，并深入核验 CR-LT-KGQA，重点记录和判断：
 Question Type(s)；
@@ -47,23 +55,26 @@ Relevance to Thesis。
 确定哪些能力采用自动定量评价，哪些能力只进行少量案例分析。
 固定统一结构化答案和最小运行日志接口，使未来可能采用的不同 Agent 架构都能够进入相同评测流程。
 数据集分析与评测设计相互迭代：通过 GTSQA 和 CR-LT-KGQA 的实际问题类型、标注、图结构和 KG 可访问性验证评测方案；参考 GrailQAbility 的受控不完整性构造方法设计 GTSQA_UA；再反向确定 ARK_V1 的剩余最小适配需求和 ARK_V2 的具体功能需求。
+
 当前实施顺序为：
-1. 核验 GTSQA 12 题开发数据，并收敛 ARK_V1 对 GTSQA 的最小适配；
-2. 建立 Langfuse Agent Tracing、最小 evaluator、结构化结果和结果提取流程；
-3. 在小型 GTSQA 开发子集上运行 ARK_V1 pilot，识别真实失败模式和缺失字段；
+1. 核验 GTSQA 12 题开发数据，并完成 ARK_V1 对 GTSQA 的必要适配，优先支持 incoming 和 outgoing relations；
+2. 完善已初步建立的 Langfuse Agent Tracing、item-level evaluator、结构化结果和结果提取流程；
+3. 在 GTSQA 开发子集上运行适配版 ARK_V1 pilot，识别真实失败模式，并在条件具备后分析 12 题结果；
 4. 进一步核验 CR-LT-KGQA，并完成 ARK_V1 对 CR-LT-KGQA 所需的最小适配；
 5. 参考 GrailQAbility，通过构造知识图谱不完整性创建 GTSQA_UA，其中 UA 表示 Unanswerable；
-6. 对 ARK_V1 开展第一轮系统评测；
-7. 根据 ARK_V1 的真实失败案例设计 ARK_V2，并在 GTSQA、GTSQA_UA 和 CR-LT-KGQA 的小型子集上迭代测试；
+6. 对适配版 ARK_V1 开展第一轮系统评测；
+7. 根据真实失败案例和相关文献设计 ARK_V2，并在 GTSQA、GTSQA_UA 和 CR-LT-KGQA 的小型子集上迭代测试；
 8. 运行完整实验；
 9. 条件允许时，将 ARK_V2 扩展到 KQA Pro。
 
 3. Confirmed Decisions
+
 项目以现有第一版 KG Agent 为基线，后续将实现至少一个改进版本并进行定量比较。
 第一版 Agent 是可运行的早期原型，但其推理流程、工具调用、图查询和答案生成仍需要系统分析和改进。
 论文不能仅以最终答案正确作为 Agent 有效性的证明，还需要判断答案是否来自实际知识图谱检索结果。
 评测数据应尽量包含语言模型预训练阶段不太可能掌握的专业知识、长尾实体或人工构造知识，以降低模型凭记忆直接作答的可能性。
 评测设计需要区分 Agent Capability、Test Task、Dataset Requirement、Ground Truth / Annotation、Logging Requirement、Evaluation Metric 和 Implementation Method。数据集字段要求与逐题标准值、日志字段与实现节点、能力与指标之间不能混为一谈。
+
 当前核心定量评价方向为：
 Multi-hop Reasoning；
 Final Answer；
@@ -74,18 +85,21 @@ Problem Understanding 暂不设置大规模独立定量指标，主要通过少�
 不要求数据集为每道问题人工标注完整的标准推理链或 supporting_triples。
 Agent 不需要输出完整自然语言思维过程，但需要记录实际工具调用、查询输入、检索结果和执行状态。
 数据集保存评测输入和标准信息，例如 question、gold_answer、answer_type、hop_count 和 answerable；运行日志保存 Agent 的实际执行结果，例如 predicted_answer、answer_status、execution_status 和 tool_calls。两侧通过数据集 id 与日志 sample_id 关联。
+
 不同 Agent 架构应在自然语言回答生成前增加统一的结构化答案输出步骤，并提供：
 answer_payload；
 predicted_answer；
 final_answer_text；
 answer_status；
-execution_status等指标。
+execution_status 等字段。
 
 统一结构化答案流程为：答案整合 → 结构化答案节点 → answer_payload → 答案规范化 → predicted_answer → final_answer_text。answer_payload 是 Agent 整合检索结果后认定的原始结构化答案；predicted_answer 是按照数据集答案类型和规范化规则转换后的评测答案。规范化只能统一表示形式，不能纠正 Agent 的错误答案。
 结构化答案中，null 表示无法根据 KG 确定答案；[] 表示问题可回答，但正确结果是空集合。二者必须区分，以支持 Final Answer 和 Refusal 的确定性评价。
 answer_status 与 execution_status 必须分开记录，避免把查询失败误判为正确拒答。
 tool_calls 是调用记录列表，每次实际工具调用对应一个独立对象。多跳查询、失败重试和重新规划均新增记录，不覆盖之前的失败调用；工具调用次数不等于问题跳数。
-Graph Grounding 的最低实现主要依赖：结构化最终答案；
+
+Graph Grounding 的最低实现主要依赖：
+结构化最终答案；
 Agent 实际获得的 KG 检索结果；
 可访问的目标知识图谱。
 
@@ -94,18 +108,26 @@ RAG 可以作为候选基线，但只有在能够保证信息输入和实验条�
 最终使用的语言模型暂不提前锁定，应在实验设计确定后根据模型能力、可获得性、Token 成本和可复现性选择。
 KGQA 数据集分析不仅记录所使用的查询语言，还需要分析问题本身要求完成什么操作，即 Question Type 与 Expected Solving Strategy。Gold Query、Logical Form 或 Program 可作为辅助证据，用于判断问题实际要求的检索、组合、比较、聚合或其他操作。
 当前六类 Reference Question Patterns 是数据集调研的参考框架，不是最终确定的问题类型集合，也不要求所有数据集问题强制映射到其中。
+
 导师最新确认的数据集路线为：GTSQA 和 CR-LT-KGQA 作为当前主要评测数据集；参考 GrailQAbility 的受控删除或知识图谱不完整性构造方法，基于 GTSQA 创建 GTSQA_UA，用于不可回答问题和 Refusal 能力评测；KQA Pro 作为条件允许时的可选扩展，不属于当前核心实验范围。
 未来的 Circular Factory Knowledge Graph 将采用 RDF/OWL，而不是 property graph，其结构预计更接近 GTSQA。当前以 GTSQA 为核心开展适配和实验，有助于提高所设计 Agent 向未来工业知识图谱迁移的可能性。
 Circular Factory Knowledge Graph 目前仍处于设计和构建阶段，因此当前论文实施不能直接依赖该图谱完成。论文应优先通过现有数据集建立可运行的 Agent、实验管线和评测证据。
+
 已选择 12 道 GTSQA test 问题作为初始开发候选集，覆盖 6 种四边图结构，每种结构 2 题。所选问题均为非冗余、单一 gold answer 样本，并排除了 unseen relation type，以减少关系词汇泛化对图结构推理分析的干扰。
 12 道候选问题对应的完整 question-specific graphs 已成功提取，每题约包含 6,093–27,293 条边。ARK_V1 和 ARK_V2 应逐题载入对应图，完成运行后释放，不应将 12 张图合并为一个知识图谱。
 ARK_V1 接入 GTSQA 的已知最小适配方向包括：统一 triple schema；保留同一实体对之间的多种关系；支持 incoming 和 outgoing 查询；限制或分页返回 triples；直接使用数据集提供的 seed entities；记录图规模、工具返回数量和截断状态。
+
 ARK_V1 首先需要进行支持 GTSQA 和 CR-LT-KGQA 所必需的适配。适配范围应优先覆盖数据转换、图访问、查询接口、答案输出和 Agent Tracing，同时尽量保持 ARK_V1 原有的核心图探索和搜索策略，以使其能够作为清晰且可解释的基线。
+会议确认，为使第一版 Agent 能在 GTSQA 上进行有意义的比较，可以在适配版中加入 incoming relation 查询能力。该能力涉及图访问和 Agent 可用操作，应明确记录为基线适配的一部分。
+原始 ARK_V1 与 GTSQA 适配版应保留明确的版本和实验配置记录。关系选择 Prompt 等变化可能影响旧数据集上的结果，因此不能将适配版的结果直接视为原始版本在相同条件下的结果。可在旧数据集上运行适配版，检查这些变化的影响。
 一旦 ARK_V1 能够稳定运行所选数据集和开发子集，就不应继续无限扩大旧版 Agent 的修改范围，以保证 ARK_V1 与 ARK_V2 之间比较的公平性。
+
 学生的新 Agent 应作为独立的新版本 ARK_V2 设计，而不是无限延续对 ARK_V1 的增量修改。ARK_V2 的具体架构仍保持开放，应根据 ARK_V1 在 GTSQA、GTSQA_UA 和 CR-LT-KGQA 上的真实失败案例确定。
+当前关于 ARK_V2 的问题与约束分析、多锚点和多路径探索仅属于初步构想。可以复用第一版中适用的图接口和工具，但是否复用以及如何组织工作流，需要结合相关文献和实验结果确定。
 在正式设计 ARK_V2 前，应先建立 Dataset Input、Graph Access、Agent Execution、Structured Logging、Normalized Prediction、Ground Truth、Metric Calculation 和 Result Storage 的端到端工作流。
 ARK_V1 的第一轮评测用于建立初始性能基准、了解 Agent 的实际表现并识别主要失败模式，不应直接被解释为最终架构评测。
 ARK_V2 开发阶段应优先在 GTSQA、GTSQA_UA 和 CR-LT-KGQA 的小型代表性子集上进行迭代测试。在 ARK_V2 设计稳定并完成小型子集测试后，再开展完整实验。
+
 KQA Pro 属于可选扩展。只有在核心路线已经完成且时间、实现成本和计算预算允许时，才将 ARK_V2 扩展到 KQA Pro。此前对 KQA Pro 的 qualifier、属性读取、数值比较和 Boolean verification 等能力的分析仍可用于未来可选扩展以及复杂答案类型设计，但不再决定当前第一阶段的实施顺序。
 对 CR-LT-KGQA 的初步理解是：它为每道问题提供相关 KG triples，并要求系统结合这些证据与 commonsense knowledge 产生 Boolean 答案，因此可能更适合作为 KG-grounded commonsense reasoning 的补充评测，而不是主要的图检索评测。该理解仍需通过数据文件、论文和实际样本进一步核验。
 知识图谱中缺少事实但模型可通过预训练知识或常识回答时，应区分 Graph Answerability、External Knowledge Answer、Unsupported Hallucination 和 Correct Refusal。该区分具有研究价值，但是否进入正式大规模实验仍需通过少量样本验证并控制标注成本。
@@ -116,10 +138,13 @@ Langfuse 将作为当前实验的运行追踪和实验管理工具，用于保�
 Langfuse 的使用减少了自行实现底层 tracing 的需要，但不能替代论文特定的答案规范化、Gold Answer 比较、执行状态判断和实验结果分析。
 Langfuse 数据集中的每个数据项应至少包含 input、expected output 和 metadata。当前 GTSQA pilot 中，input 对应自然语言问题，expected output 对应 Gold Answer，question-specific graph 及相关标识可以作为 metadata 或通过稳定引用关联。
 Langfuse evaluator 可以在单个数据项运行完成后执行，也可以在完整数据集实验结束后计算汇总结果。第一阶段应优先实现简单、可解释的 item-level evaluator，再扩展到总体指标。
+实验记录应保存 Agent 版本、数据集和样本标识、模型、温度、Prompt 版本等必要配置。正式性能比较还需考虑随机种子、重复运行次数和结果波动，具体规模应结合预算确定。
 Prompt Management 可用于保存和版本化实验 Prompt，使运行结果能够关联到明确的 Prompt 版本。是否将全部 Prompt 迁移到 Langfuse 仍可根据实现复杂度决定，但正式实验必须能够追踪实际使用的 Prompt 或版本标识。
 
 4. Current Progress
+
 4.1已完成
+
 已完成第一次导师会议的校订转录和详细中英文总结。
 已完成第二次导师会议内容整理，进一步明确当前下一步应聚焦 KGQA 数据集及其 Question Type。
 已完成第三次导师会议的详细中英文对照总结，并整理了 KQA Pro、GrailQAbility 和 GTSQA 的阶段性分工、ARK v1.1 的最小适配原则以及先建立评测工作流再设计新 Agent 的执行思路。
@@ -172,17 +197,23 @@ Results and Discussion。
 已确定 ARK_V1 应作为第一轮实验基线，ARK_V2 应根据 ARK_V1 的真实失败案例独立设计。
 此前已完成的 KQA Pro pilot、qualifier 和复杂答案类型分析仍可作为未来可选扩展和接口设计参考，但不再属于当前核心实施路线。
 
+根据最近一次会议展示，已为 ARK_V1 接入 Langfuse callback 和实验配置传递，并建立了包含数据集项、Agent 运行任务和初步 evaluator 的实验入口；这一流程已用于小规模试运行，完整性和可复现性仍需进一步核验。
+根据最近一次会议报告，已在约 6 道 GTSQA 问题上进行探索性试跑，其中约 1 道得到正确答案。会议将缺少 incoming relation 查询识别为重要限制。该结果尚未构成固定配置下的正式准确率，也不能据此单独归因所有失败。
+已形成 ARK_V2 的初步构想，包括先分析问题与约束，再探索多个 anchor 和路径；尚未确定最终架构。
+
 4.2正在进行
+
 核验已经生成的 12 条 GTSQA Agent Input、Gold Evaluation Data 和 question-specific graph 之间的 id、question、seed、gold answer 和 gold answer subgraph 一致性。
 检查每道题必要的图规模、关系类型数量、seed 邻居规模和潜在工具返回风险信息，并根据一致性和接口风险最终冻结 12 道开发问题。
 将已发现的 ARK_V1 图接口问题收敛为正式的 Compatibility and Adaptation Contract，明确已完成项、剩余必要适配以及不属于 ARK_V1 基线范围的功能。
-完成 ARK_V1 对 GTSQA 的剩余最小适配，包括 incoming 查询、seed entities 的直接使用、triple 返回上限或分页，以及工具返回数量和截断状态记录。
-将当前单题运行脚本整理为统一实验入口，并建立 Dataset Input、Graph Access、Agent Execution、Agent Tracing、Normalized Prediction、Ground Truth、Metric Calculation 和 Result Storage 之间的接口。
-将 Langfuse callback 接入 ARK_V1，使每次实验能够保存完整 Agent trace、节点或步骤状态、Token 用量和执行时间。
-将当前 GTSQA pilot 转换为 Langfuse 数据集结构，明确 input、expected output 和 metadata 的映射关系。
-实现第一版 item-level evaluator，对结构化 Agent 输出执行答案规范化，并根据 answer_type 与 Gold Answer 比较。
+完成 ARK_V1 对 GTSQA 的剩余必要适配，优先加入 incoming relation 查询，并继续处理 seed entities 的直接使用、triple 返回上限或分页，以及工具返回数量和截断状态记录。
+完善当前实验入口，明确 Dataset Input、Graph Access、Agent Execution、Agent Tracing、Normalized Prediction、Ground Truth、Metric Calculation 和 Result Storage 之间的接口。
+核验 Langfuse callback 实际保存的 Agent trace、节点或步骤状态、Token 用量和执行时间。
+核验当前 GTSQA pilot 在 Langfuse 中的 input、expected output 和 metadata 映射。
+完善第一版 item-level evaluator，对结构化 Agent 输出执行答案规范化，并根据 answer_type 与 Gold Answer 比较。
 研究通过 Langfuse API 提取 observations、traces、experiment results、evaluator scores、Token 用量和执行时间的方法。
 确定 Prompt 在代码和 Langfuse Prompt Management 之间的管理方式，并保证正式实验可以追踪实际使用的 Prompt 或 Prompt 版本。
+明确原始 ARK_V1 与 GTSQA 适配版的版本及配置记录方式，并评估 Prompt 调整对旧数据集结果的影响。
 深入核验 CR-LT-KGQA 的准确数据版本、两个子集、实际样本字段、KG triples 来源、Boolean ground truth、commonsense reasoning 设置和本地可用性。
 设计 GTSQA_UA 的构造原则，包括可删除的知识元素、不可回答标签、原始样本与修改样本的关联、答案验证以及数据污染控制。
 结合实际 pilot 样本，继续收敛最终需要保留的 Agent 能力和测试任务。
@@ -194,6 +225,7 @@ Results and Discussion。
 适合作为未来工作的设计。
 
 4.3尚未开始
+
 建立覆盖全部 12 道开发题的自动一致性检查，并输出可复查的检查结果。
 根据图完整性和 ARK_V1 接口风险最终冻结 12 题，或使用预先定义的替补题替换不合适样本。
 明确 12 道开发问题与正式 held-out evaluation questions 的隔离规则。
@@ -203,12 +235,12 @@ Results and Discussion。
 实现 CR-LT-KGQA 数据适配层。
 实现 ARK_V1 对 CR-LT-KGQA 的最小适配。
 完成包含 Langfuse Agent Tracing、答案规范化、必要指标和结构化结果存储的第一版端到端 Evaluation Program。
-在多个 GTSQA 开发样本上运行 ARK_V1 第一轮 pilot，并自动生成逐题 evaluator 结果和汇总结果。
+在补充 incoming relations 和完善 evaluator 后，对 12 道 GTSQA 开发题运行 ARK_V1 pilot，并生成逐题结果和汇总分析。
 构造第一版小规模 GTSQA_UA，并验证修改后问题相对于修改后知识图谱确实不可回答。
 在小型开发子集上运行 ARK_V1 第一轮系统评测。
 确定最终正式实验数据组合和测试样本规模。
 对第一版 Agent 开展系统化代码分析和错误分类。
-确定 ARK_V2 的最终架构。
+结合相关文献和 ARK_V1 的失败案例确定 ARK_V2 的最终架构。
 实现 ARK_V2。
 在 GTSQA、GTSQA_UA 和 CR-LT-KGQA 的小型子集上迭代测试 ARK_V2。
 实现正式全量 Evaluation Program。
@@ -218,7 +250,9 @@ Results and Discussion。
 正式撰写论文主体章节。
 
 5. Open Questions
+
 5.1尚未确定的问题
+
 论文的主要贡献在 Agent 架构改进、可执行评测框架、KGQA 数据分析和小规模受控评测数据之间如何分配比重。
 CR-LT-KGQA 的准确数据版本、两个子集、知识图谱结构、许可条件和本地可用性是什么。
 CR-LT-KGQA 是否提供完整知识图谱、question-specific candidate graph，还是仅提供人工选择的相关 KG triples。
@@ -242,9 +276,11 @@ Graph Grounding 是否只使用 Answer–Retrieved Result Consistency，还是�
 Langfuse trace 中哪些字段可以直接作为运行证据，哪些字段需要转换为论文定义的统一日志结构。
 Prompt 是否全部迁移到 Langfuse Prompt Management，还是继续在代码中保留默认版本并在实验记录中保存版本标识。
 Langfuse 中的 evaluator 结果是否作为主要实验结果存储，还是同时导出到独立的本地结构化结果文件。
+适配版 ARK_V1 在旧数据集上的表现是否受到 Prompt 和接口调整影响，以及如何在正式比较中区分版本变化与数据集差异。
+正式实验需要多少随机种子和重复运行，才能在调用预算内合理描述性能波动。
 
 5.2需要导师确认的问题
-Exposé 是否已经完成最终签字和正式注册流程。
+
 KIT 工作站的 Ollama Endpoint 是否能够远程使用。
 
 Circular Factory Knowledge Graph 预计何时可以提供初步 schema、ontology 或最小样例。
@@ -256,6 +292,7 @@ GTSQA、GTSQA_UA 和 CR-LT-KGQA 的小型开发子集是否需要由导师进一
 正式实验可使用的 OpenRouter 额度、模型范围、预算和允许的调用规模。
 
 5.3需要文献或实验验证的问题
+
 哪些指标能够可靠区分“答案正确”和“答案确实来自知识图谱”。
 不要求标准推理路径时，是否仍能对多跳能力进行有效评价。
 hop_count 能否从 Gold SPARQL、Logical Form 或查询结构中稳定推导。
@@ -278,8 +315,11 @@ CR-LT-KGQA 的最终表现应如何区分 KG evidence 使用、commonsense reaso
 ARK_V1 在更多 GTSQA 样本上能否稳定完成多跳搜索，而不是只在样本 13311 上成功。
 不同模型或调用路径产生的 structured-output parsing failure、关系选择失败和重试行为应如何分类和量化。
 Langfuse callback 是否能够完整观察 ARK_V1 的 LangGraph 节点、工具调用、Token 用量、执行时间和状态变化。
+补充 incoming relations 后，当前探索性试跑中的错误有多少能够得到解决，还有哪些错误来自其他原因。
+多锚点、多路径探索是否相对于 ARK_V1 的顺序式搜索带来可测量的准确率或效率收益，具体应参考哪些相关研究。
 
 5.4当前评测边界与已知局限
+
 Answer Accuracy by Hop 测量的是按题目跳数分组的最终答案表现，不能证明 Agent 实际执行了标注数量的图跳数或正确的多跳推理路径。
 Answer–Retrieved Result Consistency 只能检查最终答案是否与记录的检索实体一致，不能证明 Agent 在因果上依赖了这些实体，也不能证明相关关系充分支持答案。
 Retrieved Fact Validity Rate 只能验证日志中规范化后的事实是否存在于目标 KG，不能验证这些事实是否与问题相关、是否足以推出答案，或 Agent 是否实际使用了这些事实。
@@ -290,28 +330,36 @@ Circular Factory Knowledge Graph 尚未完成，因此论文当前最多能够�
 当前 12 道 GTSQA 候选题来自 test split。如果这些题用于 Agent 接口开发、失败分析和架构迭代，其结果只能作为 development/pilot evidence，不能直接作为无偏正式测试结果。
 所选问题属于 unseen_graph_type，但如果其具体结构已经用于 ARK_V2 开发，就不能再将同一批问题上的表现解释为严格的 unseen graph structure generalization。
 
-当前仅在 GTSQA 样本 13311 上获得两次成功结果，不能据此推断 ARK_V1 已经稳定适配全部 12 道开发题或全部 GTSQA。
-当前保存的运行结果主要用于开发诊断，尚未通过统一 evaluator、固定实验配置和自动结果存储形成正式可比较的实验结果。
+此前仅在 GTSQA 样本 13311 上获得两次成功结果；最近一次会议又报告了约 6 题的探索性试跑，其中约 1 题答对。这些运行的设置与评测流程尚未统一，不能合并为正式准确率，也不能据此推断适配版 ARK_V1 在全部 12 道开发题或整个 GTSQA 上的表现。
+当前已有 Langfuse 小规模实验和初步 evaluator，但仍需核验固定实验配置、统一答案与状态字段、结果提取以及多题运行，才能形成正式可比较的实验结果。
 Langfuse 可以保存运行 trace，但 trace 完整并不自动证明 Graph Grounding，也不能替代论文定义的规范化日志字段和评价指标。
 
 6. Current Main Bottleneck
+
 6.1当前最重要的卡点：
-当前最重要的卡点已经不再是缺少 GTSQA Agent Input 或 Gold Evaluation Data，而是尚未把已经生成的 GTSQA 开发数据、ARK_V1 单题运行能力、结构化答案、Langfuse tracing、自动 evaluator 和结果存储整合为一条可复现、可自动评分和可扩展的端到端实验管线。
-目前 ARK_V1 已经能够载入 GTSQA question-specific graph，并在样本 13311 的两次初步运行中得到正确答案。但是，当前结果主要保存为文本日志，尚未自动关联 sample_id 与 Gold Data，尚未输出统一的 predicted_answer、answer_status、execution_status 和 evaluator score，也尚未通过 Langfuse 保存和提取完整实验 trace。
-GTSQA adapter、MultiDiGraph 和结构化 Entity List 答案已经完成第一阶段实现，但 incoming 查询、seed entities 直接使用、triple 返回上限或分页、截断状态记录等适配仍未完成。12 道开发题的 question、seed、gold answer、gold evidence 和 candidate graph 也尚未通过统一程序完成系统一致性验证。
+
+当前最重要的卡点已经不再是缺少 GTSQA Agent Input 或 Gold Evaluation Data，也不再是完全没有 Langfuse 实验入口，而是 ARK_V1 尚缺少 GTSQA 所需的 incoming relation 查询能力，且现有小规模实验尚未扩展为配置明确、可复现、可自动评分的 12 题评测流程。
+
+目前 ARK_V1 已经能够载入 GTSQA question-specific graph，并在样本 13311 的两次初步运行中得到正确答案。最近一次会议展示了 Langfuse callback、数据集项、运行任务和初步 evaluator 的接入，但统一的 predicted_answer、answer_status、execution_status、逐题评分、结果提取和配置记录仍需核验与完善。
+
+GTSQA adapter、MultiDiGraph 和结构化 Entity List 答案已经完成第一阶段实现，但 incoming 查询、seed entities 直接使用、triple 返回上限或分页、截断状态记录等适配仍未全部完成。12 道开发题的 question、seed、gold answer、gold evidence 和 candidate graph 也尚未通过统一程序完成系统一致性验证。
 
 6.2为什么它会影响后续工作：
+
 如果没有完成 12 道问题的数据一致性检查，后续失败仍可能来自数据准备错误，而不是 Agent 本身。
+如果没有 incoming relation 查询，部分 GTSQA 问题所需的图探索方向对 Agent 不可用，现有小规模试跑也难以作为有意义的性能比较。
 如果没有把 sample_id、Agent Input、Gold Data、运行输出和 evaluator 结果自动关联，就无法形成可复现的开发实验，也无法保证 ARK_V1、ARK_V2 和 Evaluation Program 使用相同条件。
 如果没有结构化的 predicted_answer、answer_status 和 execution_status，就无法区分错误答案、正确拒答、查询失败、解析失败和可恢复重试。
-如果没有实现最小 evaluator，目前保存的正确答案只能通过人工阅读日志确认，无法扩展到多个样本和重复运行。
-如果没有接入 Langfuse 或等价 tracing，Token 用量、执行时间、Prompt 版本、Agent 节点状态和完整 trace 无法稳定进入实验分析。
+如果没有将初步 evaluator 扩展并核验到多个样本，目前的小规模评分结果无法支持系统分析。
+如果不核验 Langfuse trace 的完整性及其结果提取方式，Token 用量、执行时间、Prompt 版本、Agent 节点状态和工具调用记录仍可能无法稳定进入实验分析。
 如果没有完成 triple 返回限制和截断记录，大型 question-specific graph 可能产生过长工具输出，影响成本、稳定性和不同 Agent 之间的比较公平性。
-如果没有冻结 ARK_V1 的最小适配边界，就无法区分为了运行 GTSQA 所必需的基线兼容性修改和真正属于 ARK_V2 的架构改进。
+如果没有明确原始 ARK_V1 与适配版的版本和 Prompt 差异，就无法判断不同数据集或不同 Agent 版本之间的结果是否可直接比较。
+如果没有冻结 ARK_V1 的必要适配边界，就无法区分为了运行 GTSQA 所需的基线兼容性修改和真正属于 ARK_V2 的架构改进。
 如果不提前区分开发题和正式测试题，使用 test split 中的 12 题开发 ARK_V2 可能造成 test leakage，并削弱正式实验的可信度。
 在完成最小端到端 pilot 前直接扩大 GTSQA_UA、CR-LT-KGQA 或 ARK_V2，会使多个尚未验证的接口同时变化，并增加重复实现风险。
 
 6.3已经解决的卡点：
+
 已经区分 Agent Capability、Test Task、Dataset Requirement、Ground Truth / Annotation、Logging Requirement、Evaluation Metric 和 Implementation Method，避免将不同评测层次混为一体。
 已经区分数据集静态标准侧与 Agent 动态运行侧，并明确通过 id 与 sample_id 连接。
 已经通过统一结构化答案节点解决不同 Agent 最终输出难以自动比较的问题。
@@ -333,14 +381,18 @@ GTSQA adapter、MultiDiGraph 和结构化 Entity List 答案已经完成第一�
 已经实现 ARK_V1 的 Entity List 结构化答案，并区分 None 与空集合。
 已经修正部分节点和关系候选索引问题，并加强 relation-selection Prompt。
 已经在样本 13311 上通过 OpenRouter 和 LiteLLM 两条调用路径获得正确的四跳 Entity List 答案，证明当前 GTSQA 接入能够支持至少一个完整开发案例。
-已经明确 ARK_V1 的最小适配和公平比较原则，不再把持续改进旧版 Agent 作为新 Agent 的主要目标。
-已经明确应先完成实验、日志和结果存储工作流，运行 ARK_V1 并分析真实失败案例，再设计 ARK_V2。
+已经初步接入 Langfuse callback，并在会议中展示了数据集、运行任务和 evaluator 组成的小规模实验流程。
+已经通过探索性试跑发现 incoming relation 查询是当前适配中的重要缺口，并将其列为下一步优先任务。
+已经明确 ARK_V1 的必要适配和公平比较原则，不再把持续改进旧版 Agent 作为新 Agent 的主要目标。
+已经明确应先完善实验、日志和结果存储工作流，运行适配版 ARK_V1 并分析真实失败案例，再确定 ARK_V2。
 已经明确 ARK_V2 应首先在 GTSQA、GTSQA_UA 和 CR-LT-KGQA 的小型子集上迭代测试，然后再运行完整实验。
 已经将每题启动 sub-agent 的并行方案排除出当前论文主要范围。
 
 7. Next Direction
+
 下一步主要方向：
-优先核验已经生成的 GTSQA 12 题开发数据，完成 ARK_V1 对 GTSQA 的剩余最小适配，并将当前单题运行能力扩展为包含 Langfuse Agent Tracing、结构化结果、答案规范化、最小 evaluator 和结果提取的端到端实验管线。在该流程通过少量 GTSQA 开发样本验证后，再继续深入核验 CR-LT-KGQA、构造 GTSQA_UA，并通过 ARK_V1 的真实失败案例确定 ARK_V2 的功能和架构需求。
+优先核验已经生成的 GTSQA 12 题开发数据，并为 ARK_V1 补充 incoming relation 查询；随后完善当前 Langfuse 小规模实验中的结构化结果、答案规范化、拒答与 Graph Grounding 评测、配置记录和结果提取。在流程通过开发样本验证后，运行并分析 12 题。之后继续深入核验 CR-LT-KGQA、构造 GTSQA_UA，并结合真实失败案例和相关文献确定 ARK_V2 的功能与架构需求。
+
 建议按照以下顺序推进：
 核验 12 道 GTSQA 问题的 ID、问题文本、seed_entities、图结构标注和 Gold Answer。
 通过稳定 id 检查 Agent Input、question-specific graph 和 Gold Evaluation Data 的对应关系。
@@ -348,15 +400,16 @@ GTSQA adapter、MultiDiGraph 和结构化 Entity List 答案已经完成第一�
 统计每道题的节点数、边数、关系类型数量、seed 邻居规模和潜在工具返回风险。
 根据一致性检查和接口风险最终冻结 12 道开发问题，必要时使用预先定义的替补题替换。
 明确 12 道开发问题不得直接作为无偏正式 test results，并为最终实验保留独立的 held-out questions。
-完成 ARK_V1 对 GTSQA 的剩余必要适配，包括 incoming 查询、seed entities 直接使用、triple 返回上限或分页、工具返回数量和截断状态记录。
-将当前 OpenRouter 和 LiteLLM 单题脚本整理为统一的实验运行入口。
-为 GTSQA pilot 定义 Langfuse dataset item，将 question 作为 input、Gold Answer 作为 expected output，并通过 metadata 或稳定引用关联 question-specific graph 和样本信息。
-将 Langfuse callback 接入 ARK_V1，确认完整 trace、节点状态、Token 用量和执行时间能够被保存。
-实现 Entity List 的第一版答案规范化和精确集合匹配 evaluator。
+完成 ARK_V1 对 GTSQA 的剩余必要适配，首先加入 incoming relation 查询，再处理 seed entities 直接使用、triple 返回上限或分页、工具返回数量和截断状态记录。
+明确原始 ARK_V1 与 GTSQA 适配版的版本边界，保存各版本实际使用的 Prompt 和实验配置；必要时让适配版也运行旧数据集，以检查改动的影响。
+完善当前实验入口，核验 GTSQA pilot 的 Langfuse dataset item、input、expected output、metadata 和 question-specific graph 引用。
+核验 Langfuse callback 保存的 trace、节点状态、工具调用、Token 用量和执行时间。
+完善 Entity List 的答案规范化和精确集合匹配 evaluator，并逐步补充无答案响应与 Graph Grounding 的评测或诊断。
 输出包含 sample_id、predicted_answer、gold_answer、correct、answer_status、execution_status、模型配置、Prompt 版本或标识、运行时间和 trace reference 的结构化结果。
-首先在样本 13311 上完成可重复的端到端验证，再扩展到少量其他 GTSQA 开发题。
+先在少量开发样本上验证完整流程，再运行 12 道 GTSQA 开发题，生成逐题结果和汇总分析。
 通过 Langfuse API 或本地结果接口提取实验输出、evaluator score、Token 用量、执行时间和关键 trace 数据。
 记录多样本运行中的主要失败案例、循环、接口限制、关系选择错误、structured-output parsing failure、错误答案、错误拒答和缺失日志字段。
+为后续正式实验规划随机种子、重复运行、模型配置和成本控制；将单次探索性结果与正式重复实验结果明确区分。
 根据真实运行结果收敛 GTSQA/CR-LT-KGQA–ARK_V1 Compatibility and Adaptation Contract，明确哪些组件必须修改、哪些核心策略保持不变，以及哪些需求不属于基线适配范围。
 深入读取 CR-LT-KGQA 的论文、仓库、两个子集和实际问题样本，确认其 KG triples、Boolean labels、commonsense reasoning 设置及预期 Agent 输入方式。
 确定 CR-LT-KGQA 使用 given-evidence 输入还是需要额外图检索接口，并明确其与 GTSQA 主实验之间的角色差异。
@@ -364,9 +417,9 @@ GTSQA adapter、MultiDiGraph 和结构化 Entity List 答案已经完成第一�
 参考 GrailQAbility 设计 GTSQA_UA 构造方法，明确删除对象、不可回答标签、原始样本关联、验证方式和质量控制。
 首先构造小规模 GTSQA_UA，并验证修改后问题相对于修改后知识图谱确实不可回答。
 在小型开发子集上运行 ARK_V1 第一轮系统评测，形成初始性能基准和错误分类。
-将 ARK_V1 的真实局限转换为 ARK_V2 的功能与架构需求，再开始 ARK_V2 的设计和代码实现。
+检索并分析与 GTSQA、多锚点图探索和 KG Agent 工作流有关的研究，再将 ARK_V1 的真实局限转换为 ARK_V2 的功能与架构需求。
 在 GTSQA、GTSQA_UA 和 CR-LT-KGQA 的小型开发子集上迭代测试 ARK_V2，并避免在开发过程中直接依赖正式 held-out evaluation questions 反复调参。
 ARK_V2 和实验管线稳定后，冻结正式实验配置并使用独立样本运行完整实验。
 核心实验完成且时间、计算预算和实现成本允许时，再将 ARK_V2 扩展到 KQA Pro。
 当前阶段不宜立即投入大规模 ARK_V2 开发，也不应重新从零开始筛选或提取 GTSQA 数据。
-当前最优先的交付物应是一条能够在 GTSQA 样本上完成 Dataset Input、Graph Access、ARK_V1 Execution、Langfuse Tracing、Structured Answer、Normalized Prediction、Gold Comparison、Metric Calculation 和 Result Storage 的最小端到端实验管线。该管线至少应先在样本 13311 上稳定复现，再扩展到其余开发样本。
+当前最优先的交付物应是一条能够在 GTSQA 样本上完成 Dataset Input、Graph Access、适配版 ARK_V1 Execution、Langfuse Tracing、Structured Answer、Normalized Prediction、Gold Comparison、Metric Calculation 和 Result Storage 的可复现端到端实验管线，并在完成 incoming relation 查询后扩展至 12 道开发题。
