@@ -5,7 +5,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from Evaluation.evaluators import entity_exact_match_evaluator
+from Evaluation.evaluators import entity_exact_match_evaluator, experiment_summary_evaluator
 from Evaluation.gtsqa_data import load_sample, load_gold
 from Evaluation.langfuse_support import (
     initialize_langfuse,
@@ -18,12 +18,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # Experiment configuration
 AGENT_VERSION = "ark_v1"
 DATASET_NAME = "gtsqa-development"
-EXPERIMENT_NAME = "ark-v1-deepseek-pilot"
+EXPERIMENT_NAME = "ark-v1-qwen3.5-9b-summary-check"
 ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
 
 AGENT_CONFIG = {
     "llm": {
-        "model": "deepseek/deepseek-chat",
+        # "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
+        "model": "qwen3.5:9b", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
         "temperature": 0.9,
         "top_p": 0.9,
         "seed": 42,
@@ -44,8 +45,9 @@ def main() -> None:
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
 
+    # Load only the selected Agent adapter.
     if AGENT_VERSION == "ark_v1":
-        from Evaluation.adapters.ark_v1 import run_ark_v1
+        from Evaluation.adapters.ark_v1 import run_ark_v1, AgentExecutionError
 
         run_agent = run_ark_v1
     else:
@@ -80,32 +82,81 @@ def main() -> None:
                 "Langfuse dataset item differs from local Gold."
             )
 
-        def task(*, item, **kwargs):
-            sample_id = int(item.metadata["sample_id"])
-            sample = load_sample(sample_id)
+        # Pre-register all items so failed tasks remain visible in experiment statistics.
+        execution_records = {
+            item.id: {
+                "sample_id": str(
+                    (item.metadata or {}).get("sample_id", "")
+                ),
+                "execution_status": "not_started",
+                "answer_status": None,
+                "error_type": None,
+                "error_message": None,
+            }
+            for item in dataset.items
+        }
 
-            if sample["question"] != item.input:
-                raise ValueError(
-                    f"Question mismatch for sample {sample_id}."
+        def task(*, item, **kwargs):
+            record = execution_records[item.id]
+            record["execution_status"] = "running"
+
+            try:
+                sample_id = int(item.metadata["sample_id"])
+                sample = load_sample(sample_id)
+
+                if sample["question"] != item.input:
+                    raise ValueError(
+                        f"Question mismatch for sample {sample_id}."
+                    )
+
+                # Created inside the experiment task so the callback
+                # can join the task's active trace
+                callback = create_langfuse_callback()
+
+                output = run_agent(
+                    sample=sample,
+                    agent_config=AGENT_CONFIG,
+                    runnable_config={
+                        "callbacks": [callback],
+                        "run_name": AGENT_VERSION,
+                        "metadata": {
+                            "sample_id": str(sample_id),
+                            "agent_version": AGENT_VERSION,
+                        },
+                    },
                 )
 
-            # Created inside the experiment task so the callback
-            # can join the task's active trace.
-            callback = create_langfuse_callback()
+            except AgentExecutionError as error:
+                record.update(
+                    execution_status="failed",
+                    answer_status=None,
+                    error_type=error.error_type,
+                    error_message=str(error),
+                )
+                raise
 
-            return run_agent(
-                sample=sample,
-                agent_config=AGENT_CONFIG,
-                runnable_config={
-                    "callbacks": [callback],
-                    "run_name": AGENT_VERSION,
-                    "metadata": {
-                        "sample_id": str(sample_id),
-                        "agent_version": AGENT_VERSION,
-                    },
-                },
+            except Exception as error:
+                record.update(
+                    execution_status="task_error",
+                    answer_status=None,
+                    error_type=type(error).__name__,
+                    error_message=str(error),
+                )
+                raise
+
+            record.update(
+                execution_status=output["execution_status"],
+                answer_status=output["answer_status"],
             )
 
+            return output
+
+        def run_summary(*, item_results, **kwargs):
+            return experiment_summary_evaluator(
+                item_results=item_results,
+                execution_records=execution_records,
+            )
+        
         result = dataset.run_experiment(
             name=EXPERIMENT_NAME,
             description=(
@@ -114,6 +165,7 @@ def main() -> None:
             ),
             task=task,
             evaluators=[entity_exact_match_evaluator],
+            run_evaluators=[run_summary],
             max_concurrency=1,
             metadata={
                 "agent_version": AGENT_VERSION,
