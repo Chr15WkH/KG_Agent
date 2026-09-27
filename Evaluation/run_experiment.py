@@ -7,7 +7,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from Evaluation.evaluators import entity_exact_match_evaluator, experiment_summary_evaluator
-from Evaluation.gtsqa_data import load_sample, load_gold
+from Evaluation.gtsqa_data import load_sample
+from Evaluation.prepare_dataset import prepare_dataset
 from Evaluation.langfuse_support import (
     initialize_langfuse,
     create_langfuse_callback,
@@ -19,7 +20,15 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # Experiment configuration
 AGENT_VERSION = "ark_v1"
 DATASET_NAME = "gtsqa-development"
-EXPERIMENT_NAME = "ark-v1-qwen3.5-9b-summary-check"
+# Select exactly which samples to run, in this order.
+SAMPLE_IDS = (
+    13311,
+    37715,
+    40154,
+)
+# Allow creation of missing datasets and items.
+SYNC_MISSING_ITEMS = True
+EXPERIMENT_NAME = "ark-v1-deepseek-chat-multi-item-check"
 ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
 
 # Print detailed Agent messages when debugging.
@@ -27,8 +36,8 @@ AGENT_VERBOSE = False
 
 AGENT_CONFIG = {
     "llm": {
-        # "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
-        "model": "qwen3.5:9b", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
+        "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
+        # "model": "qwen3.5:9b", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
         "temperature": 0.9,
         "top_p": 0.9,
         "seed": 42,
@@ -69,31 +78,12 @@ def main() -> None:
     client = initialize_langfuse()
 
     try:
-        dataset = client.get_dataset(DATASET_NAME)
-
-        # Keep the first experiment limited to the prepared pilot item.
-        if (
-            len(dataset.items) != 1
-            or dataset.items[0].status != "ACTIVE"
-            or str(
-                (dataset.items[0].metadata or {}).get("sample_id")
-            ) != "13311"
-        ):
-            raise ValueError(
-                "This pilot expects exactly one active item: 13311."
-            )
-
-        # Check the hosted reference before any model calls.
-        item = dataset.items[0]
-        gold = load_gold(13311)
-
-        if (
-            item.input != gold["question"]
-            or item.expected_output != gold["gold_answer"]
-        ):
-            raise ValueError(
-                "Langfuse dataset item differs from local Gold."
-            )
+        selected_items = prepare_dataset(
+            client=client,
+            dataset_name=DATASET_NAME,
+            sample_ids=SAMPLE_IDS,
+            sync_missing_items=SYNC_MISSING_ITEMS,
+        )
 
         # Pre-register all items so failed tasks remain visible in experiment statistics.
         execution_records = {
@@ -106,12 +96,12 @@ def main() -> None:
                 "error_type": None,
                 "error_message": None,
             }
-            for item in dataset.items
+            for item in selected_items
         }
 
         item_positions = {
             item.id: position
-            for position, item in enumerate(dataset.items, start=1)
+            for position, item in enumerate(selected_items, start=1)
         }
         total_items = len(execution_records)
 
@@ -190,12 +180,14 @@ def main() -> None:
                 execution_records=execution_records,
             )
         
-        result = dataset.run_experiment(
+        result = client.run_experiment(
             name=EXPERIMENT_NAME,
             description=(
-                "Single-item GTSQA development experiment "
-                "with entity exact-match evaluation."
+                f"GTSQA development experiment with "
+                f"{len(selected_items)} selected items "
+                "and entity exact-match evaluation."
             ),
+            data=selected_items,
             task=task,
             evaluators=[entity_exact_match_evaluator],
             run_evaluators=[run_summary],
@@ -204,6 +196,15 @@ def main() -> None:
                 "agent_version": AGENT_VERSION,
                 "agent_config": AGENT_CONFIG,
                 "dataset": DATASET_NAME,
+                "sample_ids": [
+                    str(item.metadata["sample_id"])
+                    for item in selected_items
+                ],
+                "selected_item_ids": [
+                    item.id
+                    for item in selected_items
+                ],
+                "sample_count": len(selected_items),
             },
         )
 

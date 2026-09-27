@@ -1,112 +1,217 @@
-"""Prepare a single-item Langfuse development dataset."""
+"""Validate and synchronize selected GTSQA dataset items."""
 
-from pathlib import Path
-
-from dotenv import load_dotenv
 from langfuse.api import NotFoundError
 
 from Evaluation.gtsqa_data import load_sample, load_gold
-from Evaluation.langfuse_support import initialize_langfuse
+from Evaluation.evaluators import normalize_entity_answers
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+def prepare_local_items(*, dataset_name, sample_ids):
+    """Validate selected GTSQA samples and prepare upload payloads."""
 
-ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
-DATASET_NAME = "gtsqa-development"
-SAMPLE_ID = 13311
-ITEM_ID = f"{DATASET_NAME}-{SAMPLE_ID}"
+    if not isinstance(dataset_name, str) or not dataset_name.strip():
+        raise ValueError("Dataset name must be a non-empty string.")
 
+    sample_ids = tuple(sample_ids)
 
-def main() -> None:
-    if not ENV_FILE.is_file():
-        raise FileNotFoundError(
-            f"Environment file not found: {ENV_FILE}"
-        )
+    # Validate that the sample selection is non-empty, integer-only, and unique.
+    if not sample_ids:
+        raise ValueError("Select at least one sample ID.")
 
-    load_dotenv(ENV_FILE, override=True)
+    if any(type(sample_id) is not int for sample_id in sample_ids):
+        raise ValueError("Sample IDs must be integers.")
 
-    sample = load_sample(SAMPLE_ID)
-    gold = load_gold(SAMPLE_ID)
+    if len(sample_ids) != len(set(sample_ids)):
+        raise ValueError("Duplicate sample IDs are not allowed.")
 
-    if sample["question"].strip() != gold["question"].strip():
-        raise ValueError(
-            f"Question mismatch for sample {SAMPLE_ID}."
-        )
+    prepared_items = []
 
-    item_metadata = {
-        "sample_id": SAMPLE_ID,
-        "dataset_version": DATASET_NAME,
-    }
+    # Load each sample and verify that its question is valid and matches the Gold data.
+    for sample_id in sample_ids:
+        sample = load_sample(sample_id)
+        gold = load_gold(sample_id)
 
-    client = initialize_langfuse()
+        question = sample.get("question")
 
-    try:
-        try:
-            dataset = client.get_dataset(DATASET_NAME)
-        except NotFoundError:
-            client.create_dataset(
-                name=DATASET_NAME,
-                description=(
-                    "Single-item GTSQA development pilot. "
-                    "Graphs remain local. Not a held-out test set."
-                ),
-                metadata={
-                    "source_dataset": "GTSQA",
-                    "subset": "development",
-                },
-            )
-            dataset = client.get_dataset(DATASET_NAME)
-            print(f"Created dataset: {DATASET_NAME}")
-
-        existing_item = next(
-            (item for item in dataset.items if item.id == ITEM_ID),
-            None,
-        )
-
-        # This pilot is intentionally limited to one known item.
-        unexpected_items = [
-            item.id
-            for item in dataset.items
-            if item.id != ITEM_ID
-        ]
-
-        if unexpected_items:
+        if not isinstance(question, str) or not question.strip():
             raise ValueError(
-                "Dataset contains unexpected items. "
-                f"No items were changed: {unexpected_items}"
+                f"Invalid question for sample {sample_id}."
             )
 
-        if existing_item is not None:
-            matches = (
-                existing_item.input == sample["question"]
-                and existing_item.expected_output == gold["gold_answer"]
-                and existing_item.metadata == item_metadata
-                and existing_item.status == "ACTIVE"
+        if question != gold["question"]:
+            raise ValueError(
+                f"Question mismatch for sample {sample_id}."
             )
 
-            if not matches:
+        graph = sample.get("graph")
+
+        # Verify that the sample has a non-empty graph of valid string triples.
+        if not isinstance(graph, list) or not graph:
+            raise ValueError(
+                f"Sample {sample_id} must contain a non-empty graph."
+            )
+
+        for index, triple in enumerate(graph):
+            if (
+                not isinstance(triple, list)
+                or len(triple) != 3
+                or not all(
+                    isinstance(value, str) and value.strip()
+                    for value in triple
+                )
+            ):
                 raise ValueError(
-                    "Existing dataset item differs from local data "
-                    "or is not ACTIVE. No item was overwritten."
+                    f"Invalid triple in sample {sample_id} "
+                    f"at index {index}."
                 )
 
-            print(f"Dataset item already matches: {ITEM_ID}")
-            return
+        # Validate the Gold format without changing its stored representation.
+        normalize_entity_answers(gold["gold_answer"])
 
-        created_item = client.create_dataset_item(
-            dataset_name=DATASET_NAME,
-            id=ITEM_ID,
-            input=sample["question"],
-            expected_output=gold["gold_answer"],
-            metadata=item_metadata,
+        prepared_items.append(
+            {
+                "id": f"{dataset_name}-{sample_id}",
+                "input": question,
+                "expected_output": gold["gold_answer"],
+                "metadata": {
+                    "sample_id": sample_id,
+                },
+            }
         )
 
-        print(f"Created dataset item: {created_item.id}")
-        print(f"Dataset ready: {DATASET_NAME}")
+        # Keep only the small upload payload between samples.
+        del graph, sample
 
-    finally:
-        client.shutdown()
+    return prepared_items
+
+def validate_remote_item(item, payload):
+    """Reject conflicting items while allowing unrelated metadata."""
+
+    differences = []
+
+    if item.status != "ACTIVE":
+        differences.append("status")
+
+    if item.input != payload["input"]:
+        differences.append("input")
+
+    if item.expected_output != payload["expected_output"]:
+        differences.append("expected_output")
+
+    metadata = item.metadata or {}
+
+    if str(metadata.get("sample_id")) != str(
+        payload["metadata"]["sample_id"]
+    ):
+        differences.append("metadata.sample_id")
+
+    if differences:
+        raise ValueError(
+            f"Dataset item {payload['id']} conflicts with local data: "
+            f"{', '.join(differences)}. No overwrite was requested."
+        )
 
 
-if __name__ == "__main__":
-    main()
+def prepare_dataset(
+    *,
+    client,
+    dataset_name,
+    sample_ids,
+    sync_missing_items=False,
+):
+    """Validate selected items, optionally create missing ones, and return them."""
+
+    # Validate all local samples before making any remote changes.
+    payloads = prepare_local_items(
+        dataset_name=dataset_name,
+        sample_ids=sample_ids,
+    )
+
+    try:
+        dataset = client.get_dataset(dataset_name)
+    except NotFoundError:
+        if not sync_missing_items:
+            raise ValueError(
+                f"Dataset {dataset_name!r} does not exist "
+                "and synchronization is disabled."
+            ) from None
+
+        client.create_dataset(
+            name=dataset_name,
+            description=(
+                "GTSQA development experiments. "
+                "Full graphs remain local. Not a held-out test set."
+            ),
+            metadata={
+                "source_dataset": "GTSQA",
+                "subset": "development",
+            },
+        )
+        dataset = client.get_dataset(dataset_name)
+        print(f"Created dataset: {dataset_name}", flush=True)
+
+    existing_items = {
+        item.id: item
+        for item in dataset.items
+    }
+
+    missing_payloads = []
+
+    # Check every selected existing item before creating missing items.
+    for payload in payloads:
+        existing_item = existing_items.get(payload["id"])
+
+        if existing_item is None:
+            missing_payloads.append(payload)
+        else:
+            validate_remote_item(existing_item, payload)
+
+    if missing_payloads and not sync_missing_items:
+        missing_ids = [
+            payload["id"]
+            for payload in missing_payloads
+        ]
+        raise ValueError(
+            f"Selected items are missing: {missing_ids}. "
+            "Synchronization is disabled."
+        )
+
+    for payload in missing_payloads:
+        client.create_dataset_item(
+            dataset_name=dataset_name,
+            id=payload["id"],
+            input=payload["input"],
+            expected_output=payload["expected_output"],
+            metadata=payload["metadata"],
+        )
+        print(f"Created dataset item: {payload['id']}", flush=True)
+
+    # Reload and verify the items that will actually be used.
+    dataset = client.get_dataset(dataset_name)
+    refreshed_items = {
+        item.id: item
+        for item in dataset.items
+    }
+
+    selected_items = []
+
+    for payload in payloads:
+        item = refreshed_items.get(payload["id"])
+
+        if item is None:
+            raise ValueError(
+                f"Selected item {payload['id']} is not available "
+                "after preparation. Experiment will not start."
+            )
+
+        validate_remote_item(item, payload)
+        selected_items.append(item)
+
+    print(
+        f"Dataset ready: {dataset_name} | "
+        f"Selected: {len(selected_items)} | "
+        f"Created: {len(missing_payloads)}",
+        flush=True,
+    )
+
+    return selected_items
