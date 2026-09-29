@@ -176,5 +176,6 @@ def generate_4_digit_hash(input_string: str) -> str:
     full_hash = hash_object.hexdigest()
 
     # Convert the hash to an integer and map it to the custom character set
-    random.seed(int(full_hash, 16))  # Seed the random generator with the hash
-    return "".join(random.choices(custom_charset, k=4))  # Generate a 4-character hash
+    # Use an isolated generator without changing global random state.
+    local_rng = random.Random(int(full_hash, 16)) # Seed the random generator with the hash
+    return "".join(local_rng.choices(custom_charset, k=4)) # Generate a 4-character hash

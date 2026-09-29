@@ -99,7 +99,6 @@ class Relation(BaseModel):
 
     value: str = Field(
         description="The relation that should be used to explore the knowledge graph.",
-        default="",
     )
     direction: Literal["outgoing", "incoming"] = Field(
         description=(
@@ -107,7 +106,6 @@ class Relation(BaseModel):
             "'outgoing': anchor -> another entity. "
             "'incoming': another entity -> anchor."
         ),
-        default="outgoing",
     )
     justification: str = Field(
         description="The reasoning behind selecting this relation and direction.",

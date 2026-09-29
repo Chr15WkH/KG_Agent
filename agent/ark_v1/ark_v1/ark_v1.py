@@ -248,10 +248,10 @@ class ARK_V1(Agent):
         def _route_select_anchor(state: RuntimeState) -> str:
             """Route based on the validity of the anchor candidate"""
             current_reasoning_step = state.reasoningSteps[-1]
-            if current_reasoning_step.anchor.attempt >= self.max_attempts:
-                return "generate_answer"
-            elif current_reasoning_step.anchor.valid:
+            if current_reasoning_step.anchor.valid:
                 return "retrieve_relations"
+            elif current_reasoning_step.anchor.attempt >= self.max_attempts:
+                return "generate_answer"
             else:
                 return "prompt_select_anchor"
 
@@ -270,6 +270,7 @@ class ARK_V1(Agent):
                     f"Failed to retrieve relations for anchor entity {anchor_value}: {edges.errors}"
                 )
             current_reasoning_step.relations_retrieved = edges.results
+            current_reasoning_step.relation_selected = None
 
             relation_pairs = dict.fromkeys(
                 (edge.get_relation(), edge.value["direction"])
@@ -307,11 +308,22 @@ class ARK_V1(Agent):
 
             summary = ""
             if relation_verified.attempt > 0:
-                summary = (
-                    f'You have previously attempted to select the relation "{relation_verified.candidate.value}" '
-                    f'with direction "{relation_verified.candidate.direction}". '
-                    f'The semantically closest relations to your selection were: {relation_verified.edge.alternatives}. \n'
-                )
+                if relation_verified.candidate is None:
+                    summary = (
+                        "The previous attempt did not produce a valid structured relation selection. "
+                        "Return both 'value' and 'direction' as top-level fields. "
+                        "Do not place these fields inside 'justification'.\n"
+                    )
+                else:
+                    summary = (
+                        f'You have previously attempted to select the relation "{relation_verified.candidate.value}" '
+                        f'with direction "{relation_verified.candidate.direction}", '
+                        "but this selection did not pass validation for the current anchor.\n"
+                    )
+                    if relation_verified.edge is not None and relation_verified.edge.alternatives:
+                        summary += (
+                            f'The semantically closest relations to your selection were: {relation_verified.edge.alternatives}. \n'
+                        )
             relation_pairs = dict.fromkeys(
                 (edge.get_relation(), edge.value["direction"])
                 for edge in current_reasoning_step.relations_retrieved
@@ -346,22 +358,46 @@ class ARK_V1(Agent):
             relation_verified = current_reasoning_step.relation_selected
             relation_verified.attempt += 1
 
-            try:
-                relations_selected: Relation = self.llm.with_structured_output(
-                    Relation
-                ).invoke(
-                    state.messages
-                )  # get last
-                relation_verified.candidate = relations_selected
+            # Reset results for this attempt while preserving the retry count.
+            relation_verified.candidate = None
+            relation_verified.edge = None
+            relation_verified.valid = False
 
-            except ValueError as e:
-                # If the LLM fails to select relations, we set the relations to invalid
+            response = self.llm.with_structured_output(
+                Relation,
+                include_raw=True,
+            ).invoke(state.messages)
+
+            parsed = response["parsed"]
+            parsing_error = response["parsing_error"]
+
+            if parsing_error is not None:
+                self.logger.warning(
+                    "Relation output parsing failed (attempt %s): %s",
+                    relation_verified.attempt,
+                    type(parsing_error).__name__,
+                )
+                return state
+
+            if parsed is None:
+                raise RuntimeError(
+                    "Structured relation output returned neither a parsed "
+                    "result nor a parsing error."
+                )
+
+            relations_selected: Relation = parsed
+            relation_verified.candidate = relations_selected
+
+            if relations_selected.value == "":
                 state.append_message(
                     AIMessage(
-                        content=f"Failed to select relations. You have selected a wrong key. Full error message {e}.",
+                        content=(
+                            "Requested a new anchor using an explicit empty "
+                            "relation value. "
+                            f"Justification: {relations_selected.justification}"
+                        )
                     )
                 )
-                relation_verified.valid = False
                 return state
 
             # check if the relation exists in the graph
@@ -407,19 +443,28 @@ class ARK_V1(Agent):
             return state
 
         def _route_select_relation(state: RuntimeState) -> str:
-            """Route the state to the next step based on the relation candidates validation"""
-            current_reasoning_step = state.reasoningSteps[-1]
-            if current_reasoning_step.relation_selected.attempt >= self.max_attempts:
-                return "generate_answer"
-            elif current_reasoning_step.relation_selected.candidate is None:
-                return "prompt_select_anchor"
-            elif current_reasoning_step.relation_selected.candidate.value == "":
-                return "prompt_select_anchor"
-            elif current_reasoning_step.relation_selected.valid is True:
-                # If the relation candidates are valid, we continue with retrieving knowledge
+            """
+            Route the state to the next step based on the relation candidates validation
+            Distinguish valid selections, anchor changes, and failed attempts.
+            """
+            current_step = state.reasoningSteps[-1]
+            selection = current_step.relation_selected
+
+            if selection.valid:
                 return "retrieve_triples"
-            else:
-                return "prompt_select_relation"
+
+            if (
+                selection.candidate is not None
+                and selection.candidate.value == ""
+            ):
+                if current_step.anchor.attempt >= self.max_attempts:
+                    return "generate_answer"
+                return "prompt_select_anchor"
+
+            if selection.attempt >= self.max_attempts:
+                return "generate_answer"
+
+            return "prompt_select_relation"
 
         # Triple Selection
 
