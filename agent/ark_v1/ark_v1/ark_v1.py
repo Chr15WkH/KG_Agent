@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Optional, Dict, Any, List
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
@@ -79,6 +80,7 @@ class ARK_V1(Agent):
         self.max_reasoning_steps = config.get("max_reasoning_steps", 8)
         self.max_attempts = config.get("max_attempts", 5)
         self.recursion_limit = config.get("recursion_limit", 200)
+        self.complete_answer_qids = config.get("complete_answer_qids", False)
 
     def load_configuration_from_file(self, file_path: str) -> None:
         """Load the configuration from a JSON file"""
@@ -656,6 +658,12 @@ class ARK_V1(Agent):
                     "Use null if the answer cannot be determined; use [] only "
                     "when the answer is known to be an empty set."
                 )
+                if self.complete_answer_qids:
+                    question_type_str += (
+                        " Format each entity as 'name (QID)', using the exact "
+                        "Wikidata QID shown in the supplied triples. "
+                        "Do not invent IDs."
+                    )
             else:
                 raise NotImplementedError(
                     f"Question type {self._question_type} is not implemented."
@@ -672,9 +680,64 @@ class ARK_V1(Agent):
             )
             state.extend_messages(prompt)
             result = self.llm.with_structured_output(answer).invoke(state.messages)
+
+            # Complete missing QIDs from entities used in the reasoning steps when enabled.
+            if self.complete_answer_qids and isinstance(result, FinalAnswerEntityList):
+                result.answer = _complete_entity_answer_qids(state, result.answer)
+
             state.append_message(AIMessage(content=result.model_dump_json()))
             state.finalAnswer = result
             return state
+
+        def _complete_entity_answer_qids(
+            state: RuntimeState,
+            answers: Optional[List[str]],
+        ) -> Optional[List[str]]:
+            """Complete missing QIDs from the triples used in the final summary."""
+            if not answers:
+                return answers
+
+            entity_pattern = re.compile(r"(.+?)\s*\((Q[1-9]\d*)\)")
+            name_to_qids = {}
+
+            def normalize_name(name: str) -> str:
+                return " ".join(name.split()).casefold()
+
+            for step in state.reasoningSteps:
+                if not step.finished or step.result is None:
+                    continue
+
+                for triple in step.result.triples:
+                    for entity in (triple.head, triple.tail):
+                        match = entity_pattern.fullmatch(entity.value.strip())
+                        if match is None:
+                            continue
+
+                        name, qid = match.groups()
+                        normalized_name = normalize_name(name)
+                        name_to_qids.setdefault(normalized_name, set()).add(qid)
+
+            completed_answers = []
+            for answer in answers:
+                text = answer.strip()
+
+                # Preserve answers that already contain a supported QID format.
+                if (
+                    re.fullmatch(r"Q[1-9]\d*", text)
+                    or entity_pattern.fullmatch(text)
+                ):
+                    completed_answers.append(answer)
+                    continue
+
+                qids = name_to_qids.get(normalize_name(text), set())
+                if len(qids) == 1:
+                    qid = next(iter(qids))
+                    completed_answers.append(f"{text} ({qid})")
+                else:
+                    # Preserve unmatched or ambiguous answers for evaluation.
+                    completed_answers.append(answer)
+
+            return completed_answers
 
         # Utility
 

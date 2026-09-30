@@ -25,19 +25,23 @@ SAMPLE_IDS = (
     13311,
     37715,
     40154,
+    42587,
+    4519,
+    16154,
 )
 # Allow creation of missing datasets and items.
 SYNC_MISSING_ITEMS = True
-EXPERIMENT_NAME = "ark-v1-deepseek-chat-multi-item-check"
+EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-multi-item-check"
 ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
 
 # Print detailed Agent messages when debugging.
 AGENT_VERBOSE = False
 
 AGENT_CONFIG = {
+    "complete_answer_qids": True,
     "llm": {
-        "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
-        # "model": "qwen3.5:9b", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
+        # "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
+        "model": "qwen3.8:27b", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
         "temperature": 0.9,
         "top_p": 0.9,
         "seed": 42,

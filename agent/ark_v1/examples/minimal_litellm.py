@@ -1,5 +1,4 @@
 import sys
-import os
 import json
 import logging
 from ark_v1.ark_v1 import ARK_V1
@@ -61,6 +60,7 @@ def main():
     print(f"Using model: {model_name}")
 
     config = {
+        "complete_answer_qids": DATASET == "gtsqa",
         "llm": {
             "model": model_name,
             "temperature": 0.9,
