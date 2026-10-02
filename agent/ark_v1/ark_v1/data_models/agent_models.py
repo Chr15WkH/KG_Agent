@@ -285,6 +285,10 @@ class RuntimeState(BaseModel):
     )
     iteration: int = 0
     continue_exploration: bool = True
+    termination_reason: Optional[str] = Field(
+        default=None,
+        description="The reason exploration ended before final answer generation.",
+    )
     finalAnswer: Optional[FinalAnswer] = None
 
     def append_message(self, message: AnyMessage) -> None:

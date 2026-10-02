@@ -48,7 +48,7 @@ def run_ark_v1(
     if final_state is None:
         raise AgentExecutionError(
             "ARK v1 finished without a final state.",
-            error_type="missing_final_answer",
+            error_type="missing_final_state",
         )
 
     if not isinstance(final_state, dict):
@@ -83,4 +83,5 @@ def run_ark_v1(
         "answer_status": (
             "abstained" if answer_payload is None else "answered"
         ),
+        "termination_reason": final_state.get("termination_reason"),
     }

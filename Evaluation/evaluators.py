@@ -137,6 +137,9 @@ def experiment_summary_evaluator(
     scored_count = 0
     # Number of items with an exact-match score of 1
     correct_count = 0
+    # Completed tasks whose final answer was None.
+    abstained_count = 0
+    abstained_by_reason = {}
 
     for item_id, record in execution_records.items():
         status = record["execution_status"]
@@ -159,6 +162,13 @@ def experiment_summary_evaluator(
             continue
 
         completed_count += 1
+
+        if record.get("answer_status") == "abstained":
+            abstained_count += 1
+            reason = record.get("termination_reason") or "unknown"
+            abstained_by_reason[reason] = (
+                abstained_by_reason.get(reason, 0) + 1
+            )
 
         if result is None:
             issues.append(f"Missing result: {item_id}")
@@ -194,6 +204,14 @@ def experiment_summary_evaluator(
         Evaluation(name="execution_failed_count", value=failed_count),
         Evaluation(name="scored_count", value=scored_count),
         Evaluation(name="correct_count", value=correct_count),
+        Evaluation(
+            name="abstained_count",
+            value=abstained_count,
+            comment=json.dumps(
+                {"termination_reason_counts": abstained_by_reason},
+                ensure_ascii=False,
+            ),
+        ),
         Evaluation(
             name="assessment_complete",
             value=float(assessment_complete),

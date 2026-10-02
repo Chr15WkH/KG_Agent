@@ -239,6 +239,12 @@ class ARK_V1(Agent):
                 entity.verified for entity in current_anchor.verificationResults.results
             )
 
+            if (
+                not current_anchor.valid
+                and current_anchor.attempt >= self.max_attempts
+            ):
+                state.termination_reason = "anchor_attempt_limit"
+
             state.append_message(
                 AIMessage(
                     content=f"Result (Iteration {state.iteration}, Step 2.1., Attempt {current_anchor.attempt}): \nValid: {current_anchor.valid} \nSelected anchor entity: {current_anchor.anchor.value}",
@@ -379,6 +385,9 @@ class ARK_V1(Agent):
                     relation_verified.attempt,
                     type(parsing_error).__name__,
                 )
+
+                if relation_verified.attempt >= self.max_attempts:
+                    state.termination_reason = "relation_attempt_limit"
                 return state
 
             if parsed is None:
@@ -400,6 +409,9 @@ class ARK_V1(Agent):
                         )
                     )
                 )
+
+                if current_reasoning_step.anchor.attempt >= self.max_attempts:
+                    state.termination_reason = "anchor_attempt_limit"
                 return state
 
             # check if the relation exists in the graph
@@ -431,6 +443,11 @@ class ARK_V1(Agent):
             relation_verified.edge = tool_result.results[0]
             relation_verified.valid = relation_verified.edge.verified
 
+            if (
+                not relation_verified.valid
+                and relation_verified.attempt >= self.max_attempts
+            ):
+                state.termination_reason = "relation_attempt_limit"
             state.append_message(
                 AIMessage(
                     content=(
@@ -545,6 +562,11 @@ class ARK_V1(Agent):
                         content=f"While trying to generate a reasoning step you used wrongly formatted keys. The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. Choose either one of these keys or set an empty list as the keys to reset the reasoning step."
                     )
                 )
+
+                if state.iteration >= self.max_reasoning_steps:
+                    state.termination_reason = "exploration_limit"
+                elif verified_result.attempt >= self.max_attempts:
+                    state.termination_reason = "reasoning_attempt_limit"
                 return state
 
             triples_retrieved_dict = current_reasoning_step.get_dict_triples_retrieved()
@@ -575,6 +597,11 @@ class ARK_V1(Agent):
                     )
                 )
             current_reasoning_step.finished = True
+
+            if state.iteration >= self.max_reasoning_steps:
+                state.termination_reason = "exploration_limit"
+            elif verified_result.attempt >= self.max_attempts:
+                state.termination_reason = "reasoning_attempt_limit"
             return state
 
         def _route_reasoning_step(state: RuntimeState) -> str:
@@ -594,16 +621,20 @@ class ARK_V1(Agent):
 
         def cleanup(state: RuntimeState) -> RuntimeState:
             """Cleanup reasoning process"""
-            # set global continue exploration flag
+            # set global continue exploration flag and record why exploration stops
             current_reasoning_step = state.reasoningSteps[-1]
             if state.iteration >= self.max_reasoning_steps:
                 state.continue_exploration = False
+                state.termination_reason = "exploration_limit"
             elif current_reasoning_step.result.result.reset_reasoning_step is True:
                 state.continue_exploration = False
+                state.termination_reason = "other_stop"
             else:
                 state.continue_exploration = (
                     current_reasoning_step.result.result.continue_exploration
                 )
+                if state.continue_exploration is False:
+                    state.termination_reason = "model_stop"
 
             if (
                 current_reasoning_step.result.result.reset_reasoning_step is True
@@ -857,6 +888,15 @@ class ARK_V1(Agent):
         final_state_dump = None
 
         for event in events:
+            # Preserve state updates before filtering repeated messages.
+            final_state = RuntimeState.model_validate(event)
+            final_state_dump = final_state.model_dump()
+            if isinstance(final_state.finalAnswer, (FinalAnswerYesNo, FinalAnswerEntityList),):
+                final_state_dump["finalAnswer"] = (
+                    final_state.finalAnswer.model_dump()
+                )
+            final_state_dump.pop("currentState")
+
             if not event["messages"]:
                 # Skip when messages are empty
                 continue
@@ -882,15 +922,5 @@ class ARK_V1(Agent):
                 print(f"{last_message.content}")
 
             last_event = event
-
-            if event.get("finalAnswer") is not None:
-                # print(f"Final answer: {event['finalAnswer']}")
-                final_state = RuntimeState.model_validate(event)
-                final_state_dump = final_state.model_dump()
-                if isinstance(final_state.finalAnswer, (FinalAnswerYesNo, FinalAnswerEntityList),):
-                    final_state_dump["finalAnswer"] = (
-                        final_state.finalAnswer.model_dump()
-                    )
-                final_state_dump.pop("currentState")
 
         return final_state_dump

@@ -27,11 +27,17 @@ SAMPLE_IDS = (
     40154,
     42587,
     4519,
+    8865,
     16154,
+    31606,
+    33122,
+    40487,
+    1012,
+    41371,
 )
 # Allow creation of missing datasets and items.
 SYNC_MISSING_ITEMS = True
-EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-multi-item-check"
+EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-preliminary-refusal-check"
 ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
 
 # Print detailed Agent messages when debugging.
@@ -97,6 +103,7 @@ def main() -> None:
                 ),
                 "execution_status": "not_started",
                 "answer_status": None,
+                "termination_reason": None,
                 "error_type": None,
                 "error_message": None,
             }
@@ -171,10 +178,16 @@ def main() -> None:
             record.update(
                 execution_status=output["execution_status"],
                 answer_status=output["answer_status"],
+                termination_reason=output.get("termination_reason"),
             )
 
+            reason_text = ""
+            if output["answer_status"] == "abstained":
+                reason = output.get("termination_reason") or "unknown"
+                reason_text = f" | reason={reason}"
+
             print(
-                f"{progress_label} Execution completed | {output['answer_status']} | Evaluation pending", flush=True)
+                f"{progress_label} Execution completed | {output['answer_status']}{reason_text} | Evaluation pending", flush=True)
 
             return output
 
@@ -202,10 +215,6 @@ def main() -> None:
                 "dataset": DATASET_NAME,
                 "sample_ids": [
                     str(item.metadata["sample_id"])
-                    for item in selected_items
-                ],
-                "selected_item_ids": [
-                    item.id
                     for item in selected_items
                 ],
                 "sample_count": len(selected_items),
