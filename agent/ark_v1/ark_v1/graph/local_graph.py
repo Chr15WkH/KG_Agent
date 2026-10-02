@@ -92,6 +92,7 @@ class LocalGraph:
         query_vec = self.embedding_model.encode(
             [query], normalize_embeddings=True, convert_to_numpy=True
         )
+        faiss.omp_set_num_threads(1)
         D, I = self.node_index.search(query_vec, k)
 
         results = []
@@ -119,6 +120,7 @@ class LocalGraph:
         query_vec = self.embedding_model.encode(
             [query], normalize_embeddings=True, convert_to_numpy=True
         )
+        faiss.omp_set_num_threads(1)
         D, I = self.relation_index.search(query_vec, k)
 
         results = []
