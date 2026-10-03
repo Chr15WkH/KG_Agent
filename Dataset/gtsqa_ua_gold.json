@@ -1,0 +1,688 @@
+{
+  "dataset_info": {
+    "name": "gtsqa_ua_development",
+    "source_agent_input": "gtsqa_development_agent_input.jsonl",
+    "source_gold": "gtsqa_development_gold.json",
+    "construction_method": "controlled_fact_deletion",
+    "candidate_order": "sorted_qid_pid_triples",
+    "max_deleted_facts": 2,
+    "pair_count": 12,
+    "item_count": 24,
+    "answerability_definition": "The original query returns verified non-empty answers. A deleted variant is unanswerable when the same query executes successfully and returns no answers."
+  },
+  "questions": [
+    {
+      "id": "13311-original",
+      "question": "What medical condition did the doctoral advisor of the founder of Silicon Graphics' doctoral advisor have?",
+      "answerable": true,
+      "gold_answer": [
+        "Q11081"
+      ],
+      "original_gold_answer": [
+        "Q11081"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q623459 wdt:P112 ?founder. ?founder wdt:P184 ?advisor2. ?advisor2 wdt:P184 ?advisor1. ?advisor1 wdt:P1050 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q11081"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q11081"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "13311-ua-01",
+      "question": "What medical condition did the doctoral advisor of the founder of Silicon Graphics' doctoral advisor have?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q11081"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1373397",
+            "P184",
+            "Q62866"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q623459 wdt:P112 ?founder. ?founder wdt:P184 ?advisor2. ?advisor2 wdt:P184 ?advisor1. ?advisor1 wdt:P1050 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q11081"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "37715-original",
+      "question": "Which heritage site contains the burial place of the chairperson of the political party that Ted Jolliffe was a member of?",
+      "answerable": true,
+      "gold_answer": [
+        "Q15621281"
+      ],
+      "original_gold_answer": [
+        "Q15621281"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q7693351 wdt:P102 ?party. ?party wdt:P488 ?chair. ?chair wdt:P119 ?cemetery. ?cemetery wdt:P276 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q15621281"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q15621281"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "37715-ua-01",
+      "question": "Which heritage site contains the burial place of the chairperson of the political party that Ted Jolliffe was a member of?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q15621281"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1104026",
+            "P488",
+            "Q3081656"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q7693351 wdt:P102 ?party. ?party wdt:P488 ?chair. ?chair wdt:P119 ?cemetery. ?cemetery wdt:P276 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q15621281"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "40154-original",
+      "question": "Which team in the Danish Women's Handball League plays at a venue designed by an architecture firm based in Aarhus?",
+      "answerable": true,
+      "gold_answer": [
+        "Q928991"
+      ],
+      "original_gold_answer": [
+        "Q928991"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {?answer wdt:P118 wd:Q912431; wdt:P115 ?venue. ?venue wdt:P84 ?architect. ?architect wdt:P740 wd:Q25319}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q928991"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q928991"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "40154-ua-01",
+      "question": "Which team in the Danish Women's Handball League plays at a venue designed by an architecture firm based in Aarhus?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q928991"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1523646",
+            "P84",
+            "Q1757868"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {?answer wdt:P118 wd:Q912431; wdt:P115 ?venue. ?venue wdt:P84 ?architect. ?architect wdt:P740 wd:Q25319}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q928991"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "42587-original",
+      "question": "What award, named after Lajos Kossuth, did János Rajz's student, who acted in \"I'll Go to the Minister,\" receive?",
+      "answerable": true,
+      "gold_answer": [
+        "Q637399"
+      ],
+      "original_gold_answer": [
+        "Q637399"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q5965835 wdt:P161 ?actor. ?actor wdt:P802 ?student. ?student wdt:P166 ?answer. ?answer wdt:P138 wd:Q157040.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q637399"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q637399"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "42587-ua-01",
+      "question": "What award, named after Lajos Kossuth, did János Rajz's student, who acted in \"I'll Go to the Minister,\" receive?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q637399"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1105174",
+            "P166",
+            "Q637399"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q5965835 wdt:P161 ?actor. ?actor wdt:P802 ?student. ?student wdt:P166 ?answer. ?answer wdt:P138 wd:Q157040.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q637399"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "4519-original",
+      "question": "Which university did the authors of \"Woman on the Edge of Time\" and \"The School Story\" both go to?",
+      "answerable": true,
+      "gold_answer": [
+        "Q309350"
+      ],
+      "original_gold_answer": [
+        "Q309350"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {  wd:Q8030746 wdt:P50 ?author1.  ?author1 wdt:P69 ?answer.  wd:Q7762526 wdt:P50 ?author2.  ?author2 wdt:P69 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q309350"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q309350"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "4519-ua-01",
+      "question": "Which university did the authors of \"Woman on the Edge of Time\" and \"The School Story\" both go to?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q309350"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q273385",
+            "P69",
+            "Q309350"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {  wd:Q8030746 wdt:P50 ?author1.  ?author1 wdt:P69 ?answer.  wd:Q7762526 wdt:P50 ?author2.  ?author2 wdt:P69 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q309350"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "8865-original",
+      "question": "Which language is the professional focus of Paul Nylén and also the official language of the organization that Wim De Smet belongs to?",
+      "answerable": true,
+      "gold_answer": [
+        "Q143"
+      ],
+      "original_gold_answer": [
+        "Q143"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q6019939 wdt:P106 ?occ. ?occ wdt:P425 ?answer. wd:Q195064 wdt:P463 ?org. ?org wdt:P37 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q143"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q143"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "8865-ua-01",
+      "question": "Which language is the professional focus of Paul Nylén and also the official language of the organization that Wim De Smet belongs to?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q143"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q129516",
+            "P37",
+            "Q143"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q6019939 wdt:P106 ?occ. ?occ wdt:P425 ?answer. wd:Q195064 wdt:P463 ?org. ?org wdt:P37 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q143"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "16154-original",
+      "question": "What time zone is the city, which borders Balatonkenese and is a twin town of one of Carcassonne's twin towns, in?",
+      "answerable": true,
+      "gold_answer": [
+        "Q25989"
+      ],
+      "original_gold_answer": [
+        "Q25989"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q6582 wdt:P190 ?eggenfelden. ?eggenfelden wdt:P190 ?balatonalmadi. ?balatonalmadi wdt:P47 wd:Q646115. ?balatonalmadi wdt:P421 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q25989"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q25989"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "16154-ua-01",
+      "question": "What time zone is the city, which borders Balatonkenese and is a twin town of one of Carcassonne's twin towns, in?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q25989"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q255201",
+            "P190",
+            "Q789256"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q6582 wdt:P190 ?eggenfelden. ?eggenfelden wdt:P190 ?balatonalmadi. ?balatonalmadi wdt:P47 wd:Q646115. ?balatonalmadi wdt:P421 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q25989"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "31606-original",
+      "question": "Which company released the game that belongs to the same video game series as the engine used in Cricket 2005 and was made available on the Commodore 64?",
+      "answerable": true,
+      "gold_answer": [
+        "Q173941"
+      ],
+      "original_gold_answer": [
+        "Q173941"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q5184947 wdt:P408 ?series. ?game wdt:P179 ?series; wdt:P400 wd:Q99775; wdt:P123 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q173941"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q173941"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "31606-ua-01",
+      "question": "Which company released the game that belongs to the same video game series as the engine used in Cricket 2005 and was made available on the Commodore 64?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q173941"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q2073676",
+            "P123",
+            "Q173941"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q5184947 wdt:P408 ?series. ?game wdt:P179 ?series; wdt:P400 wd:Q99775; wdt:P123 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q173941"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "33122-original",
+      "question": "Who from the Antwerp Guild of Saint Luke created a still life painting featuring a trumpet?",
+      "answerable": true,
+      "gold_answer": [
+        "Q3081981"
+      ],
+      "original_gold_answer": [
+        "Q3081981"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?painting wdt:P170 ?answer. ?painting wdt:P136 wd:Q170571. ?painting wdt:P180 wd:Q8338. ?answer wdt:P463 wd:Q18508801. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q3081981"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q3081981"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "33122-ua-01",
+      "question": "Who from the Antwerp Guild of Saint Luke created a still life painting featuring a trumpet?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q3081981"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q18809992",
+            "P136",
+            "Q170571"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?painting wdt:P170 ?answer. ?painting wdt:P136 wd:Q170571. ?painting wdt:P180 wd:Q8338. ?answer wdt:P463 wd:Q18508801. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q3081981"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "40487-original",
+      "question": "Which political party linked to Christian democracy had a French-speaking member who took part in the Korean War?",
+      "answerable": true,
+      "gold_answer": [
+        "Q3366715"
+      ],
+      "original_gold_answer": [
+        "Q3366715"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {  ?person wdt:P607 wd:Q8663;          wdt:P1412 wd:Q150;          wdt:P102 ?answer.  ?answer wdt:P1142 wd:Q209158.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q3366715"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q3366715"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "40487-ua-01",
+      "question": "Which political party linked to Christian democracy had a French-speaking member who took part in the Korean War?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q3366715"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1605951",
+            "P102",
+            "Q3366715"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {  ?person wdt:P607 wd:Q8663;          wdt:P1412 wd:Q150;          wdt:P102 ?answer.  ?answer wdt:P1142 wd:Q209158.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q3366715"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "1012-original",
+      "question": "What is the occupation of the head of government of the municipality that shares a border with both Cistella and Esponellà?",
+      "answerable": true,
+      "gold_answer": [
+        "Q82955"
+      ],
+      "original_gold_answer": [
+        "Q82955"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q11291 wdt:P47 ?place. wd:Q13611 wdt:P47 ?place. ?place wdt:P6 ?head. ?head wdt:P106 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q82955"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q82955"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "1012-ua-01",
+      "question": "What is the occupation of the head of government of the municipality that shares a border with both Cistella and Esponellà?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q82955"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q11247",
+            "P6",
+            "Q14074345"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q11291 wdt:P47 ?place. wd:Q13611 wdt:P47 ?place. ?place wdt:P6 ?head. ?head wdt:P106 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q82955"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "41371-original",
+      "question": "Which Olympic event took place after the one that followed the event featuring both Brendan O'Connell and Bernd Uhlig?",
+      "answerable": true,
+      "gold_answer": [
+        "Q8450"
+      ],
+      "original_gold_answer": [
+        "Q8450"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q4961038 wdt:P1344 ?olympics. wd:Q4894072 wdt:P1344 ?olympics. ?olympics wdt:P156 ?next1. ?next1 wdt:P156 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q8450"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q8450"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "41371-ua-01",
+      "question": "Which Olympic event took place after the one that followed the event featuring both Brendan O'Connell and Bernd Uhlig?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q8450"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q4894072",
+            "P1344",
+            "Q8438"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q4961038 wdt:P1344 ?olympics. wd:Q4894072 wdt:P1344 ?olympics. ?olympics wdt:P156 ?next1. ?next1 wdt:P156 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q8450"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    }
+  ],
+  "skipped": []
+}
