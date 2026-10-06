@@ -6,8 +6,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from Evaluation.evaluators import entity_exact_match_evaluator, experiment_summary_evaluator
-from Evaluation.gtsqa_data import load_sample
+from Evaluation.evaluators import entity_exact_match_evaluator, experiment_summary_evaluator, refusal_evaluator, refusal_summary_evaluator
+from Evaluation.dataset_loader import load_gtsqa_sample
 from Evaluation.prepare_dataset import prepare_dataset
 from Evaluation.langfuse_support import (
     initialize_langfuse,
@@ -19,32 +19,40 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 # Experiment configuration
 AGENT_VERSION = "ark_v1"
-DATASET_NAME = "gtsqa-development"
+# Choose the dataset
+DATASET_TYPE = "gtsqa_ua"
+DATASET_NAME = "gtsqa-ua-development"
 # Select exactly which samples to run, in this order.
+# Sample ids for GTSQA:
+# SAMPLE_IDS = (
+#     13311,
+#     37715,
+#     40154,
+#     42587,
+#     4519,
+#     8865,
+#     16154,
+#     31606,
+#     33122,
+#     40487,
+#     1012,
+#     41371,
+# )
+# Sample ids for GTSQA_UA:
 SAMPLE_IDS = (
-    13311,
-    37715,
-    40154,
-    42587,
-    4519,
-    8865,
-    16154,
-    31606,
-    33122,
-    40487,
-    1012,
-    41371,
+    "13311-original",
+    "13311-ua-01",
 )
 # Allow creation of missing datasets and items.
 SYNC_MISSING_ITEMS = True
-EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-preliminary-refusal-check"
+EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-refusal-check"
 ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
 
 # Print detailed Agent messages when debugging.
 AGENT_VERBOSE = False
 
 AGENT_CONFIG = {
-    "complete_answer_qids": True,
+    "complete_answer_qids": DATASET_TYPE == "gtsqa",
     "llm": {
         # "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
         "model": "qwen3.8:27b", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
@@ -56,6 +64,19 @@ AGENT_CONFIG = {
 
 
 def main() -> None:
+    if DATASET_TYPE == "gtsqa":
+        item_evaluator = entity_exact_match_evaluator
+        summary_evaluator = experiment_summary_evaluator
+        evaluation_description = "entity exact-match evaluation"
+
+    elif DATASET_TYPE == "gtsqa_ua":
+        item_evaluator = refusal_evaluator
+        summary_evaluator = refusal_summary_evaluator
+        evaluation_description = "answer/refusal decision evaluation"
+
+    else:
+        raise ValueError(f"Unsupported dataset type: {DATASET_TYPE}")
+
     if not ENV_FILE.is_file():
         raise FileNotFoundError(
             f"Environment file not found: {ENV_FILE}"
@@ -92,8 +113,19 @@ def main() -> None:
             client=client,
             dataset_name=DATASET_NAME,
             sample_ids=SAMPLE_IDS,
+            dataset_type=DATASET_TYPE,
             sync_missing_items=SYNC_MISSING_ITEMS,
         )
+        if DATASET_TYPE == "gtsqa_ua":
+            # Number of planned answerable items
+            answerable_planned_count = sum(
+                item.expected_output["answerable"]
+                for item in selected_items
+            )
+            # Number of planned unanswerable items
+            unanswerable_planned_count = (
+                len(selected_items) - answerable_planned_count
+            )
 
         # Pre-register all items so failed tasks remain visible in experiment statistics.
         execution_records = {
@@ -128,8 +160,16 @@ def main() -> None:
             print(f"{progress_label} Started", flush=True)
 
             try:
-                sample_id = int(item.metadata["sample_id"])
-                sample = load_sample(sample_id)
+                if DATASET_TYPE == "gtsqa":
+                    sample_id = int(item.metadata["sample_id"])
+                    sample = load_gtsqa_sample(sample_id)
+                else:
+                    from ark_v1.adapters.gtsqa_ua import (
+                        load_gtsqa_ua_sample,
+                    )
+
+                    sample_id = str(item.metadata["sample_id"])
+                    sample = load_gtsqa_ua_sample(sample_id)
 
                 if sample["question"] != item.input:
                     raise ValueError(
@@ -192,7 +232,16 @@ def main() -> None:
             return output
 
         def run_summary(*, item_results, **kwargs):
-            return experiment_summary_evaluator(
+            # Pass planned answerable and unanswerable counts for UA metrics.
+            if DATASET_TYPE == "gtsqa_ua":
+                return summary_evaluator(
+                    item_results=item_results,
+                    execution_records=execution_records,
+                    answerable_planned_count=answerable_planned_count,
+                    unanswerable_planned_count=unanswerable_planned_count,
+                )
+
+            return summary_evaluator(
                 item_results=item_results,
                 execution_records=execution_records,
             )
@@ -200,18 +249,19 @@ def main() -> None:
         result = client.run_experiment(
             name=EXPERIMENT_NAME,
             description=(
-                f"GTSQA development experiment with "
+                f"{DATASET_TYPE} development experiment with "
                 f"{len(selected_items)} selected items "
-                "and entity exact-match evaluation."
+                f"and {evaluation_description}."
             ),
             data=selected_items,
             task=task,
-            evaluators=[entity_exact_match_evaluator],
+            evaluators=[item_evaluator],
             run_evaluators=[run_summary],
             max_concurrency=1,
             metadata={
                 "agent_version": AGENT_VERSION,
                 "agent_config": AGENT_CONFIG,
+                "dataset_type": DATASET_TYPE,
                 "dataset": DATASET_NAME,
                 "sample_ids": [
                     str(item.metadata["sample_id"])

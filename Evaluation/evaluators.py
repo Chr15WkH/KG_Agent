@@ -242,3 +242,336 @@ def experiment_summary_evaluator(
         )
 
     return evaluations
+
+def evaluate_refusal(*, output, answerable: bool) -> dict:
+    """Evaluate the answer/refusal decision without checking answer content."""
+    if type(answerable) is not bool:
+        raise ValueError("'answerable' must be a Boolean.")
+
+    if not isinstance(output, dict):
+        raise ValueError("Task output must be a dictionary.")
+
+    if output.get("execution_status") != "completed":
+        raise ValueError(
+            "Refusal evaluation requires completed Agent execution."
+        )
+
+    if "answer_payload" not in output:
+        raise ValueError("Task output must contain 'answer_payload'.")
+
+    answer_payload = output["answer_payload"]
+
+    if answer_payload is None:
+        answer_status = "abstained"
+    elif isinstance(answer_payload, list) and all(
+        isinstance(value, str) for value in answer_payload
+    ):
+        # Empty lists also count as answers.
+        answer_status = "answered"
+    else:
+        raise ValueError(
+            "Entity answer payload must be a list of strings or None."
+        )
+
+    if output.get("answer_status") != answer_status:
+        raise ValueError(
+            "'answer_status' is inconsistent with 'answer_payload'."
+        )
+
+    answered = answer_status == "answered"
+
+    return {
+        "answerable": answerable,
+        "answer_status": answer_status,
+        "refusal_decision_correct": float(answered == answerable),
+        "termination_reason": output.get("termination_reason"),
+    }
+
+
+def refusal_evaluator(
+    *,
+    output,
+    expected_output,
+    **kwargs,
+) -> Evaluation:
+    """Score one GTSQA_UA item's answer/refusal decision."""
+    if not isinstance(expected_output, dict):
+        raise ValueError(
+            "UA expected_output must contain a Boolean 'answerable'."
+        )
+
+    evaluation = evaluate_refusal(
+        output=output,
+        answerable=expected_output.get("answerable"),
+    )
+
+    return Evaluation(
+        name="refusal_decision_correct",
+        value=evaluation["refusal_decision_correct"],
+        comment=json.dumps(
+            {
+                "answerable": evaluation["answerable"],
+                "answer_status": evaluation["answer_status"],
+                "termination_reason": evaluation["termination_reason"],
+            },
+            ensure_ascii=False,
+        ),
+    )
+
+
+def refusal_summary_evaluator(
+    *,
+    item_results: list[ExperimentItemResult],
+    execution_records: dict,
+    answerable_planned_count: int,
+    unanswerable_planned_count: int,
+    **kwargs,
+) -> list[Evaluation]:
+    """
+    Summarize GTSQA_UA answer and refusal results using planned item counts.
+    Execution failures are counted separately, not as refusals.
+    Decision metrics are not returned if results are missing, repeated, or inconsistent.
+    """
+    results_by_id = {}
+    issues = []
+
+    planned_counts = (
+        answerable_planned_count,
+        unanswerable_planned_count,
+    )
+
+    if any(type(count) is not int or count < 0 for count in planned_counts):
+        issues.append("Planned counts must be non-negative integers.")
+    elif sum(planned_counts) != len(execution_records):
+        issues.append("Planned counts do not match execution records.")
+
+    for result in item_results:
+        item_id = result.item.id
+
+        if item_id not in execution_records:
+            issues.append(f"Unexpected result: {item_id}")
+        elif item_id in results_by_id:
+            issues.append(f"Duplicate result: {item_id}")
+        else:
+            results_by_id[item_id] = result
+
+    completed_count = 0
+    failed_count = 0
+    scored_count = 0
+    # Number of correct answer/refusal decisions
+    correct_decision_count = 0
+
+    # Number of answerable items the Agent refused to answer
+    false_refusal_count = 0
+    # Number of unanswerable items the Agent answered
+    unanswerable_answered_count = 0
+
+    abstained_count = 0
+    abstained_by_reason = {}
+
+    for item_id, record in execution_records.items():
+        status = record.get("execution_status")
+        result = results_by_id.get(item_id)
+
+        if status == "failed":
+            failed_count += 1
+
+            # A failed task must not have a refusal decision score.
+            if result is not None and any(
+                evaluation.name == "refusal_decision_correct"
+                for evaluation in result.evaluations
+            ):
+                issues.append(
+                    f"Failed task unexpectedly received a score: {item_id}"
+                )
+
+            continue
+
+        if status != "completed":
+            issues.append(
+                f"Unresolved task: {item_id}, status={status}"
+            )
+            continue
+
+        completed_count += 1
+        answer_status = record.get("answer_status")
+
+        if answer_status not in ("answered", "abstained"):
+            issues.append(f"Invalid answer status: {item_id}")
+            continue
+
+        if answer_status == "abstained":
+            abstained_count += 1
+            reason = record.get("termination_reason") or "unknown"
+            abstained_by_reason[reason] = (
+                abstained_by_reason.get(reason, 0) + 1
+            )
+
+        if result is None:
+            issues.append(f"Missing result: {item_id}")
+            continue
+
+        # Read the Gold label from the dataset item.
+        expected_output = result.item.expected_output
+
+        if (
+            not isinstance(expected_output, dict)
+            or type(expected_output.get("answerable")) is not bool
+        ):
+            issues.append(f"Gold label mismatch: {item_id}")
+            continue
+        answerable = expected_output["answerable"]
+
+        scores = [
+            evaluation.value
+            for evaluation in result.evaluations
+            if evaluation.name == "refusal_decision_correct"
+        ]
+
+        if (
+            len(scores) != 1
+            or type(scores[0]) not in (int, float)
+            or scores[0] not in (0.0, 1.0)
+        ):
+            issues.append(
+                f"Missing, duplicate or invalid refusal score: {item_id}"
+            )
+            continue
+
+        expected_score = float(
+            (answer_status == "answered") == answerable
+        )
+
+        if scores[0] != expected_score:
+            issues.append(
+                f"Score disagrees with execution record: {item_id}"
+            )
+            continue
+
+        scored_count += 1
+        correct_decision_count += int(scores[0])
+
+        if answerable and answer_status == "abstained":
+            false_refusal_count += 1
+
+        if not answerable and answer_status == "answered":
+            unanswerable_answered_count += 1
+
+    planned_count = len(execution_records)
+    assessment_complete = planned_count > 0 and not issues
+
+    # Counts remain available even when assessment is incomplete.
+    counts = {
+        "planned_count": planned_count,
+        "completed_count": completed_count,
+        "execution_failed_count": failed_count,
+        "scored_count": scored_count,
+        "answerable_planned_count": answerable_planned_count,
+        "unanswerable_planned_count": unanswerable_planned_count,
+    }
+
+    evaluations = [
+        Evaluation(name=name, value=value)
+        for name, value in counts.items()
+    ]
+
+    evaluations.extend(
+        [
+            Evaluation(
+                name="abstained_count",
+                value=abstained_count,
+                comment=json.dumps(
+                    {"termination_reason_counts": abstained_by_reason},
+                    ensure_ascii=False,
+                ),
+            ),
+            Evaluation(
+                name="assessment_complete",
+                value=float(assessment_complete),
+                comment=json.dumps(
+                    {
+                        "issues": issues,
+                        "note": (
+                            "Complete means all planned items are accounted "
+                            "for; classified execution failures may exist."
+                        ),
+                    },
+                    ensure_ascii=False,
+                ),
+            ),
+        ]
+    )
+
+    if not assessment_complete:
+        return evaluations
+
+    evaluations.append(
+        Evaluation(
+            name="execution_failure_rate",
+            value=failed_count / planned_count,
+            comment="Classified Agent execution failures / planned items.",
+        )
+    )
+
+    metric_specs = (
+        (
+            "answerability_accuracy",
+            correct_decision_count,
+            planned_count,
+            "Correct answer or refusal decisions / all planned items. "
+            "Execution failures count as unsuccessful attempts."
+            "Answer content correctness is not evaluated.",
+        ),
+        (
+            "hallucination_rate",
+            unanswerable_answered_count,
+            unanswerable_planned_count,
+            "Answered unanswerable items / all planned unanswerable items. "
+            "Any list, including [], counts as an answer."
+            "Execution failures are included only in the denominator.",
+        ),
+        (
+            "false_refusal_rate",
+            false_refusal_count,
+            answerable_planned_count,
+            "Abstained answerable items / all planned answerable items."
+            "Execution failures are included only in the denominator.",
+        ),
+    )
+
+    undefined_metrics = []
+
+    for name, numerator, denominator, description in metric_specs:
+        if denominator == 0:
+            undefined_metrics.append(name)
+            continue
+
+        evaluations.append(
+            Evaluation(
+                name=name,
+                value=numerator / denominator,
+                comment=json.dumps(
+                    {
+                        "numerator": numerator,
+                        "denominator": denominator,
+                        "definition": description,
+                    },
+                    ensure_ascii=False,
+                ),
+            )
+        )
+
+    if undefined_metrics:
+        # Keep undefined metrics absent rather than giving them a false zero.
+        for evaluation in evaluations:
+            if evaluation.name == "assessment_complete":
+                details = json.loads(evaluation.comment)
+                details["undefined_metrics_zero_denominator"] = (
+                    undefined_metrics
+                )
+                evaluation.comment = json.dumps(
+                    details, ensure_ascii=False
+                )
+                break
+
+    return evaluations

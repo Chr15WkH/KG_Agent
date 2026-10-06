@@ -25,7 +25,7 @@ dependencies = [
    "transformers>=4.50.3",
    "networkx>=3.4.2",
    "sentence-transformers>=5.0.0",
-   "faiss-cpu>=1.11.0"
+   "faiss-cpu>=1.11.0",
    "rdflib==7.6.0",
 ]
 
