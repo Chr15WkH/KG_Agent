@@ -42,10 +42,32 @@ DATASET_NAME = "gtsqa-ua-development"
 SAMPLE_IDS = (
     "13311-original",
     "13311-ua-01",
+    "37715-original",
+    "37715-ua-01",
+    "40154-original",
+    "40154-ua-01",
+    "42587-original",
+    "42587-ua-01",
+    "4519-original",
+    "4519-ua-01",
+    "8865-original",
+    "8865-ua-01",
+    "16154-original",
+    "16154-ua-01",
+    "31606-original",
+    "31606-ua-01",
+    "33122-original",
+    "33122-ua-01",
+    "40487-original",
+    "40487-ua-01",
+    "1012-original",
+    "1012-ua-01",
+    "41371-original",
+    "41371-ua-01",
 )
 # Allow creation of missing datasets and items.
 SYNC_MISSING_ITEMS = True
-EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-refusal-check"
+EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-gtsqa-ua-24items-run-01"
 ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
 
 # Print detailed Agent messages when debugging.
