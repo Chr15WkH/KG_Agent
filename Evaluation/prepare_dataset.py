@@ -3,7 +3,7 @@
 from langfuse.api import NotFoundError
 
 from Evaluation.dataset_loader import load_gtsqa_sample, load_gtsqa_gold, load_gtsqa_ua_gold
-from Evaluation.evaluators import normalize_entity_answers
+from Evaluation.evaluators import normalize_entity_answers, normalize_triples
 
 
 def prepare_local_items(*, dataset_name, sample_ids, dataset_type="gtsqa",):
@@ -101,12 +101,18 @@ def prepare_local_items(*, dataset_name, sample_ids, dataset_type="gtsqa",):
 
         # Validate the Gold format without changing its stored representation.
         normalize_entity_answers(gold["gold_answer"])
+        gold_triples = gold["full_answer_subgraph_wikikg2"]
+
+        if not normalize_triples(gold_triples):
+            raise ValueError(
+                f"Gold supporting subgraph is empty for sample {sample_id}."
+            )
 
         prepared_items.append(
             {
                 "id": f"{dataset_name}-{sample_id}",
                 "input": question,
-                "expected_output": gold["gold_answer"],
+                "expected_output": {"gold_answer": gold["gold_answer"], "full_answer_subgraph_wikikg2": gold_triples,},
                 "metadata": {
                     "sample_id": sample_id,
                 },
@@ -118,8 +124,8 @@ def prepare_local_items(*, dataset_name, sample_ids, dataset_type="gtsqa",):
 
     return prepared_items
 
-def validate_remote_item(item, payload):
-    """Reject conflicting items while allowing unrelated metadata."""
+def get_remote_item_differences(item, payload):
+    """List differences between a remote item and local data."""
 
     differences = []
 
@@ -153,10 +159,16 @@ def validate_remote_item(item, payload):
         ):
             differences.append("expected_output.answerable_type")
 
+    return differences
+
+def validate_remote_item(item, payload):
+    """Reject langfuse items that do not match local data."""
+    differences = get_remote_item_differences(item, payload)
+
     if differences:
         raise ValueError(
             f"Dataset item {payload['id']} conflicts with local data: "
-            f"{', '.join(differences)}. No overwrite was requested."
+            f"{', '.join(differences)}."
         )
 
 
@@ -167,8 +179,9 @@ def prepare_dataset(
     sample_ids,
     dataset_type="gtsqa",
     sync_missing_items=False,
+    update_existing_items=False,
 ):
-    """Validate selected items, optionally create missing ones, and return them."""
+    """Validate selected items, optionally create or update them, and return them."""
 
     # Validate local payloads before making any remote changes.
     payloads = prepare_local_items(
@@ -183,7 +196,7 @@ def prepare_dataset(
     evaluation_description = (
         "Refusal evaluation using answerability labels."
         if dataset_type == "gtsqa_ua"
-        else "Entity exact-match evaluation."
+        else "Entity exact-match and graph evidence coverage evaluation."
     )
 
     try:
@@ -216,15 +229,51 @@ def prepare_dataset(
     }
 
     missing_payloads = []
+    update_payloads = []
 
-    # Check every selected existing item before creating missing items.
+    # Check every selected existing item before creating or updating items.
     for payload in payloads:
         existing_item = existing_items.get(payload["id"])
 
         if existing_item is None:
             missing_payloads.append(payload)
-        else:
-            validate_remote_item(existing_item, payload)
+            continue
+
+        # Updating content must not reactivate archived items.
+        if existing_item.status != "ACTIVE":
+            raise ValueError(
+                f"Selected item {payload['id']} is not ACTIVE. "
+                "It will not be updated or reactivated."
+            )
+
+        differences = get_remote_item_differences(existing_item, payload)
+
+        if not differences:
+            continue
+
+        if not update_existing_items:
+            raise ValueError(
+                f"Dataset item {payload['id']} conflicts with local data: "
+                f"{', '.join(differences)}. "
+                "Updating existing items is disabled."
+            )
+
+        remote_metadata = existing_item.metadata
+        if remote_metadata is not None and not isinstance(remote_metadata, dict):
+            raise ValueError(
+                f"Metadata for item {payload['id']} must be a dictionary "
+                "before it can be merged."
+            )
+
+        update_payloads.append(
+            {
+                **payload,
+                "metadata": {
+                    **(remote_metadata or {}),
+                    **payload["metadata"],
+                },
+            }
+        )
 
     if missing_payloads and not sync_missing_items:
         missing_ids = [
@@ -236,15 +285,20 @@ def prepare_dataset(
             "Synchronization is disabled."
         )
 
-    for payload in missing_payloads:
-        client.create_dataset_item(
-            dataset_name=dataset_name,
-            id=payload["id"],
-            input=payload["input"],
-            expected_output=payload["expected_output"],
-            metadata=payload["metadata"],
-        )
-        print(f"Created dataset item: {payload['id']}", flush=True)
+    # The same API creates new items or updates items with an existing ID.
+    for action, pending_payloads in (
+        ("Created", missing_payloads),
+        ("Updated", update_payloads),
+    ):
+        for payload in pending_payloads:
+            client.create_dataset_item(
+                dataset_name=dataset_name,
+                id=payload["id"],
+                input=payload["input"],
+                expected_output=payload["expected_output"],
+                metadata=payload["metadata"],
+            )
+            print(f"{action} dataset item: {payload['id']}", flush=True)
 
     # Reload and verify the items selected for this experiment.
     dataset = client.get_dataset(dataset_name)
@@ -270,7 +324,8 @@ def prepare_dataset(
     print(
         f"Dataset ready: {dataset_name} | "
         f"Selected: {len(selected_items)} | "
-        f"Created: {len(missing_payloads)}",
+        f"Created: {len(missing_payloads)} | "
+        f"Updated: {len(update_payloads)}",
         flush=True,
     )
 

@@ -3,10 +3,17 @@
 import os
 import logging
 from pathlib import Path
-
+from functools import partial
 from dotenv import load_dotenv
 
-from Evaluation.evaluators import entity_exact_match_evaluator, experiment_summary_evaluator, refusal_evaluator, refusal_summary_evaluator
+from Evaluation.evaluators import (
+    entity_exact_match_evaluator,
+    entity_exact_match_summary_evaluator,
+    refusal_evaluator,
+    refusal_summary_evaluator,
+    graph_grounding_evaluator,
+    graph_grounding_summary_evaluator,
+)
 from Evaluation.dataset_loader import load_gtsqa_sample
 from Evaluation.prepare_dataset import prepare_dataset
 from Evaluation.langfuse_support import (
@@ -20,14 +27,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # Experiment configuration
 AGENT_VERSION = "ark_v1"
 # Choose the dataset
-DATASET_TYPE = "gtsqa_ua"
-DATASET_NAME = "gtsqa-ua-development"
+DATASET_TYPE = "gtsqa" # “gtsqa” or "gtsqa_ua"
+DATASET_NAME = "gtsqa-development" #"gtsqa-development" or"gtsqa-ua-development"
 # Select exactly which samples to run, in this order.
-# Sample ids for GTSQA:
-# SAMPLE_IDS = (
-#     13311,
-#     37715,
-#     40154,
+# Sample IDs for GTSQA:
+SAMPLE_IDS = (
+    13311,
+    37715,
+    40154,
 #     42587,
 #     4519,
 #     8865,
@@ -37,37 +44,39 @@ DATASET_NAME = "gtsqa-ua-development"
 #     40487,
 #     1012,
 #     41371,
-# )
-# Sample ids for GTSQA_UA:
-SAMPLE_IDS = (
-    "13311-original",
-    "13311-ua-01",
-    "37715-original",
-    "37715-ua-01",
-    "40154-original",
-    "40154-ua-01",
-    "42587-original",
-    "42587-ua-01",
-    "4519-original",
-    "4519-ua-01",
-    "8865-original",
-    "8865-ua-01",
-    "16154-original",
-    "16154-ua-01",
-    "31606-original",
-    "31606-ua-01",
-    "33122-original",
-    "33122-ua-01",
-    "40487-original",
-    "40487-ua-01",
-    "1012-original",
-    "1012-ua-01",
-    "41371-original",
-    "41371-ua-01",
 )
+# Sample IDs for GTSQA_UA:
+# SAMPLE_IDS = (
+#     "13311-original",
+#     "13311-ua-01",
+#     "37715-original",
+#     "37715-ua-01",
+#     "40154-original",
+#     "40154-ua-01",
+#     "42587-original",
+#     "42587-ua-01",
+#     "4519-original",
+#     "4519-ua-01",
+#     "8865-original",
+#     "8865-ua-01",
+#     "16154-original",
+#     "16154-ua-01",
+#     "31606-original",
+#     "31606-ua-01",
+#     "33122-original",
+#     "33122-ua-01",
+#     "40487-original",
+#     "40487-ua-01",
+#     "1012-original",
+#     "1012-ua-01",
+#     "41371-original",
+#     "41371-ua-01",
+# )
 # Allow creation of missing datasets and items.
 SYNC_MISSING_ITEMS = True
-EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-gtsqa-ua-24items-run-01"
+# Update existing items when local content changes.
+UPDATE_EXISTING_ITEMS = True
+EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-gtsqa-em-gg-3items-01"
 ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
 
 # Print detailed Agent messages when debugging.
@@ -86,14 +95,15 @@ AGENT_CONFIG = {
 
 
 def main() -> None:
+    # Select item and run evaluators for the dataset.
     if DATASET_TYPE == "gtsqa":
-        item_evaluator = entity_exact_match_evaluator
-        summary_evaluator = experiment_summary_evaluator
-        evaluation_description = "entity exact-match evaluation"
+        item_evaluators = [entity_exact_match_evaluator, graph_grounding_evaluator,]
+        summary_evaluators = [entity_exact_match_summary_evaluator, graph_grounding_summary_evaluator,]
+        evaluation_description = "entity exact-match and graph evidence coverage evaluation"
 
     elif DATASET_TYPE == "gtsqa_ua":
-        item_evaluator = refusal_evaluator
-        summary_evaluator = refusal_summary_evaluator
+        item_evaluators = [refusal_evaluator,]
+        summary_evaluators = [refusal_summary_evaluator,]
         evaluation_description = "answer/refusal decision evaluation"
 
     else:
@@ -137,6 +147,7 @@ def main() -> None:
             sample_ids=SAMPLE_IDS,
             dataset_type=DATASET_TYPE,
             sync_missing_items=SYNC_MISSING_ITEMS,
+            update_existing_items=UPDATE_EXISTING_ITEMS,
         )
         if DATASET_TYPE == "gtsqa_ua":
             # Number of planned answerable items
@@ -253,20 +264,21 @@ def main() -> None:
 
             return output
 
-        def run_summary(*, item_results, **kwargs):
-            # Pass planned answerable and unanswerable counts for UA metrics.
-            if DATASET_TYPE == "gtsqa_ua":
-                return summary_evaluator(
-                    item_results=item_results,
-                    execution_records=execution_records,
-                    answerable_planned_count=answerable_planned_count,
-                    unanswerable_planned_count=unanswerable_planned_count,
-                )
+        # Pass execution records and required counts to run evaluators.
+        summary_kwargs = {
+            "execution_records": execution_records,
+        }
 
-            return summary_evaluator(
-                item_results=item_results,
-                execution_records=execution_records,
+        if DATASET_TYPE == "gtsqa_ua":
+            summary_kwargs.update(
+                answerable_planned_count=answerable_planned_count,
+                unanswerable_planned_count=unanswerable_planned_count,
             )
+
+        run_evaluators = [
+            partial(evaluator, **summary_kwargs)
+            for evaluator in summary_evaluators
+        ]
         
         result = client.run_experiment(
             name=EXPERIMENT_NAME,
@@ -277,18 +289,14 @@ def main() -> None:
             ),
             data=selected_items,
             task=task,
-            evaluators=[item_evaluator],
-            run_evaluators=[run_summary],
+            evaluators=item_evaluators,
+            run_evaluators=run_evaluators,
             max_concurrency=1,
             metadata={
                 "agent_version": AGENT_VERSION,
                 "agent_config": AGENT_CONFIG,
                 "dataset_type": DATASET_TYPE,
                 "dataset": DATASET_NAME,
-                "sample_ids": [
-                    str(item.metadata["sample_id"])
-                    for item in selected_items
-                ],
                 "sample_count": len(selected_items),
             },
         )

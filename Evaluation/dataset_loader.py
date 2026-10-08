@@ -26,7 +26,7 @@ def load_gtsqa_sample(sample_id: int) -> dict:
 
 
 def load_gtsqa_gold(sample_id: int) -> dict:
-    """Load the original GTSQA reference answer for evaluation."""
+    """Load the GTSQA reference answer and supporting subgraph for evaluation."""
     gold_path = DATASET_DIR / "gtsqa_development_gold.json"
 
     with gold_path.open("r", encoding="utf-8") as file:
@@ -42,6 +42,7 @@ def load_gtsqa_gold(sample_id: int) -> dict:
 
     item = matches[0]
     answers = item["evaluation_gold"]["all_answers_wikikg2"]
+    supporting_subgraph = item["evaluation_gold"]["full_answer_subgraph_wikikg2"]
 
     if not isinstance(answers, list) or not all(
         isinstance(answer, str) for answer in answers
@@ -54,6 +55,7 @@ def load_gtsqa_gold(sample_id: int) -> dict:
         "sample_id": str(item["id"]),
         "question": item["question_profile"]["question"],
         "gold_answer": answers,
+        "full_answer_subgraph_wikikg2": supporting_subgraph,
     }
 
 

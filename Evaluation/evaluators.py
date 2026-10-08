@@ -2,6 +2,7 @@
 
 import re
 import json
+import math
 from langfuse import Evaluation
 from langfuse.experiment import ExperimentItemResult
 
@@ -38,6 +39,54 @@ def normalize_entity_answers(
         normalized.add(qid)
 
     return sorted(normalized)
+
+def normalize_triples(triples: list) -> set[tuple[str, str, str]]:
+    """Normalize [head, relation, tail] triples to unique QID/PID tuples."""
+    if not isinstance(triples, list):
+        raise ValueError("Triples must be a list.")
+
+    normalized = set()
+
+    for index, triple in enumerate(triples):
+        if not isinstance(triple, (list, tuple)) or len(triple) != 3:
+            raise ValueError(
+                f"Triple {index} must contain [head, relation, tail]."
+            )
+
+        head, relation, tail = triple
+
+        try:
+            # Normalize separately to preserve head/tail order.
+            head_id = normalize_entity_answers([head])[0]
+            tail_id = normalize_entity_answers([tail])[0]
+        except ValueError as error:
+            raise ValueError(
+                f"Invalid entity in triple {index}: {error}"
+            ) from error
+
+        if not isinstance(relation, str):
+            raise ValueError(
+                f"Relation in triple {index} must be a string."
+            )
+
+        relation = relation.strip()
+
+        if re.fullmatch(r"P[1-9]\d*", relation):
+            relation_id = relation
+        else:
+            match = re.fullmatch(r".+\((P[1-9]\d*)\)", relation)
+
+            if match is None:
+                raise ValueError(
+                    f"Cannot extract a PID from relation "
+                    f"in triple {index}: {relation!r}"
+                )
+
+            relation_id = match.group(1)
+
+        normalized.add((head_id, relation_id, tail_id))
+
+    return normalized
 
 
 def evaluate_entity_exact_match(
@@ -89,9 +138,14 @@ def entity_exact_match_evaluator(
             "Task output must contain 'answer_payload'."
         )
 
+    if not isinstance(expected_output, dict) or "gold_answer" not in expected_output:
+        raise ValueError(
+            "Expected output must contain 'gold_answer'."
+        )
+
     evaluation = evaluate_entity_exact_match(
         answer_payload=output["answer_payload"],
-        gold_answer=expected_output,
+        gold_answer=expected_output["gold_answer"],
     )
 
     return Evaluation(
@@ -108,7 +162,7 @@ def entity_exact_match_evaluator(
         ),
     )
 
-def experiment_summary_evaluator(
+def entity_exact_match_summary_evaluator(
     *,
     item_results: list[ExperimentItemResult],
     execution_records: dict,
@@ -199,13 +253,13 @@ def experiment_summary_evaluator(
     assessment_complete = planned_count > 0 and not issues
 
     evaluations = [
-        Evaluation(name="planned_count", value=planned_count),
-        Evaluation(name="completed_count", value=completed_count),
-        Evaluation(name="execution_failed_count", value=failed_count),
-        Evaluation(name="scored_count", value=scored_count),
-        Evaluation(name="correct_count", value=correct_count),
+        Evaluation(name="EM_planned_count", value=planned_count),
+        Evaluation(name="EM_completed_count", value=completed_count),
+        Evaluation(name="EM_execution_failed_count", value=failed_count),
+        Evaluation(name="EM_scored_count", value=scored_count),
+        Evaluation(name="EM_correct_count", value=correct_count),
         Evaluation(
-            name="abstained_count",
+            name="EM_abstained_count",
             value=abstained_count,
             comment=json.dumps(
                 {"termination_reason_counts": abstained_by_reason},
@@ -213,7 +267,7 @@ def experiment_summary_evaluator(
             ),
         ),
         Evaluation(
-            name="assessment_complete",
+            name="EM_assessment_complete",
             value=float(assessment_complete),
             comment=json.dumps(
                 {"issues": issues},
@@ -235,7 +289,7 @@ def experiment_summary_evaluator(
                     ),
                 ),
                 Evaluation(
-                    name="execution_failure_rate",
+                    name="EM_execution_failure_rate",
                     value=failed_count / planned_count,
                 ),
             ]
@@ -573,5 +627,194 @@ def refusal_summary_evaluator(
                     details, ensure_ascii=False
                 )
                 break
+
+    return evaluations
+
+def evaluate_graph_grounding(
+    used_triples: list,
+    gold_triples: list,
+) -> dict:
+    """Measure coverage of the full Gold supporting subgraph."""
+    normalized_gold = normalize_triples(gold_triples)
+
+    if not normalized_gold:
+        raise ValueError("Gold supporting subgraph must not be empty.")
+
+    normalized_used = normalize_triples(used_triples)
+    matched_triples = normalized_used & normalized_gold
+
+    return {
+        "used_triple_count": len(normalized_used),
+        "gold_triple_count": len(normalized_gold),
+        "matched_triple_count": len(matched_triples),
+        "graph_evidence_coverage": (
+            len(matched_triples) / len(normalized_gold)
+        ),
+    }
+
+def graph_grounding_evaluator(
+    *,
+    output,
+    expected_output,
+    **kwargs,
+) -> Evaluation:
+    """Score standard graph evidence coverage for one completed task."""
+    if not isinstance(output, dict):
+        raise ValueError("Task output must be a dictionary.")
+
+    if output.get("execution_status") != "completed":
+        raise ValueError(
+            "Per-item graph evidence evaluation requires completed execution."
+        )
+
+    if (
+        not isinstance(expected_output, dict)
+        or "full_answer_subgraph_wikikg2" not in expected_output
+    ):
+        raise ValueError(
+            "Expected output must contain 'full_answer_subgraph_wikikg2'."
+        )
+
+    if output.get("used_triples_error") is not None:
+        raise ValueError(
+            f"Evidence extraction failed: {output['used_triples_error']}"
+        )
+
+    if "used_triples" not in output or output["used_triples"] is None:
+        raise ValueError("Task output has no available used_triples record.")
+
+    evaluation = evaluate_graph_grounding(
+        used_triples=output["used_triples"],
+        gold_triples=expected_output["full_answer_subgraph_wikikg2"],
+    )
+
+    return Evaluation(
+        name="graph_evidence_coverage",
+        value=evaluation["graph_evidence_coverage"],
+        comment=json.dumps(
+            {
+                "used_triple_count": evaluation["used_triple_count"],
+                "gold_triple_count": evaluation["gold_triple_count"],
+                "matched_triple_count": evaluation["matched_triple_count"],
+            },
+            ensure_ascii=False,
+        ),
+    )
+
+def graph_grounding_summary_evaluator(
+    *,
+    item_results: list[ExperimentItemResult],
+    execution_records: dict,
+    **kwargs,
+) -> list[Evaluation]:
+    """Average evidence coverage over all planned items; failures contribute zero."""
+    results_by_id = {}
+    issues = []
+
+    for result in item_results:
+        item_id = result.item.id
+
+        if item_id not in execution_records:
+            issues.append(f"Unexpected result: {item_id}")
+        elif item_id in results_by_id:
+            issues.append(f"Duplicate result: {item_id}")
+        else:
+            results_by_id[item_id] = result
+
+    completed_count = 0
+    failed_count = 0
+    scored_count = 0
+    coverage_sum = 0.0
+
+    for item_id, record in execution_records.items():
+        status = record["execution_status"]
+        result = results_by_id.get(item_id)
+
+        if status == "failed":
+            failed_count += 1
+
+            if result is not None:
+                issues.append(
+                    f"Failed task unexpectedly returned a result: {item_id}"
+                )
+
+            # Failure contributes zero, but remains in planned_count.
+            continue
+
+        if status != "completed":
+            issues.append(
+                f"Unresolved task: {item_id}, status={status}"
+            )
+            continue
+
+        completed_count += 1
+
+        if result is None:
+            issues.append(f"Missing result: {item_id}")
+            continue
+
+        scores = [
+            evaluation.value
+            for evaluation in result.evaluations
+            if evaluation.name == "graph_evidence_coverage"
+        ]
+
+        if (
+            len(scores) != 1
+            or type(scores[0]) not in (int, float)
+            or not math.isfinite(scores[0])
+            or not 0.0 <= scores[0] <= 1.0
+        ):
+            issues.append(
+                f"Missing, duplicate, or invalid graph evidence score: {item_id}"
+            )
+            continue
+
+        scored_count += 1
+        coverage_sum += scores[0]
+
+    planned_count = len(execution_records)
+    assessment_complete = planned_count > 0 and not issues
+
+    evaluations = [
+        Evaluation(name="GG_planned_count", value=planned_count),
+        Evaluation(name="GG_completed_count", value=completed_count),
+        Evaluation(name="GG_execution_failed_count", value=failed_count),
+        Evaluation(name="GG_scored_count", value=scored_count),
+        Evaluation(
+            name="GG_assessment_complete",
+            value=float(assessment_complete),
+            comment=json.dumps(
+                {"issues": issues},
+                ensure_ascii=False,
+            ),
+        ),
+    ]
+
+    if assessment_complete:
+        evaluations.extend(
+            [
+                Evaluation(
+                    name="mean_graph_evidence_coverage",
+                    value=coverage_sum / planned_count,
+                    comment=json.dumps(
+                        {
+                            "coverage_sum": coverage_sum,
+                            "planned_count": planned_count,
+                            "definition": (
+                                "Sum of completed-item evidence coverage / "
+                                "all planned items. Classified execution "
+                                "failures contribute zero."
+                            ),
+                        },
+                        ensure_ascii=False,
+                    ),
+                ),
+                Evaluation(
+                    name="GG_execution_failure_rate",
+                    value=failed_count / planned_count,
+                ),
+            ]
+        )
 
     return evaluations

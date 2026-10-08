@@ -11,6 +11,75 @@ class AgentExecutionError(RuntimeError):
         super().__init__(message)
         self.error_type = error_type
 
+def _extract_used_triples(final_state: dict[str, Any]) -> list[list[str]]:
+    """Extract selected triples from retained, completed, valid steps."""
+    steps = final_state.get("reasoningSteps")
+
+    if not isinstance(steps, list):
+        raise ValueError("Final state must contain a reasoningSteps list.")
+
+    used_triples = []
+
+    for index, step in enumerate(steps):
+        if not isinstance(step, dict):
+            raise ValueError(f"Reasoning step {index} must be a dictionary.")
+
+        finished = step.get("finished")
+        if type(finished) is not bool:
+            raise ValueError(f"Reasoning step {index} has invalid finished status.")
+
+        if not finished:
+            continue
+
+        result = step.get("result")
+        if not isinstance(result, dict):
+            raise ValueError(f"Completed step {index} has no valid result.")
+
+        valid = result.get("valid")
+        if type(valid) is not bool:
+            raise ValueError(f"Reasoning step {index} has invalid verification status.")
+
+        if not valid:
+            continue
+
+        reasoning_result = result.get("result")
+        if not isinstance(reasoning_result, dict):
+            raise ValueError(f"Reasoning step {index} has no reasoning result.")
+
+        reset = reasoning_result.get("reset_reasoning_step")
+        if type(reset) is not bool:
+            raise ValueError(f"Reasoning step {index} has invalid reset status.")
+
+        if reset:
+            continue
+
+        triples = result.get("triples")
+        if not isinstance(triples, list):
+            raise ValueError(f"Reasoning step {index} has no selected triples list.")
+
+        for triple in triples:
+            try:
+                head = triple["head"]["value"]
+                relation = triple["edge"]["value"]["relation"]
+                tail = triple["tail"]["value"]
+            except (KeyError, TypeError) as error:
+                raise ValueError(
+                    f"Invalid selected triple structure in step {index}."
+                ) from error
+
+            if not all(
+                isinstance(value, str) and value.strip()
+                for value in (head, relation, tail)
+            ):
+                raise ValueError(
+                    f"Selected triple fields in step {index} "
+                    "must be non-empty strings."
+                )
+
+            used_triples.append([head, relation, tail])
+
+    return used_triples
+
 def run_ark_v1(
     *,
     sample: dict[str, Any],
@@ -77,6 +146,15 @@ def run_ark_v1(
 
     answer_payload = final_answer["answer"]
 
+    try:
+        used_triples = _extract_used_triples(final_state)
+        used_triples_error = None
+    except ValueError as error:
+        # Evidence extraction failure must not invalidate Agent execution or EM.
+        # Only Graph Grounding should be unavailable.
+        used_triples = None
+        used_triples_error = str(error)
+
     return {
         "answer_payload": answer_payload,
         "execution_status": "completed",
@@ -84,4 +162,6 @@ def run_ark_v1(
             "abstained" if answer_payload is None else "answered"
         ),
         "termination_reason": final_state.get("termination_reason"),
+        "used_triples": used_triples,
+        "used_triples_error": used_triples_error,
     }
