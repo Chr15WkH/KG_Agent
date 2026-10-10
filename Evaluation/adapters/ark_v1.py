@@ -83,6 +83,7 @@ def _extract_used_triples(final_state: dict[str, Any]) -> list[list[str]]:
 def run_ark_v1(
     *,
     sample: dict[str, Any],
+    dataset_type: str = "gtsqa",
     agent_config: dict[str, Any],
     runnable_config: RunnableConfig | None = None,
     verbose: bool = True,
@@ -95,14 +96,21 @@ def run_ark_v1(
     from ark_v1.adapters.gtsqa import adapt_gtsqa_sample
     from ark_v1.data_models.agent_models import QuestionTypes
 
-    adapted_sample = adapt_gtsqa_sample(sample)
+    if dataset_type == "crlt":
+        adapted_sample = sample
+        question_type = QuestionTypes.YES_NO
+    elif dataset_type in ("gtsqa", "gtsqa_ua"):
+        adapted_sample = adapt_gtsqa_sample(sample)
+        question_type = QuestionTypes.ENTITY_LIST
+    else:
+        raise ValueError(f"Unsupported dataset type: {dataset_type}")
 
     agent = ARK_V1()
     agent.load_configuration(config=agent_config)
     agent.load_graph_data(adapted_sample["graph"])
     agent.set_initial_state(
         question=adapted_sample["question"],
-        question_type=QuestionTypes.ENTITY_LIST,
+        question_type=question_type,
     )
 
     try:

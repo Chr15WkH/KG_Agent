@@ -13,6 +13,7 @@ from Evaluation.evaluators import (
     refusal_summary_evaluator,
     graph_grounding_evaluator,
     graph_grounding_summary_evaluator,
+    boolean_exact_match_evaluator,
 )
 from Evaluation.dataset_loader import load_gtsqa_sample
 from Evaluation.prepare_dataset import prepare_dataset
@@ -27,14 +28,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # Experiment configuration
 AGENT_VERSION = "ark_v1"
 # Choose the dataset
-DATASET_TYPE = "gtsqa" # “gtsqa” or "gtsqa_ua"
-DATASET_NAME = "gtsqa-development" #"gtsqa-development" or"gtsqa-ua-development"
+DATASET_TYPE = "crlt" # “gtsqa”, "gtsqa_ua" or "crlt"
+DATASET_NAME = "CR-LT-KGQA" #"gtsqa-development", "gtsqa-ua-development" or "CR-LT-KGQA"
 # Select exactly which samples to run, in this order.
 # Sample IDs for GTSQA:
-SAMPLE_IDS = (
-    13311,
-    37715,
-    40154,
+# SAMPLE_IDS = (
+#     13311,
+#     37715,
+#     40154,
 #     42587,
 #     4519,
 #     8865,
@@ -44,7 +45,7 @@ SAMPLE_IDS = (
 #     40487,
 #     1012,
 #     41371,
-)
+# )
 # Sample IDs for GTSQA_UA:
 # SAMPLE_IDS = (
 #     "13311-original",
@@ -70,13 +71,31 @@ SAMPLE_IDS = (
 #     "1012-original",
 #     "1012-ua-01",
 #     "41371-original",
-#     "41371-ua-01",
+    # "41371-ua-01",
 # )
+# Sample IDs for CR-LT-KGQA:
+SAMPLE_IDS = (
+    "S2",
+    "S3",
+    "S101",
+    "S104",
+    "S107",
+    "S115",
+    "S123",
+    "S176",
+    "S183",
+    "S185",
+    "S188",
+    "S192",
+    "S195",
+    "S198",
+    "S200",
+)
 # Allow creation of missing datasets and items.
-SYNC_MISSING_ITEMS = True
+SYNC_MISSING_ITEMS = False
 # Update existing items when local content changes.
-UPDATE_EXISTING_ITEMS = True
-EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-gtsqa-em-gg-3items-01"
+UPDATE_EXISTING_ITEMS = False
+EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-crlt-bool-em-15items-01"
 ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
 
 # Print detailed Agent messages when debugging.
@@ -105,6 +124,16 @@ def main() -> None:
         item_evaluators = [refusal_evaluator,]
         summary_evaluators = [refusal_summary_evaluator,]
         evaluation_description = "answer/refusal decision evaluation"
+
+    elif DATASET_TYPE == "crlt":
+        item_evaluators = [boolean_exact_match_evaluator]
+        summary_evaluators = [
+            partial(
+                entity_exact_match_summary_evaluator,
+                score_name="boolean_exact_match",
+            )
+        ]
+        evaluation_description = "Boolean exact-match and end-to-end accuracy evaluation"
 
     else:
         raise ValueError(f"Unsupported dataset type: {DATASET_TYPE}")
@@ -149,6 +178,28 @@ def main() -> None:
             sync_missing_items=SYNC_MISSING_ITEMS,
             update_existing_items=UPDATE_EXISTING_ITEMS,
         )
+        
+        # Keep CRLT graphs for the Agent, outside experiment metadata.
+        crlt_graphs = {}
+
+        if DATASET_TYPE == "crlt":
+            crlt_graphs = {
+                item.id: item.metadata["graph"]
+                for item in selected_items
+            }
+
+            selected_items = [
+                item.model_copy(
+                    update={
+                        "metadata": {
+                            "sample_id": item.id,
+                            "dataset_type": "crlt",
+                        }
+                    }
+                )
+                for item in selected_items
+            ]
+        # Count answerable and unanswerable items for GTSQA_UA.
         if DATASET_TYPE == "gtsqa_ua":
             # Number of planned answerable items
             answerable_planned_count = sum(
@@ -163,8 +214,10 @@ def main() -> None:
         # Pre-register all items so failed tasks remain visible in experiment statistics.
         execution_records = {
             item.id: {
-                "sample_id": str(
-                    (item.metadata or {}).get("sample_id", "")
+                "sample_id": (
+                    item.id
+                    if DATASET_TYPE == "crlt"
+                    else str((item.metadata or {}).get("sample_id", ""))
                 ),
                 "execution_status": "not_started",
                 "answer_status": None,
@@ -193,7 +246,14 @@ def main() -> None:
             print(f"{progress_label} Started", flush=True)
 
             try:
-                if DATASET_TYPE == "gtsqa":
+                if DATASET_TYPE == "crlt":
+                    sample_id = item.id
+                    sample = {
+                        "id": sample_id,
+                        "question": item.input,
+                        "graph": crlt_graphs[item.id],
+                    }
+                elif DATASET_TYPE == "gtsqa":
                     sample_id = int(item.metadata["sample_id"])
                     sample = load_gtsqa_sample(sample_id)
                 else:
@@ -215,6 +275,7 @@ def main() -> None:
 
                 output = run_agent(
                     sample=sample,
+                    dataset_type=DATASET_TYPE,
                     agent_config=AGENT_CONFIG,
                     verbose=AGENT_VERBOSE,
                     runnable_config={

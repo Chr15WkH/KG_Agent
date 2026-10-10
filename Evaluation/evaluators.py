@@ -89,6 +89,39 @@ def normalize_triples(triples: list) -> set[tuple[str, str, str]]:
     return normalized
 
 
+def boolean_exact_match_evaluator(
+    *,
+    output,
+    expected_output,
+    **kwargs,
+) -> Evaluation:
+    if type(expected_output) is not bool:
+        raise ValueError("CRLT expected_output must be Boolean.")
+
+    if not isinstance(output, dict) or "answer_payload" not in output:
+        raise ValueError("Task output must contain 'answer_payload'.")
+
+    predicted = output["answer_payload"]
+
+    correct = (
+        type(predicted) is bool
+        and predicted == expected_output
+    )
+
+    return Evaluation(
+        name="boolean_exact_match",
+        value=float(correct),
+        comment=json.dumps(
+            {
+                "predicted_answer": predicted,
+                "gold_answer": expected_output,
+                "answer_type_valid": type(predicted) is bool,
+                "abstained": predicted is None,
+            },
+            ensure_ascii=False,
+        ),
+    )
+
 def evaluate_entity_exact_match(
     answer_payload: list[str] | None,
     gold_answer: list[str],
@@ -166,6 +199,7 @@ def entity_exact_match_summary_evaluator(
     *,
     item_results: list[ExperimentItemResult],
     execution_records: dict,
+    score_name: str = "entity_exact_match",
     **kwargs,
 ) -> list[Evaluation]:
     """Summarize an experiment on answerable entity questions."""
@@ -231,7 +265,7 @@ def entity_exact_match_summary_evaluator(
         scores = [
             evaluation.value
             for evaluation in result.evaluations
-            if evaluation.name == "entity_exact_match"
+            if evaluation.name == score_name
         ]
 
         if (
@@ -284,8 +318,7 @@ def entity_exact_match_summary_evaluator(
                     value=correct_count / planned_count,
                     comment=(
                         "Correct answers / all planned items. "
-                        "Classified execution failures count as unsuccessful "
-                        "attempts. Applies to answerable entity questions."
+                        "Classified execution failures count as unsuccessful attempts. "
                     ),
                 ),
                 Evaluation(

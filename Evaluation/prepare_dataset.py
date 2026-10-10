@@ -181,7 +181,76 @@ def prepare_dataset(
     sync_missing_items=False,
     update_existing_items=False,
 ):
-    """Validate selected items, optionally create or update them, and return them."""
+    """
+    Load selected items from Langfuse and check their data.
+    GTSQA datasets may be created or updated from local data.
+    CRLT items are read directly from Langfuse.
+    """
+
+    # Read and validate existing CRLT items without changing them.
+    if dataset_type == "crlt":
+        sample_ids = tuple(sample_ids)
+
+        if not sample_ids:
+            raise ValueError("Select at least one CRLT item ID.")
+
+        if any(
+            not isinstance(item_id, str) or not item_id.strip()
+            for item_id in sample_ids
+        ):
+            raise ValueError("CRLT item IDs must be non-empty strings.")
+
+        if len(sample_ids) != len(set(sample_ids)):
+            raise ValueError("Duplicate CRLT item IDs are not allowed.")
+
+        dataset = client.get_dataset(dataset_name)
+        items_by_id = {item.id: item for item in dataset.items}
+        selected_items = []
+
+        for item_id in sample_ids:
+            item = items_by_id.get(item_id)
+
+            if item is None:
+                raise ValueError(f"CRLT item {item_id!r} was not found.")
+
+            if item.status != "ACTIVE":
+                raise ValueError(f"CRLT item {item_id!r} is not ACTIVE.")
+
+            if not isinstance(item.input, str) or not item.input.strip():
+                raise ValueError(f"Invalid question for {item_id}.")
+
+            if type(item.expected_output) is not bool:
+                raise ValueError(
+                    f"Expected output for {item_id} must be Boolean."
+                )
+
+            metadata = item.metadata
+            if not isinstance(metadata, dict):
+                raise ValueError(f"Metadata for {item_id} must be an object.")
+
+            graph = metadata.get("graph")
+            if not isinstance(graph, list) or not graph:
+                raise ValueError(f"Missing or empty graph for {item_id}.")
+
+            for index, triple in enumerate(graph):
+                if (
+                    not isinstance(triple, list)
+                    or len(triple) != 3
+                    or not all(
+                        isinstance(value, str) and value.strip()
+                        for value in triple[:2]
+                    )
+                    or not isinstance(triple[2], dict)
+                    or not isinstance(triple[2].get("relation"), str)
+                    or not triple[2]["relation"].strip()
+                ):
+                    raise ValueError(
+                        f"Invalid graph triple {index} for {item_id}."
+                    )
+
+            selected_items.append(item)
+
+        return selected_items
 
     # Validate local payloads before making any remote changes.
     payloads = prepare_local_items(
