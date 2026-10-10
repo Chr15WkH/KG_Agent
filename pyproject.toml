@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kg-agent-evaluation"
+version = "0.1.0"
+description = "A framework for developing and evaluating knowledge graph agents"
+requires-python = ">=3.11,<3.12"
+
+dependencies = [
+    "pydantic==2.13.5",
+    "langchain==1.3.18",
+    "langchain-core==1.6.1",
+    "langchain-ollama==1.1.0",
+    "langchain-openai==1.6.0",
+    "langchain-litellm==0.7.1",
+    "langgraph==1.2.11",
+    "langfuse==4.15.3",
+    "python-dotenv==1.2.3",
+    "transformers==5.16.1",
+    "networkx==3.6.1",
+    "sentence-transformers==6.0.1",
+    "faiss-cpu==1.15.0",
+    "rdflib==7.6.0",
+    "pyarrow==25.0.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["Evaluation", "Evaluation.*"]

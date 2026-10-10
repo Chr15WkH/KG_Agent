@@ -80,7 +80,7 @@ def _extract_used_triples(final_state: dict[str, Any]) -> list[list[str]]:
 
     return used_triples
 
-def run_ark_v1(
+def run_ark_v1_1(
     *,
     sample: dict[str, Any],
     dataset_type: str = "gtsqa",
@@ -92,9 +92,9 @@ def run_ark_v1(
 
     # Import only when this adapter is called.
     # The experiment entry point must load the environment first.
-    from ark_v1.ark_v1 import ARK_V1
-    from ark_v1.adapters.gtsqa import adapt_gtsqa_sample
-    from ark_v1.data_models.agent_models import QuestionTypes
+    from ark_v1_1.ark_v1_1 import ARK_V1_1
+    from ark_v1_1.adapters.gtsqa import adapt_gtsqa_sample
+    from ark_v1_1.data_models.agent_models import QuestionTypes
 
     if dataset_type == "crlt":
         adapted_sample = sample
@@ -105,7 +105,7 @@ def run_ark_v1(
     else:
         raise ValueError(f"Unsupported dataset type: {dataset_type}")
 
-    agent = ARK_V1()
+    agent = ARK_V1_1()
     agent.load_configuration(config=agent_config)
     agent.load_graph_data(adapted_sample["graph"])
     agent.set_initial_state(

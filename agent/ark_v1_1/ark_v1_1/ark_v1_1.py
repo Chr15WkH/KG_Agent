@@ -13,27 +13,27 @@ from langchain_core.messages import (
     ToolMessage,
 )
 from langchain_core.runnables import RunnableConfig
-from ark_v1.utils import (
+from ark_v1_1.utils import (
     draw_graph,
     get_llm,
     generate_4_digit_hash,
 )
 
-from ark_v1.agent import Agent
+from ark_v1_1.agent import Agent
 
-from ark_v1.data_models.query_models import (
+from ark_v1_1.data_models.query_models import (
     QueryResultEntitiesExist,
     QueryResultGetEdges,
     QueryResultRelationsExist,
     QueryResultGetTriples,
 )
 
-from ark_v1.graph.graph_interface import (
+from ark_v1_1.graph.graph_interface import (
     GraphInterface,
 )
 
-import ark_v1.chat_prompt_templates as prompts
-from ark_v1.data_models.agent_models import (
+import ark_v1_1.chat_prompt_templates as prompts
+from ark_v1_1.data_models.agent_models import (
     AgentState,
     QuestionTypes,
     RuntimeState,
@@ -49,7 +49,7 @@ from ark_v1.data_models.agent_models import (
 )
 
 
-class ARK_V1(Agent):
+class ARK_V1_1(Agent):
     """A multi-hop reasoning agent that uses a knowledge graph to answer user requests."""
 
     def __init__(
@@ -59,7 +59,7 @@ class ARK_V1(Agent):
         draw_graph: bool = False,
     ):
         super().__init__(
-            name="ark_v1",
+            name="ark_v1_1",
         )
         self._graph_interface = GraphInterface()
         self._question_type = question_type

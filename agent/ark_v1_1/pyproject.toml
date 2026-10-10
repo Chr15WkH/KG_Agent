@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ark_v1"
-version = "1.0.0"
+name = "ark_v1_1"
+version = "1.1.0"
 description = "ARK-V1 is an LLM-Agent which performs reasoning on a knowledge graph."
 authors = [
     { name = "Jan-Felix Klein", email = "janfelixklein@ooglemail.com"}
@@ -20,7 +20,6 @@ dependencies = [
    "langgraph>=0.6.5",
    "langchain-openai>=0.3.30",
    "langchain-litellm==0.7.1",
-   "langfuse==4.15.3",
    "python-dotenv>=1.0.0",
    "transformers>=4.50.3",
    "networkx>=3.4.2",
@@ -36,5 +35,4 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["ark_v1*"]
-
+include = ["ark_v1_1*"]

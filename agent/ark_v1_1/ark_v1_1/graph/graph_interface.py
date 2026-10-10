@@ -1,15 +1,15 @@
 from typing import List, Dict, Optional
 from langchain_core.tools import tool, BaseTool
-from ark_v1.graph.local_graph import (
+from ark_v1_1.graph.local_graph import (
     LocalGraph,
 )
-from ark_v1.data_models.graph_models import (
+from ark_v1_1.data_models.graph_models import (
     NodeVerified,
     EdgeVerified,
     TripleVerified,
 )
 
-from ark_v1.data_models.query_models import (
+from ark_v1_1.data_models.query_models import (
     QueryResult,
     QueryResultEntitiesExist,
     QueryResultGetRelations,

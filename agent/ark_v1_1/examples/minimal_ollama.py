@@ -2,7 +2,7 @@ import sys
 import os
 import json
 import logging
-from ark_v1.ark_v1 import ARK_V1
+from ark_v1_1.ark_v1_1 import ARK_V1_1
 from langchain_ollama import ChatOllama
 
 
@@ -31,7 +31,7 @@ def main():
         seed=42,
     )
 
-    agent = ARK_V1()
+    agent = ARK_V1_1()
     agent.llm = llm
     agent.load_configuration(config={})
 

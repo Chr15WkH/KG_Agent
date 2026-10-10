@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List
-from ark_v1.data_models.graph_models import (
+from ark_v1_1.data_models.graph_models import (
     NodeVerified,
     EdgeVerified,
     TripleVerified,

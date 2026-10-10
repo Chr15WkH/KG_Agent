@@ -26,7 +26,7 @@ from Evaluation.langfuse_support import (
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 # Experiment configuration
-AGENT_VERSION = "ark_v1"
+AGENT_VERSION = "ark_v1_1"
 # Choose the dataset
 DATASET_TYPE = "crlt" # “gtsqa”, "gtsqa_ua" or "crlt"
 DATASET_NAME = "CR-LT-KGQA" #"gtsqa-development", "gtsqa-ua-development" or "CR-LT-KGQA"
@@ -96,7 +96,7 @@ SYNC_MISSING_ITEMS = False
 # Update existing items when local content changes.
 UPDATE_EXISTING_ITEMS = False
 EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-crlt-bool-em-15items-01"
-ENV_FILE = PROJECT_ROOT / "agent" / "ark_v1" / ".env"
+ENV_FILE = PROJECT_ROOT / ".env"
 
 # Print detailed Agent messages when debugging.
 AGENT_VERBOSE = False
@@ -160,10 +160,10 @@ def main() -> None:
     )
 
     # Load only the selected Agent adapter.
-    if AGENT_VERSION == "ark_v1":
-        from Evaluation.adapters.ark_v1 import run_ark_v1, AgentExecutionError
+    if AGENT_VERSION == "ark_v1_1":
+        from Evaluation.adapters.ark_v1_1 import run_ark_v1_1, AgentExecutionError
 
-        run_agent = run_ark_v1
+        run_agent = run_ark_v1_1
     else:
         raise ValueError(f"Unsupported Agent: {AGENT_VERSION}")
 
@@ -257,7 +257,7 @@ def main() -> None:
                     sample_id = int(item.metadata["sample_id"])
                     sample = load_gtsqa_sample(sample_id)
                 else:
-                    from ark_v1.adapters.gtsqa_ua import (
+                    from ark_v1_1.adapters.gtsqa_ua import (
                         load_gtsqa_ua_sample,
                     )
 

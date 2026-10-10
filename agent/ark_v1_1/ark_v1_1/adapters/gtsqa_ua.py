@@ -1,4 +1,4 @@
-"""Load, reconstruct and validate GTSQA_UA samples for ARK_V1.
+"""Load, reconstruct and validate GTSQA_UA samples for ARK_V1_1.
 
 This module does not import the dataset builder or Evaluation.
 
@@ -16,7 +16,7 @@ from .gtsqa import adapt_gtsqa_sample
 
 
 # File location:
-# KG_Agent/agent/ark_v1/ark_v1/adapters/gtsqa_ua.py
+# KG_Agent/agent/ark_v1_1/ark_v1_1/adapters/gtsqa_ua.py
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DATASET_DIR = PROJECT_ROOT / "Dataset"
 
@@ -289,7 +289,7 @@ def adapt_gtsqa_ua_sample(
     gold_path=DEFAULT_GOLD_PATH,
     input_path=DEFAULT_INPUT_PATH,
 ):
-    """Return validated input with ARK_V1 [head, tail, relation] triples."""
+    """Return validated input with ARK_V1_1 [head, tail, relation] triples."""
     sample = load_gtsqa_ua_sample(
         variant_id,
         gold_path=gold_path,

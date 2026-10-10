@@ -3,7 +3,7 @@ from typing import List, Optional, Annotated, Dict, Any, Literal
 from pydantic import BaseModel, Field, field_validator
 from langchain_core.messages import AnyMessage
 
-from ark_v1.data_models.query_models import (
+from ark_v1_1.data_models.query_models import (
     QueryResult,
     QueryResultEntitiesExist,
     QueryResultGetRelations,
@@ -11,7 +11,7 @@ from ark_v1.data_models.query_models import (
     QueryResultRelationsExist,
     QueryResultGetTriples,
 )
-from ark_v1.data_models.graph_models import (
+from ark_v1_1.data_models.graph_models import (
     Triple,
     EdgeVerified,
     TripleVerified,

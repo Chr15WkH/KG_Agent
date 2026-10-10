@@ -69,7 +69,7 @@ def get_llm(
         if not api_key:
             raise ValueError(
                 "Missing LITELLM_API_KEY. "
-                "Set it in agent/ark_v1/.env or your environment."
+                "Set it in KG_Agent/.env or your environment."
             )
         return ChatLiteLLM(
             model=f"openai/{name}",
