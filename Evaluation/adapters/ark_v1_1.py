@@ -88,7 +88,7 @@ def run_ark_v1_1(
     runnable_config: RunnableConfig | None = None,
     verbose: bool = True,
 ) -> dict[str, Any]:
-    """Run ARK v1 on one raw GTSQA sample and return its answer."""
+    """Run ARK v1.1 on one raw GTSQA sample and return its answer."""
 
     # Import only when this adapter is called.
     # The experiment entry point must load the environment first.

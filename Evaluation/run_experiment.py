@@ -26,7 +26,7 @@ from Evaluation.langfuse_support import (
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 # Experiment configuration
-AGENT_VERSION = "ark_v1_1"
+AGENT_VERSION = "ark_v1" # 'ark_v1', 'ark_v1_1'
 # Choose the dataset
 DATASET_TYPE = "crlt" # “gtsqa”, "gtsqa_ua" or "crlt"
 DATASET_NAME = "CR-LT-KGQA" #"gtsqa-development", "gtsqa-ua-development" or "CR-LT-KGQA"
@@ -95,7 +95,6 @@ SAMPLE_IDS = (
 SYNC_MISSING_ITEMS = False
 # Update existing items when local content changes.
 UPDATE_EXISTING_ITEMS = False
-EXPERIMENT_NAME = "ark-v1-qwen3.8-27b-crlt-bool-em-15items-01"
 ENV_FILE = PROJECT_ROOT / ".env"
 
 # Print detailed Agent messages when debugging.
@@ -119,11 +118,13 @@ def main() -> None:
         item_evaluators = [entity_exact_match_evaluator, graph_grounding_evaluator,]
         summary_evaluators = [entity_exact_match_summary_evaluator, graph_grounding_summary_evaluator,]
         evaluation_description = "entity exact-match and graph evidence coverage evaluation"
+        evaluator_label = "entity_em+grounding"
 
     elif DATASET_TYPE == "gtsqa_ua":
         item_evaluators = [refusal_evaluator,]
         summary_evaluators = [refusal_summary_evaluator,]
         evaluation_description = "answer/refusal decision evaluation"
+        evaluator_label = "refusal"
 
     elif DATASET_TYPE == "crlt":
         item_evaluators = [boolean_exact_match_evaluator]
@@ -134,9 +135,12 @@ def main() -> None:
             )
         ]
         evaluation_description = "Boolean exact-match and end-to-end accuracy evaluation"
+        evaluator_label = "bool_em"
 
     else:
         raise ValueError(f"Unsupported dataset type: {DATASET_TYPE}")
+    # Define the Experiment name: agent-model-dataset-evaluator-item count.
+    experiment_name = f"{AGENT_VERSION}-{AGENT_CONFIG['llm']['model']}-{DATASET_TYPE}-{evaluator_label}-{len(SAMPLE_IDS)}items"
 
     if not ENV_FILE.is_file():
         raise FileNotFoundError(
@@ -160,10 +164,16 @@ def main() -> None:
     )
 
     # Load only the selected Agent adapter.
-    if AGENT_VERSION == "ark_v1_1":
+    if AGENT_VERSION == "ark_v1":
+        from Evaluation.adapters.ark_v1 import run_ark_v1, AgentExecutionError
+
+        run_agent = run_ark_v1
+
+    elif AGENT_VERSION == "ark_v1_1":
         from Evaluation.adapters.ark_v1_1 import run_ark_v1_1, AgentExecutionError
 
         run_agent = run_ark_v1_1
+
     else:
         raise ValueError(f"Unsupported Agent: {AGENT_VERSION}")
 
@@ -342,7 +352,7 @@ def main() -> None:
         ]
         
         result = client.run_experiment(
-            name=EXPERIMENT_NAME,
+            name=experiment_name,
             description=(
                 f"{DATASET_TYPE} development experiment with "
                 f"{len(selected_items)} selected items "
