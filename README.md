@@ -19,10 +19,11 @@ Install the project and its dependencies from the root `pyproject.toml`:
 python -m pip install -e .
 ```
 
-Register the adapted Agent in the same environment:
+Register both Agents in the same environment:
 
 ```bash
-python -m pip install --no-deps -e agent/ark_v1_1
+python -m pip install --no-deps --no-build-isolation -e agent/ark_v1
+python -m pip install --no-deps --no-build-isolation -e agent/ark_v1_1
 ```
 
 All Agents use the root `.venv`; separate Agent environments are unnecessary. Installation is required for initial setup or environment recreation, not for each run. Ordinary edits to Agent source code are available through the editable installation without reinstalling.
@@ -47,4 +48,4 @@ python -m Evaluation.run_experiment
 
 Evaluation calls the configured model service and records experiment results in Langfuse.
 
-See the [ARK v1.1 README](agent/ark_v1_1/README.md) for standalone Agent examples.
+See [Agent Versions](agent/README.md) for version details and the Agent-specific READMEs for standalone examples.
