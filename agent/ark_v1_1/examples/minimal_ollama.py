@@ -2,12 +2,9 @@ import sys
 import os
 import json
 import logging
-from ark_v1.ark_v1 import ARK_V1
-from pathlib import Path
-from dotenv import load_dotenv
+from ark_v1_1.ark_v1_1 import ARK_V1_1
+from langchain_ollama import ChatOllama
 
-ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
-load_dotenv(dotenv_path=ENV_PATH, override=True)
 
 # Configure logging
 logging.basicConfig(
@@ -18,23 +15,25 @@ logging.basicConfig(
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python examples/minimal_litellm.py <model_name>")
+        print("Usage: python minimal_ollama.py <model_name>")
         sys.exit(1)
 
     model_name = sys.argv[1]
     print(f"Using model: {model_name}")
 
-    config = {
-        "llm": {
-            "model": model_name,
-            "temperature": 0.9,
-            "top_p": 0.9,
-            "seed": 42,
-        },
-    }
+    llm = ChatOllama(
+        model="qwen3:14b",
+        base_url="http://localhost:11434",
+        temperature=0.9,
+        top_p=0.9,
+        min_p=0.0,
+        top_k=40,
+        seed=42,
+    )
 
-    agent = ARK_V1()
-    agent.load_configuration(config=config)
+    agent = ARK_V1_1()
+    agent.llm = llm
+    agent.load_configuration(config={})
 
     # load example data
     with open(

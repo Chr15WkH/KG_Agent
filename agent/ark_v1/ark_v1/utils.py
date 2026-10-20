@@ -69,7 +69,7 @@ def get_llm(
         if not api_key:
             raise ValueError(
                 "Missing LITELLM_API_KEY. "
-                "Set it in agent/ark_v1/.env or your environment."
+                "Set it in KG_Agent/.env or your environment."
             )
         return ChatLiteLLM(
             model=f"openai/{name}",
@@ -81,7 +81,7 @@ def get_llm(
             temperature=temperature,  # Set temperature
             top_p=top_p,  # Set TopP
             seed=seed,  # Set seed
-        ) 
+        )
     elif name in OPEN_ROUTER_MODELS:
         if not os.environ.get("OPENROUTER_API_KEY"):
             os.environ["OPENROUTER_API_KEY"] = getpass.getpass(

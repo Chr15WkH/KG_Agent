@@ -30,3 +30,16 @@ Link to the corresponding paper: [Link](https://arxiv.org/abs/2509.18063)
   year={2025}
 }
 ```
+
+## Local Evaluation Adaptations
+
+This upstream ARK-V1 baseline includes the following local changes:
+
+1. Model access: Added LiteLLM support, registered deepseek/deepseek-chat for OpenRouter.
+2. Dependencies: Added langchain-litellm to pyproject.toml.
+3. Execution interface: Added runnable_config for callbacks and metadata, and verbose to control printed messages.
+4. Evaluation: Added Evaluation/adapters/ark_v1.py for CRLT Boolean tasks, reusing the existing evaluators.
+5. Prompt roles: Changed the five non-system-description templates from system to user messages.
+6. Stream completion: Return the collected answer after the event stream finishes.
+
+Prompt text, reasoning routes, retry conditions, and final-answer extraction remain unchanged by these adaptations.
