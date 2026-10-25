@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 from typing import List, Optional, Annotated, Dict, Any, Literal
 from pydantic import BaseModel, Field, field_validator
@@ -129,17 +130,88 @@ class RelationVerified(VerifiedModel):
 # Triples models
 
 
+# Exploration record types
+
+StepAction = Literal["continue_path", "switch_candidate", "backtrack", "stop"]
+EvidenceType = Literal["kg_triple", "kg_absence", "background", "guess"]
+ConclusionStatus = Literal["satisfied", "not_satisfied", "undetermined"]
+CandidateStatus = Literal["pending", "excluded", "confirmed"]
+
+
+class Conclusion(BaseModel):
+    """A conclusion proposed by the LLM about one candidate and one condition."""
+
+    candidate: str = Field(
+        description=(
+            "The entity the conclusion is about, written exactly as it appears in the retrieved triples"
+            "or the exploration summary, including its ID in parentheses if present."
+        ),
+    )
+    condition: str = Field(
+        description=(
+            "The condition from the user request that is checked, in short natural language, "
+            "e.g. 'shares a border with Esponellà'."
+        ),
+    )
+    status: ConclusionStatus = Field(
+        description="Whether the candidate satisfies the condition.",
+    )
+    evidence_type: EvidenceType = Field(
+        description=(
+            "'kg_triple': supported by triples retrieved in this step; list their keys. "
+            "'kg_absence': the triples retrieved in this step are the complete result for the current anchor and relation, "
+            "and the expected entity is not among them; set absent_entity. "
+            "'background': based on general knowledge, not on the knowledge graph. "
+            "'guess': an unverified assumption, e.g. inferred from a name."
+        ),
+    )
+    keys: List[str] = Field(
+        description=(
+            "Keys of the triples from this step that support the conclusion. "
+            "Required for 'kg_triple', otherwise empty."
+        ),
+        default=[],
+    )
+    absent_entity: Optional[str] = Field(
+        description=(
+            "Only for 'kg_absence': the entity that was expected but is missing from the retrieved triples."
+        ),
+        default=None,
+    )
+
+
 class ReasoningStepResult(Keys):
-    """A model that holds the keys for selected triples that were retrieved from the knowledge graph."""
+    """The LLM output of one reasoning step."""
 
     implications: str = Field(
-        description="A short summary of implications that were drawn from the retrieved triples as well as future steps that should be taken to answer the user request. "
+        description=(
+            "A short summary of implications that were drawn from the retrieved "
+            "triples as well as future steps that should be taken to answer the "
+            "user request."
+        )
     )
-    continue_exploration: bool = Field(
-        description="Based on the implications, set this flag to indicate if the knowledge graph exploration should be continued."
+    conclusions: List[Conclusion] = Field(
+        description=(
+            "Conclusions drawn in this step about candidates and conditions of the user request. "
+            "Include negative conclusions, e.g. a candidate that does not satisfy a condition."
+        ),
+        default=[],
     )
-    reset_reasoning_step: bool = Field(
-        description="If set to True, the reasoning step will be cancelled and a fresh reasoning step cycle is initiated.",
+    action: StepAction = Field(
+        description=(
+            "What to do next. "
+            "'continue_path': follow the current path further, e.g. explore an entity found in this step. "
+            "'switch_candidate': the current candidate is excluded or cannot be verified; continue with another pending candidate. "
+            "'backtrack': the current path is not useful; return to an entity from an earlier step and try another relation. "
+            "'stop': end exploration because the user request can be fully answered from verified facts, or no further exploration is possible."
+        )
+    )
+    discard_step: bool = Field(
+        description=(
+            "Set to True only if the triples retrieved in this step are irrelevant to the user request. "
+            "A discarded step is kept in the record but not used as evidence. "
+            "Discarding a step does not stop exploration."
+        ),
         default=False,
     )
 
@@ -180,6 +252,7 @@ class ReasoningStep(BaseModel):
     triples_retrieved: Optional[List[TripleVerified]] = None
     result: Optional[ReasoningStepResultVerified] = None
     finished: bool = False
+    discarded: bool = False
 
     def get_triples_retrieved_str(self) -> str:
         """Get a string representation of the retrieved triples"""
@@ -263,6 +336,80 @@ class FinalAnswerEntityListVerified(VerifiedModel):
     answer: FinalAnswerEntityList
 
 
+# Exploration Record
+
+
+def normalize_entity_name(name: str) -> str:
+    """Normalize an entity name for matching (whitespace and case)."""
+    return " ".join(name.split()).casefold()
+
+
+def strip_entity_id(name: str) -> str:
+    """Remove a trailing Wikidata ID such as ' (Q123)' from an entity name."""
+    return re.sub(r"\s*\(Q[1-9]\d*\)\s*$", "", name.strip())
+
+
+class ConclusionRecord(BaseModel):
+    """A conclusion after program-side verification."""
+
+    conclusion_id: int
+    iteration: int = Field(description="Reasoning iteration of the conclusion.")
+    candidate: str
+    condition: str
+    constraint_id: Optional[str] = Field(
+        default=None,
+        description="Reference to the constraint list.",
+    )
+    status: ConclusionStatus
+    evidence_type: EvidenceType
+    triples: List[TripleVerified] = []
+    absent_entity: Optional[str] = None
+    query: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Anchor, relation and direction of the step.",
+    )
+    verified: bool = Field(
+        default=False,
+        description="True only for kg_triple or kg_absence conclusions that passed verification.",
+    )
+    rejection_reason: Optional[str] = None
+
+
+class CandidateRecord(BaseModel):
+    """An entity retrieved during exploration, independent of whether it was cited."""
+
+    name: str
+    source_iteration: int
+    status: CandidateStatus = "pending"
+    conclusion_ids: List[int] = []
+
+
+class ExplorationRecord(BaseModel):
+    """Exploration state that is never removed when a reasoning step is reset."""
+
+    constraints: List[Dict[str, Any]] = Field(
+        default=[],
+        description="Constraint list; filled from stage B on.",
+    )
+    candidates: List[CandidateRecord] = []
+    conclusions: List[ConclusionRecord] = []
+
+    def find_candidate(self, name: str) -> Optional[CandidateRecord]:
+        """Find a candidate by exact normalized name, then by name without ID if unique."""
+        target = normalize_entity_name(name)
+        for candidate in self.candidates:
+            if normalize_entity_name(candidate.name) == target:
+                return candidate
+
+        base = normalize_entity_name(strip_entity_id(name))
+        matches = [
+            candidate
+            for candidate in self.candidates
+            if normalize_entity_name(strip_entity_id(candidate.name)) == base
+        ]
+        return matches[0] if len(matches) == 1 else None
+
+
 # Runtime State
 
 
@@ -282,6 +429,10 @@ class RuntimeState(BaseModel):
     reasoningSteps: List[ReasoningStep] = Field(
         description="List of reasoning steps",
         default=[],
+    )
+    exploration: ExplorationRecord = Field(
+        description="Exploration record kept across resets",
+        default_factory=ExplorationRecord,
     )
     iteration: int = 0
     continue_exploration: bool = True
