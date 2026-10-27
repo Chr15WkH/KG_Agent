@@ -343,10 +343,29 @@ def normalize_entity_name(name: str) -> str:
     """Normalize an entity name for matching (whitespace and case)."""
     return " ".join(name.split()).casefold()
 
-
 def strip_entity_id(name: str) -> str:
     """Remove a trailing Wikidata ID such as ' (Q123)' from an entity name."""
     return re.sub(r"\s*\(Q[1-9]\d*\)\s*$", "", name.strip())
+
+def get_entity_id(name: str) -> Optional[str]:
+    """Return the trailing Wikidata ID of an entity name, e.g. 'Q123', or None."""
+    match = re.search(r"\((Q[1-9]\d*)\)\s*$", name.strip())
+    return match.group(1) if match else None
+
+
+def same_entity(a: str, b: str) -> bool:
+    """
+    Check whether two entity names refer to the same entity.
+    Names must match without ID, and IDs must not conflict, e.g.
+    "John Smith (Q10)" matches "John Smith", but not "John Smith (Q20)".
+    """
+    if normalize_entity_name(strip_entity_id(a)) != normalize_entity_name(
+        strip_entity_id(b)
+    ):
+        return False
+    id_a, id_b = get_entity_id(a), get_entity_id(b)
+    # True if both IDs are equal or at least one name has no ID
+    return id_a is None or id_b is None or id_a == id_b
 
 
 class ConclusionRecord(BaseModel):
@@ -395,17 +414,21 @@ class ExplorationRecord(BaseModel):
     conclusions: List[ConclusionRecord] = []
 
     def find_candidate(self, name: str) -> Optional[CandidateRecord]:
-        """Find a candidate by exact normalized name, then by name without ID if unique."""
+        """
+        Find the existing candidate that a conclusion's candidate name refers to.
+        Exact name match first, otherwise a unique match by same_entity.
+        Returns None if nothing or more than one candidate matches.
+        """
         target = normalize_entity_name(name)
         for candidate in self.candidates:
             if normalize_entity_name(candidate.name) == target:
                 return candidate
 
-        base = normalize_entity_name(strip_entity_id(name))
         matches = [
             candidate
             for candidate in self.candidates
-            if normalize_entity_name(strip_entity_id(candidate.name)) == base
+            # True if both entities have the same name and ID, or same name but at least one name has no ID.
+            if same_entity(candidate.name, name)
         ]
         return matches[0] if len(matches) == 1 else None
 

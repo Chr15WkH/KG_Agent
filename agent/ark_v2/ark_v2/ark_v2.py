@@ -46,7 +46,169 @@ from ark_v2.data_models.agent_models import (
     ReasoningStepResultVerified,
     FinalAnswerYesNo,
     FinalAnswerEntityList,
+    ConclusionRecord,
+    CandidateRecord,
+    normalize_entity_name,
+    strip_entity_id,
+    same_entity,
+    get_entity_id,
 )
+
+
+def _resolve_entity_name(name: str, known_entities: List[str]) -> str:
+    """
+    Replace an LLM-written entity name with its graph name, if unambiguous.
+    known_entities are graph names the program is sure about in this step.
+    Exact match first, otherwise a unique match by same_entity.
+    If neither exists, name is returned unchanged.
+    """
+    target = normalize_entity_name(name)
+    for entity in known_entities:
+        if normalize_entity_name(entity) == target:
+            return entity
+    matches = list(dict.fromkeys(e for e in known_entities if same_entity(e, name)))
+    return matches[0] if len(matches) == 1 else name
+
+def _record_step_conclusions(
+    state: RuntimeState, step: ReasoningStep
+) -> List[ConclusionRecord]:
+    """Verify the conclusions of a valid reasoning step and add them to the exploration record."""
+    exploration = state.exploration
+    result = step.result.result
+    relation = step.relation_selected.candidate
+    anchor_name = step.anchor.anchor.value
+    query = {
+        "anchor": anchor_name,
+        "relation": relation.value,
+        "direction": relation.direction,
+    }
+    triples_by_key = step.get_dict_triples_retrieved()
+    # Entities at the other end of the retrieved triples. 
+    other_end = [
+        t.tail.value if relation.direction == "outgoing" else t.head.value
+        for t in (step.triples_retrieved or [])
+    ]
+
+    records: List[ConclusionRecord] = []
+    for conclusion in result.conclusions:
+        record = ConclusionRecord(
+            conclusion_id=len(exploration.conclusions) + 1,
+            iteration=state.iteration,
+            candidate=conclusion.candidate,
+            condition=conclusion.condition,
+            status=conclusion.status,
+            evidence_type=conclusion.evidence_type,
+            absent_entity=conclusion.absent_entity,
+            query=query,
+        )
+
+        if conclusion.evidence_type == "kg_triple":
+            keys = list(dict.fromkeys(conclusion.keys))
+            missing = [k for k in keys if k not in triples_by_key]
+            if not keys:
+                record.rejection_reason = "kg_triple without keys"
+            elif missing:
+                record.rejection_reason = f"keys not retrieved in this step: {missing}"
+            else:
+                cited = [triples_by_key[k] for k in keys]
+                cited_entities = [e for t in cited for e in (t.head.value, t.tail.value)]
+                # The candidate must be one unique entity of the cited triples
+                if _resolve_entity_name(conclusion.candidate, cited_entities) in cited_entities:
+                    record.triples = cited
+                    record.verified = True
+                else:
+                    record.rejection_reason = (
+                        "candidate is not a unique entity of the cited triples"
+                    )
+
+        elif conclusion.evidence_type == "kg_absence":
+            if not conclusion.absent_entity:
+                record.rejection_reason = "kg_absence without absent_entity"
+            else:
+                if same_entity(anchor_name, conclusion.candidate):
+                    checked = conclusion.absent_entity
+                elif same_entity(anchor_name, conclusion.absent_entity):
+                    checked = conclusion.candidate
+                else:
+                    checked = None
+                if checked is None:
+                    record.rejection_reason = (
+                        "anchor of this step is neither the candidate nor the absent entity"
+                    )
+                elif any(same_entity(checked, entity) for entity in other_end):
+                    record.rejection_reason = (
+                        f"'{checked}' appears in the retrieved triples"
+                    )
+                else:
+                    record.verified = True
+        # background / guess: verified stays False, no rejection_reason
+
+        # Use the graph name of the entity if the program can determine it
+        evidence_entities = [anchor_name] + [
+            entity for t in record.triples for entity in (t.head.value, t.tail.value)
+        ]
+        record.candidate = _resolve_entity_name(conclusion.candidate, evidence_entities)
+
+        exploration.conclusions.append(record)
+        records.append(record)
+
+        candidate = exploration.find_candidate(record.candidate)
+        if candidate is None:
+            candidate = CandidateRecord(
+                name=record.candidate, source_iteration=state.iteration
+            )
+            exploration.candidates.append(candidate)
+        candidate.conclusion_ids.append(record.conclusion_id)
+        if record.verified and record.status == "not_satisfied":
+            candidate.status = "excluded"
+
+    return records
+
+def _add_retrieved_candidates(state: RuntimeState, step: ReasoningStep) -> None:
+    """Add the entities at the other end of the retrieved triples as pending candidates."""
+    exploration = state.exploration
+    anchor_key = normalize_entity_name(step.anchor.anchor.value)
+    direction = step.relation_selected.candidate.direction
+
+    known = {normalize_entity_name(c.name) for c in exploration.candidates}
+    # Candidates written without an ID (usually by an LLM conclusion), by name
+    without_id = {
+        normalize_entity_name(c.name): c
+        for c in exploration.candidates
+        if strip_entity_id(c.name) == c.name.strip()
+    }
+    retrieved = [
+        t.tail.value if direction == "outgoing" else t.head.value
+        for t in (step.triples_retrieved or [])
+    ]
+    # For each name without ID, collect the distinct entities with an ID that have this name, from existing candidates and this step's results.
+    # A candidate without ID is renamed only if exactly one such entity exists.
+    ids_per_name = {}
+    for entity in [c.name for c in exploration.candidates] + retrieved:
+        if get_entity_id(entity) is not None:
+            ids_per_name.setdefault(
+                normalize_entity_name(strip_entity_id(entity)), set()
+            ).add(normalize_entity_name(entity))
+
+    for triple in step.triples_retrieved or []:
+        name = triple.tail.value if direction == "outgoing" else triple.head.value
+        name_key = normalize_entity_name(name)
+        if name_key in known or name_key == anchor_key:
+            continue
+        known.add(name_key)
+
+        base = normalize_entity_name(strip_entity_id(name))
+        existing = (
+            without_id.pop(base, None) if len(ids_per_name.get(base, ())) == 1 else None
+        )
+        if existing is not None:
+            # Adopt the graph name with ID so that later matches are exact
+            existing.name = name
+            continue
+
+        exploration.candidates.append(
+            CandidateRecord(name=name, source_iteration=state.iteration)
+        )
 
 
 class ARK_V2(Agent):
@@ -519,6 +681,8 @@ class ARK_V2(Agent):
 
             # for each triple create a unique hash and store a dict representation
             current_reasoning_step.triples_retrieved = retrieved_triples.results
+            # Add the entities at the other end of the retrieved triples as pending candidates.
+            _add_retrieved_candidates(state, current_reasoning_step)
 
             state.append_message(
                 SystemMessage(
@@ -538,6 +702,10 @@ class ARK_V2(Agent):
             triples_retrieved = current_reasoning_step.triples_retrieved
             verified_result = current_reasoning_step.result
             verified_result.attempt += 1
+             # Each attempt is verified on its own
+            verified_result.valid = False
+            verified_result.triples = []
+            verified_result.invalid_keys = []
 
             prompt = self.get_message_from_prompt_template(
                 "perform_reasoning",
@@ -559,7 +727,9 @@ class ARK_V2(Agent):
                 verified_result.valid = False
                 state.append_message(
                     AIMessage(
-                        content=f"While trying to generate a reasoning step you used wrongly formatted keys. The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. Choose either one of these keys or set an empty list as the keys to reset the reasoning step."
+                        content=f"While trying to generate a reasoning step you used wrongly formatted keys. "
+                        f"The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. "
+                        "Choose either one of these keys or set an empty list as the keys if none of the triples are relevant."
                     )
                 )
 
@@ -585,15 +755,27 @@ class ARK_V2(Agent):
                 invalid_keys_str = f" \nInvalid keys found: {verified_result.invalid_keys}. Please adjust your reasoning step."
                 state.append_message(
                     AIMessage(
-                        content=f"While trying to generate a reasoning step you used invalid keys {verified_result.invalid_keys}. The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. Choose either one of these keys or set an empty list as the keys to reset the reasoning step."
+                        content=f"While trying to generate a reasoning step you used invalid keys {verified_result.invalid_keys}. "
+                                f"The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. " 
+                                "Choose either one of these keys or set an empty list as the keys if none of the triples are relevant."
                     )
                 )
             else:
                 # If all triples are valid, we set the reasoning step to valid
                 verified_result.valid = True
+                records = _record_step_conclusions(state, current_reasoning_step)
+                n_verified = sum(r.verified for r in records)
                 state.append_message(
                     AIMessage(
-                        content=f"Result (Iteration {state.iteration}, Step 4, Attempt {verified_result.attempt}): \nValid: {verified_result.valid} \nSelected Triples: {[triple.get_tuple() for triple in verified_result.triples]} \nImplications: {verified_result.result.implications}{invalid_keys_str} \nContinue Exploration: {verified_result.result.continue_exploration} \nReset Reasoning Step: {verified_result.result.reset_reasoning_step}"
+                        content=(
+                            f"Result (Iteration {state.iteration}, Step 4, Attempt {verified_result.attempt}): "
+                            f"\nValid: {verified_result.valid} "
+                            f"\nSelected Triples: {[triple.get_tuple() for triple in verified_result.triples]} "
+                            f"\nImplications: {verified_result.result.implications} "
+                            f"\nConclusions: {len(records)} ({n_verified} verified) "
+                            f"\nAction: {verified_result.result.action} "
+                            f"\nDiscard Step: {verified_result.result.discard_step}"
+                        )
                     )
                 )
             current_reasoning_step.finished = True
