@@ -112,8 +112,11 @@ def _record_step_conclusions(
             else:
                 cited = [triples_by_key[k] for k in keys]
                 cited_entities = [e for t in cited for e in (t.head.value, t.tail.value)]
-                # The candidate must be one unique entity of the cited triples
-                if _resolve_entity_name(conclusion.candidate, cited_entities) in cited_entities:
+                # _resolve_entity_name returns a cited entity only for a unique match;
+                # with no match or an ambiguous one, it keeps the original name
+                resolved = _resolve_entity_name(conclusion.candidate, cited_entities)
+                # Resolution succeeded only if the result is one of the cited entities
+                if resolved in cited_entities:
                     record.triples = cited
                     record.verified = True
                 else:
@@ -732,10 +735,8 @@ class ARK_V2(Agent):
                         "Choose either one of these keys or set an empty list as the keys if none of the triples are relevant."
                     )
                 )
-
-                if state.iteration >= self.max_reasoning_steps:
-                    state.termination_reason = "exploration_limit"
-                elif verified_result.attempt >= self.max_attempts:
+                # No valid attempt within the attempt limit: exploration ends here
+                if verified_result.attempt >= self.max_attempts:
                     state.termination_reason = "reasoning_attempt_limit"
                 return state
 
@@ -763,6 +764,7 @@ class ARK_V2(Agent):
             else:
                 # If all triples are valid, we set the reasoning step to valid
                 verified_result.valid = True
+                current_reasoning_step.discarded = verified_result.result.discard_step
                 records = _record_step_conclusions(state, current_reasoning_step)
                 n_verified = sum(r.verified for r in records)
                 state.append_message(
@@ -780,49 +782,34 @@ class ARK_V2(Agent):
                 )
             current_reasoning_step.finished = True
 
-            if state.iteration >= self.max_reasoning_steps:
-                state.termination_reason = "exploration_limit"
-            elif verified_result.attempt >= self.max_attempts:
+            # No valid attempt within the attempt limit: exploration ends here
+            if not verified_result.valid and verified_result.attempt >= self.max_attempts:
                 state.termination_reason = "reasoning_attempt_limit"
             return state
 
         def _route_reasoning_step(state: RuntimeState) -> str:
-            """Evaluate the reasoning step and decide what to do next"""
+            """Send a valid attempt to cleanup; retry an invalid one until the attempt limit."""
             current_reasoning_step = state.reasoningSteps[-1]
 
-            # We first check if the selected triples for the reasoning step are invalid
-            if (
-                state.iteration >= self.max_reasoning_steps
-                or current_reasoning_step.result.attempt >= self.max_attempts
-            ):
-                return "generate_answer"
-            elif not current_reasoning_step.result.valid:
-                return "retrieve_triples"
-            else:
+            if current_reasoning_step.result.valid:
                 return "cleanup"
+            elif current_reasoning_step.result.attempt >= self.max_attempts:
+                return "generate_answer"
+            else:
+                return "retrieve_triples"
 
         def cleanup(state: RuntimeState) -> RuntimeState:
-            """Cleanup reasoning process"""
+            """Decide whether exploration continues and replace the message history with a summary."""
             # set global continue exploration flag and record why exploration stops
             current_reasoning_step = state.reasoningSteps[-1]
             if state.iteration >= self.max_reasoning_steps:
                 state.continue_exploration = False
                 state.termination_reason = "exploration_limit"
-            elif current_reasoning_step.result.result.reset_reasoning_step is True:
+            elif current_reasoning_step.result.result.action == "stop":
                 state.continue_exploration = False
-                state.termination_reason = "other_stop"
+                state.termination_reason = "model_stop"
             else:
-                state.continue_exploration = (
-                    current_reasoning_step.result.result.continue_exploration
-                )
-                if state.continue_exploration is False:
-                    state.termination_reason = "model_stop"
-
-            if (
-                current_reasoning_step.result.result.reset_reasoning_step is True
-                or current_reasoning_step.result.triples == []
-            ):
-                state.reasoningSteps.pop()
+                state.continue_exploration = True
 
             human_message_index = next(
                 (
