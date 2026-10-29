@@ -950,7 +950,8 @@ class ARK_V2(Agent):
                     AIMessage(
                         content=f"While trying to generate a reasoning step you used wrongly formatted keys. "
                         f"The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. "
-                        "Choose either one of these keys or set an empty list as the keys if none of the triples are relevant."
+                        "Choose only from these keys. If none of the triples are relevant, "
+                        "set keys to an empty list and discard_step to true."
                     )
                 )
                 # No valid attempt within the attempt limit: exploration ends here
@@ -976,7 +977,8 @@ class ARK_V2(Agent):
                     AIMessage(
                         content=f"While trying to generate a reasoning step you used invalid keys {verified_result.invalid_keys}. "
                                 f"The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. " 
-                                "Choose either one of these keys or set an empty list as the keys if none of the triples are relevant."
+                                "Choose only from these keys. If none of the triples are relevant, "
+                                "set keys to an empty list and discard_step to true."
                     )
                 )
             else:
@@ -988,7 +990,7 @@ class ARK_V2(Agent):
                 state.append_message(
                     AIMessage(
                         content=(
-                            f"Result (Iteration {state.iteration}, Step 4, Attempt {verified_result.attempt}): "
+                            f"Result (Iteration {state.iteration}, Step 3, Attempt {verified_result.attempt}): "
                             f"\nValid: {verified_result.valid} "
                             f"\nSelected Triples: {[triple.get_tuple() for triple in verified_result.triples]} "
                             f"\nImplications: {verified_result.result.implications} "

@@ -16,10 +16,23 @@ def get_prompt_system_description() -> ChatPromptTemplate:
                 "2. Create a new reasoning step:\n"
                 "   2.1 Select ONE specific anchor entity from the KG to explore next.\n"
                 "   2.2 From the anchor entity's available relation-direction pairs, select exactly ONE pair to follow.\n"
-                "   2.3 The system retrieves triples for the selected relation and direction. You reason strictly based on them.\n"
-                "3. Decide whether to continue exploring by selecting a new anchor entity (if needed facts are missing) or produce a final answer.\n\n"
+                "   2.3 The system retrieves all triples for the selected anchor, relation and direction. You reason strictly based on them.\n"
+                "3. Record conclusions about candidates and choose the next action. Unless the action is stop, also name the next anchor.\n"
+                "   The available actions are:\n"
+                "   - continue_path: follow the current path further, e.g. explore an entity found in this step.\n"
+                "   - switch_candidate: the current candidate is excluded or cannot be verified; continue with another pending candidate.\n"
+                "   - backtrack: the current path is not useful; return to an entity from an earlier step and try another relation.\n"
+                "   - stop: end exploration and produce the final answer.\n\n"
+                "Terms:\n"
+                "- Reasoning Step N in the summary is the same as Iteration N.\n"
+                "- A candidate is any entity under examination: entities retrieved during exploration "
+                "and entities that conclusions are about, including intermediate entities. A candidate is not necessarily an answer. "
+                "For example, for 'Which paintings were made by a Spanish painter?', the answers are paintings, "
+                "but the painter of a painting is also a candidate when checking whether the painter is Spanish.\n"
+                "- Each candidate has a status: pending (not excluded so far) or excluded (verified by the knowledge graph to fail a condition of the user request). "
+                "The summary lists candidates by status.\n\n"
                 "Rules:\n"
-                "- Rely your reasoning on the retrieved information.\n"
+                "- Base your reasoning on the retrieved information.\n"
                 "- Always return results in the exact structured schema provided for that step.\n",
             )
         ]
@@ -31,7 +44,18 @@ def get_prompt_summarize_reasoning() -> ChatPromptTemplate:
         [
             (
                 "user",
-                "This is a summary of {number_of_steps} reasoning steps completed so far: "
+                "This is a summary of {number_of_steps} reasoning steps completed so far. "
+                "It has five sections:\n"
+                "- Detailed Reasoning Steps: the anchor and relation of each valid step, the triples it used "
+                "(Used Triples) and its implications. "
+                "A step discarded as irrelevant has no Used Triples or Implications.\n"
+                "- Verified facts: conclusions confirmed by the knowledge graph, with the triples "
+                "or the missing relation as evidence.\n"
+                "- Unverified assumptions: conclusions not confirmed by the knowledge graph, e.g. based on "
+                "background knowledge, a guess or rejected evidence. Do not treat them as facts.\n"
+                "- Excluded candidates: candidates verified to fail a condition.\n"
+                "- Pending candidates: candidates not excluded so far, grouped by the reasoning step that "
+                "retrieved them. They include intermediate entities and entities irrelevant to the request.\n\n"
                 "{summary}\n\n"
                 "You must use this summary to maintain consistency. Do not repeat facts already retrieved unless needed for clarity.",
             )
@@ -107,16 +131,30 @@ def get_prompt_perform_reasoning() -> ChatPromptTemplate:
             (
                 "user",
                 "(Iteration {iteration}, Step 3, Attempt {attempt})\n"
-                "You have received triples from the KG for your selected relations.\n"
+                "You have received all triples from the KG for the selected anchor, relation and direction.\n"
                 "Task: Reason based on these triples towards answering the user request.\n"
-                "Rules:\n"
-                "- You may ONLY reference triples retrieved in this step.\n"
+                "Rules for keys and discard_step:\n"
+                "- keys: the keys of the triples from this step that you use. Select only keys from: {allowed_keys}.\n"
+                "- If none of the triples are relevant, set keys to an empty list and discard_step to true. "
+                "Discarding a step does not stop exploration.\n"
+                "Rules for conclusions:\n"
+                "- Add one conclusion for each candidate and condition of the user request that this step informs, "
+                "including negative conclusions (the candidate does not satisfy the condition). "
+                "Candidates include intermediate entities, not only possible answers.\n"
+                "- Write the candidate exactly as it appears in the triples or the summary, including the ID in parentheses if present.\n"
+                "- kg_triple: the candidate must appear in the triples whose keys the conclusion lists.\n"
+                "- kg_absence: the candidate or the absent_entity must be the anchor of this step, "
+                "and the other one must not appear in the triples retrieved in this step.\n"
+                "- A judgement that is not based on the triples of this step, e.g. on general knowledge "
+                "or on an entity name, must be marked as background or guess.\n"
+                "- If the summary already contains the same condition, copy its condition text exactly.\n"
+                "Rules for the next action:\n"
                 "- If previous reasoning steps exist, integrate them without contradiction.\n"
-                "- Consider whether there are NEW potential anchor entities mentioned in the triples\n"
+                "- Entities in these triples and pending candidates in the summary are possible next anchors.\n"
                 "- next_anchor: if the action is not stop, name the entity you intend to explore next, "
                 "exactly as it appears in the triples or the summary, including the ID in parentheses if present.\n"
-                "- Only set continueExploration = False if you are confident you can fully and unambiguously answer the user's request from the facts retrieved so far.\n"
-                "- Select only keys from: {allowed_keys}.\n"
+                "- Only choose stop if you can fully and unambiguously answer the user request from verified facts, "
+                "or no further exploration is possible.\n"
                 "Return your answer in the following schema: \n{schema}",
             )
         ]
@@ -128,12 +166,11 @@ def get_prompt_create_final_answer() -> ChatPromptTemplate:
         [
             (
                 "user",
-                "It is time to prepare the final answer for the user request: {user_request} "
-                "The previous reasoning steps were as follows: \n"
-                "{reasoning_steps}"
-                "Please answer with a structured output given by the following schema: {schema}"
-                "Notes on answering based on the question types:"
-                " {question_type_str}",
+                "It is time to prepare the final answer for the user request: {user_request}\n"
+                "The previous reasoning steps were as follows:\n"
+                "{reasoning_steps}\n\n"
+                "Please answer with a structured output given by the following schema: {schema}\n"
+                "Notes on answering based on the question types: {question_type_str}",
             )
         ]
     )

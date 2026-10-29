@@ -143,7 +143,9 @@ class Conclusion(BaseModel):
 
     candidate: str = Field(
         description=(
-            "The entity the conclusion is about, written exactly as it appears in the retrieved triples"
+            "The entity the conclusion is about, which can be the anchor or an entity "
+            "at the other end of the triples. It need not be an answer, e.g. the painter "
+            "of a painting. Write it exactly as it appears in the retrieved triples "
             "or the exploration summary, including its ID in parentheses if present."
         ),
     )
