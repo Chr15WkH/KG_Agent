@@ -69,6 +69,7 @@ def _resolve_entity_name(name: str, known_entities: List[str]) -> str:
     matches = list(dict.fromkeys(e for e in known_entities if same_entity(e, name)))
     return matches[0] if len(matches) == 1 else name
 
+
 def _record_step_conclusions(
     state: RuntimeState, step: ReasoningStep
 ) -> List[ConclusionRecord]:
@@ -155,6 +156,7 @@ def _record_step_conclusions(
         exploration.conclusions.append(record)
         records.append(record)
 
+        # If no existing candidate matches, add a new one to the candidate list
         candidate = exploration.find_candidate(record.candidate)
         if candidate is None:
             candidate = CandidateRecord(
@@ -166,6 +168,7 @@ def _record_step_conclusions(
             candidate.status = "excluded"
 
     return records
+
 
 def _add_retrieved_candidates(state: RuntimeState, step: ReasoningStep) -> None:
     """Add the entities at the other end of the retrieved triples as pending candidates."""
@@ -214,6 +217,142 @@ def _add_retrieved_candidates(state: RuntimeState, step: ReasoningStep) -> None:
         )
 
 
+def _describe_step(step: ReasoningStep) -> str:
+    """Describe the query of a step, e.g. "Anchor: Museum M (Q100), Relation: collection (incoming)"."""
+    relation = step.relation_selected.candidate
+    return f"Anchor: {step.anchor.anchor.value}, Relation: {relation.value} ({relation.direction})"
+
+
+def _format_conclusion(record: ConclusionRecord) -> str:
+    """
+    Format a conclusion as one labeled summary line, e.g.
+    "- Candidate: Max Doe (Q30); Condition: is Spanish; Status: not_satisfied; Evidence: ...".
+    At most two triples are shown; unverified lines give the rejection reason, if any.
+    """
+    source = f"Reasoning Step {record.iteration}"
+    if record.verified and record.evidence_type == "kg_triple":
+        evidence = "; ".join(f"({t})" for t in record.triples[:2])
+        if len(record.triples) > 2:
+            evidence += f"; and {len(record.triples) - 2} more"
+        evidence = f"kg_triple from {source}: {evidence}"
+    elif record.verified:
+        evidence = (
+            f"kg_absence from {source}: no '{record.query['relation']}' relation between "
+            f"{record.candidate} and {record.absent_entity}"
+        )
+    elif record.rejection_reason:
+        evidence = f"{record.evidence_type} from {source}, rejected: {record.rejection_reason}"
+    else:
+        evidence = f"{record.evidence_type} from {source}"
+    return (
+        f"- Candidate: {record.candidate}; Condition: {record.condition}; "
+        f"Status: {record.status}; Evidence: {evidence}"
+    )
+
+
+def _render_exploration_summary(
+    state: RuntimeState, max_conclusion_lines: int, max_candidates_per_group: int
+) -> str:
+    """
+    Render the exploration summary used in cleanup and for the final answer.
+    It is rebuilt from the steps and the exploration record each time.
+    Only the latest conclusion per candidate and condition is shown, and a
+    verified one hides unverified ones. Long sections keep the most recent lines.
+    """
+    exploration = state.exploration
+
+    # Reasoning steps: only valid results; a discarded step gets one line
+    lines = ["Detailed Reasoning Steps:"]
+    n_lines = len(lines)
+    for i, step in enumerate(state.reasoningSteps, start=1):
+        if not step.finished or step.result is None or not step.result.valid:
+            continue
+        if step.discarded:
+            lines.append(f"Reasoning Step {i}: {_describe_step(step)} [discarded as irrelevant]")
+            continue
+        used = "; ".join(f"({t})" for t in step.result.triples) or "none"
+        lines.append(f"Reasoning Step {i}: {_describe_step(step)}")
+        lines.append(f"  Used Triples: {used}")
+        lines.append(f"  Implications: {step.result.result.implications}")
+    if len(lines) == n_lines:
+        lines.append("none")
+
+    # Latest conclusion per (candidate, condition); later records overwrite earlier ones
+    verified = {}
+    for record in exploration.conclusions:
+        if record.verified:
+            key = (normalize_entity_name(record.candidate), normalize_entity_name(record.condition))
+            verified[key] = record
+    unverified = {}
+    for record in exploration.conclusions:
+        key = (normalize_entity_name(record.candidate), normalize_entity_name(record.condition))
+        if not record.verified and key not in verified:
+            unverified[key] = record
+
+    for title, records in (
+        ("Verified facts (confirmed by the knowledge graph):", verified),
+        ("Unverified assumptions (not confirmed by the knowledge graph):", unverified),
+    ):
+        lines.append("")
+        lines.append(title)
+        ordered = sorted(records.values(), key=lambda r: r.conclusion_id)
+        omitted = len(ordered) - max_conclusion_lines
+        if omitted > 0:
+            lines.append(f"({omitted} earlier omitted)")
+            ordered = ordered[omitted:]
+        if not ordered:
+            lines.append("none")
+        for record in ordered:
+            lines.append(_format_conclusion(record))
+
+    # Excluded candidates with the condition that excluded them
+    by_id = {r.conclusion_id: r for r in exploration.conclusions}
+    lines.append("")
+    lines.append("Excluded candidates (verified to fail a condition):")
+    excluded = [c for c in exploration.candidates if c.status == "excluded"]
+    if not excluded:
+        lines.append("none")
+    for candidate in excluded:
+        reasons = [
+            by_id[i]
+            for i in candidate.conclusion_ids
+            if by_id[i].verified and by_id[i].status == "not_satisfied"
+        ]
+        if reasons:
+            lines.append(
+                f"- {candidate.name}, fails condition: {reasons[-1].condition} "
+                f"(Reasoning Step {reasons[-1].iteration})"
+            )
+        else:
+            lines.append(f"- {candidate.name}")
+
+    # Pending candidates grouped by the step that retrieved them.
+    # Candidates with conclusions come first, the rest keep the retrieval order.
+    groups: Dict[int, List[CandidateRecord]] = {}
+    for candidate in exploration.candidates:
+        if candidate.status == "pending":
+            groups.setdefault(candidate.source_iteration, []).append(candidate)
+    total = sum(len(group) for group in groups.values())
+    lines.append("")
+    lines.append(f"Pending candidates (not excluded so far, {total} in total):")
+    if not groups:
+        lines.append("none")
+    for iteration, group in sorted(groups.items()):
+        step = state.reasoningSteps[iteration - 1]
+        tag = " [discarded as irrelevant]" if step.discarded else ""
+        with_conclusions = [c for c in group if c.conclusion_ids]
+        without_conclusions = [c for c in group if not c.conclusion_ids]
+        ordered = with_conclusions + without_conclusions
+        shown = "; ".join(c.name for c in ordered[:max_candidates_per_group])
+        more = len(group) - max_candidates_per_group
+        if more > 0:
+            shown += f"; and {more} more"
+        noun = "entity" if len(group) == 1 else "entities"
+        lines.append(f"- Retrieved in Reasoning Step {iteration}{tag}, {len(group)} {noun}: {shown}")
+
+    return "\n".join(lines)
+
+
 class ARK_V2(Agent):
     """A multi-hop reasoning agent that uses a knowledge graph to answer user requests."""
 
@@ -246,6 +385,8 @@ class ARK_V2(Agent):
         self.max_attempts = config.get("max_attempts", 5)
         self.recursion_limit = config.get("recursion_limit", 200)
         self.complete_answer_qids = config.get("complete_answer_qids", False)
+        self.max_conclusion_lines = config.get("max_conclusion_lines", 30)
+        self.max_candidates_per_group = config.get("max_candidates_per_group", 10)
 
     def load_configuration_from_file(self, file_path: str) -> None:
         """Load the configuration from a JSON file"""
@@ -828,7 +969,9 @@ class ARK_V2(Agent):
                 "summarize_reasoning",
                 {
                     "number_of_steps": len(state.reasoningSteps),
-                    "summary": _get_reasoning_step_summary(state),
+                    "summary": _render_exploration_summary(
+                        state, self.max_conclusion_lines, self.max_candidates_per_group
+                    ),
                 },
             )
             state.extend_messages(prompt)
@@ -874,7 +1017,9 @@ class ARK_V2(Agent):
                 {
                     "user_request": state.question,
                     "schema": json.dumps(answer.model_json_schema()),
-                    "reasoning_steps": _get_reasoning_step_summary(state),
+                    "reasoning_steps": _render_exploration_summary(
+                        state, self.max_conclusion_lines, self.max_candidates_per_group
+                    ),
                     "question_type_str": question_type_str,
                 },
             )
@@ -904,7 +1049,12 @@ class ARK_V2(Agent):
                 return " ".join(name.split()).casefold()
 
             for step in state.reasoningSteps:
-                if not step.finished or step.result is None:
+                if (
+                    not step.finished
+                    or step.result is None
+                    or not step.result.valid
+                    or step.discarded
+                ):
                     continue
 
                 for triple in step.result.triples:
@@ -938,18 +1088,6 @@ class ARK_V2(Agent):
                     completed_answers.append(answer)
 
             return completed_answers
-
-        # Utility
-
-        def _get_reasoning_step_summary(state: RuntimeState) -> str:
-            """Summarize the reasoning steps so far"""
-            reasoning_steps_str = "Detailed Reasoning Steps:\n"
-            for i, step in enumerate(state.reasoningSteps):
-                if step.finished is False:
-                    continue
-                reasoning_steps_str += f"Reasoning Step {i+1}: Used Triples: {step.result.get_triples_list()}, Implications: {step.result.result.implications} \n\n"
-
-            return reasoning_steps_str
 
         graph_builder = StateGraph(RuntimeState)
 
