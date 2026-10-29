@@ -54,6 +54,7 @@ from ark_v2.data_models.agent_models import (
     get_entity_id,
 )
 
+# Exploration Record
 
 def _resolve_entity_name(name: str, known_entities: List[str]) -> str:
     """
@@ -216,6 +217,7 @@ def _add_retrieved_candidates(state: RuntimeState, step: ReasoningStep) -> None:
             CandidateRecord(name=name, source_iteration=state.iteration)
         )
 
+# Exploration Summary
 
 def _describe_step(step: ReasoningStep) -> str:
     """Describe the query of a step, e.g. "Anchor: Museum M (Q100), Relation: collection (incoming)"."""
@@ -351,6 +353,79 @@ def _render_exploration_summary(
         lines.append(f"- Retrieved in Reasoning Step {iteration}{tag}, {len(group)} {noun}: {shown}")
 
     return "\n".join(lines)
+
+# Selection Hints
+
+def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
+    """
+    Describe the action and plan of the previous reasoning step for anchor selection (Step 2.1).
+    The listed entities depend on the action:
+    - continue_path: entities at the other end of the previous step's Used Triples
+      (of all its retrieved triples if it used none)
+    - switch_candidate: pending candidates
+    - backtrack: anchors of earlier reasoning steps
+    The list is only a hint; any existing entity is accepted. Returns "" in the first iteration.
+    """
+    if len(state.reasoningSteps) < 2:
+        return ""
+    previous_iteration = len(state.reasoningSteps) - 1
+    previous = state.reasoningSteps[-2]
+    if previous.result is None or not previous.result.valid or previous.result.result is None:
+        return ""
+    result = previous.result.result
+
+    if result.action == "continue_path":
+        direction = previous.relation_selected.candidate.direction
+        triples = previous.result.triples or previous.triples_retrieved or []
+        names = [t.tail.value if direction == "outgoing" else t.head.value for t in triples]
+        title = f"Entities found in Reasoning Step {previous_iteration}"
+    elif result.action == "switch_candidate":
+        names = [c.name for c in state.exploration.candidates if c.status == "pending"]
+        title = "Pending candidates"
+    elif result.action == "backtrack":
+        names = [
+            step.anchor.anchor.value
+            for step in state.reasoningSteps[:-1]
+            if step.anchor is not None and step.anchor.valid
+        ]
+        title = "Anchors of earlier reasoning steps"
+    else:
+        return ""
+
+    names = list(dict.fromkeys(names))
+    shown = "; ".join(names[:max_options]) or "none"
+    if len(names) > max_options:
+        shown += f"; and {len(names) - max_options} more"
+
+    lines = [
+        f"Previous action (Reasoning Step {previous_iteration}): {result.action}",
+        f"Planned next anchor: {result.next_anchor or 'none'}",
+        f"{title}: {shown}",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def _render_explored_relations(state: RuntimeState) -> str:
+    """
+    List the relation-direction pairs already retrieved for the current anchor in earlier steps,
+    e.g. "collection (incoming) in Reasoning Step 1". Returns "" if there are none.
+    """
+    anchor = state.reasoningSteps[-1].anchor.anchor.value
+    explored = []
+    for i, step in enumerate(state.reasoningSteps[:-1], start=1):
+        if step.triples_retrieved is None or step.relation_selected is None:
+            continue
+        relation = step.relation_selected.candidate
+        if relation is None or step.anchor.anchor.value != anchor:
+            continue
+        explored.append(f"{relation.value} ({relation.direction}) in Reasoning Step {i}")
+    if not explored:
+        return ""
+    return (
+        "Relation-direction pairs already explored for this anchor: "
+        + "; ".join(explored)
+        + ". Select a different pair unless repeating one is necessary.\n"
+    )
 
 
 class ARK_V2(Agent):
@@ -509,6 +584,7 @@ class ARK_V2(Agent):
                 {
                     "iteration": state.iteration,
                     "attempt": current_anchor.attempt,
+                    "action_hint": _render_anchor_hint(state, self.max_candidates_per_group),
                     "failed_attempts": failed_attempts_prompt,
                     "schema": json.dumps(Anchor.model_json_schema()),
                 },
@@ -659,6 +735,7 @@ class ARK_V2(Agent):
                         ensure_ascii=False,
                     ),
                     "max_number_of_relations": 3,
+                    "explored_relations": _render_explored_relations(state),
                     "summary_previous_attempts": summary,
                     "schema": json.dumps(Relation.model_json_schema()),
                 },
@@ -917,6 +994,7 @@ class ARK_V2(Agent):
                             f"\nImplications: {verified_result.result.implications} "
                             f"\nConclusions: {len(records)} ({n_verified} verified) "
                             f"\nAction: {verified_result.result.action} "
+                            f"\nNext Anchor: {verified_result.result.next_anchor} "
                             f"\nDiscard Step: {verified_result.result.discard_step}"
                         )
                     )

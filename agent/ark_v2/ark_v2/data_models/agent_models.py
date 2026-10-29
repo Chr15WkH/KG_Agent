@@ -206,6 +206,14 @@ class ReasoningStepResult(Keys):
             "'stop': end exploration because the user request can be fully answered from verified facts, or no further exploration is possible."
         )
     )
+    next_anchor: Optional[str] = Field(
+        description=(
+            "The entity you intend to explore in the next reasoning step, written exactly as it appears "
+            "in the retrieved triples or the exploration summary, including its ID in parentheses "
+            "if present. Leave empty if the action is 'stop'."
+        ),
+        default=None,
+    )
     discard_step: bool = Field(
         description=(
             "Set to True only if the triples retrieved in this step are irrelevant to the user request. "

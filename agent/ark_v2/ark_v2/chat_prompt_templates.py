@@ -44,13 +44,19 @@ def get_prompt_select_anchor() -> ChatPromptTemplate:
         [
             (
                 "user",
-                "(Iteration {iteration}, Step 2.1, Attempt {attempt}): "
+                "(Iteration {iteration}, Step 2.1, Attempt {attempt}):\n"
+                "{action_hint}"
                 "{failed_attempts}"
                 "Task: Select exactly ONE specific anchor entity (a node name) from the knowledge graph "
                 "that is most likely to lead to information for answering the user request.\n"
                 "Rules:\n"
                 "- Must be an EXACT match to a KG entity name.\n"
                 "- Avoid special character changes (e.g., 'Maria de Ventadorn' must NOT become 'Maria_de_Ventadorn').\n"
+                "- Copy names from the summary or the list above exactly, including the ID in parentheses if present.\n"
+                "- Do not select an excluded candidate to check it again.\n"
+                "- If a previous action is shown above, select the planned next anchor unless the summary "
+                "shows a reason not to; without a plan, prefer an entity from the list. "
+                "Other existing entities are also accepted.\n"
                 "Return your answer in the following structured schema:\n{schema}",
             )
         ]
@@ -66,6 +72,7 @@ def get_prompt_select_relation() -> ChatPromptTemplate:
                 "Current anchor entity: {anchor}\n"
                 "Available relation-direction pairs for this entity: "
                 "{available_relations}\n"
+                "{explored_relations}"
                 "{summary_previous_attempts}"
                 "Task: Select exactly ONE available relation-direction pair "
                 "to explore towards answering the user question.\n"
@@ -106,6 +113,8 @@ def get_prompt_perform_reasoning() -> ChatPromptTemplate:
                 "- You may ONLY reference triples retrieved in this step.\n"
                 "- If previous reasoning steps exist, integrate them without contradiction.\n"
                 "- Consider whether there are NEW potential anchor entities mentioned in the triples\n"
+                "- next_anchor: if the action is not stop, name the entity you intend to explore next, "
+                "exactly as it appears in the triples or the summary, including the ID in parentheses if present.\n"
                 "- Only set continueExploration = False if you are confident you can fully and unambiguously answer the user's request from the facts retrieved so far.\n"
                 "- Select only keys from: {allowed_keys}.\n"
                 "Return your answer in the following schema: \n{schema}",
