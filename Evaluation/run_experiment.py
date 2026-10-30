@@ -25,11 +25,16 @@ from Evaluation.langfuse_support import (
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
+
+# ======================================================================
 # Experiment configuration
-AGENT_VERSION = "ark_v1" # 'ark_v1', 'ark_v1_1'
+# ======================================================================
+
+# Choose the Agent
+AGENT_VERSION = "ark_v1" # "ark_v1"(CRLT only), "ark_v1_1", "ark_v2"
 # Choose the dataset
-DATASET_TYPE = "crlt" # “gtsqa”, "gtsqa_ua" or "crlt"
-DATASET_NAME = "CR-LT-KGQA" #"gtsqa-development", "gtsqa-ua-development" or "CR-LT-KGQA"
+DATASET_TYPE = "crlt" # "gtsqa", "gtsqa_ua" or "crlt"
+DATASET_NAME = "CR-LT-KGQA" # "gtsqa-development", "gtsqa-ua-development" or "CR-LT-KGQA"
 # Select exactly which samples to run, in this order.
 # Sample IDs for GTSQA:
 # SAMPLE_IDS = (
@@ -165,6 +170,12 @@ def main() -> None:
 
     # Load only the selected Agent adapter.
     if AGENT_VERSION == "ark_v1":
+        # ARK v1 is only evaluated on CRLT; stop before a Langfuse run is created.
+        if DATASET_TYPE != "crlt":
+            raise ValueError(
+                f"ARK v1 supports only the CRLT dataset, got: {DATASET_TYPE}"
+            )
+
         from Evaluation.adapters.ark_v1 import run_ark_v1, AgentExecutionError
 
         run_agent = run_ark_v1
@@ -173,6 +184,11 @@ def main() -> None:
         from Evaluation.adapters.ark_v1_1 import run_ark_v1_1, AgentExecutionError
 
         run_agent = run_ark_v1_1
+
+    elif AGENT_VERSION == "ark_v2":
+        from Evaluation.adapters.ark_v2 import run_ark_v2, AgentExecutionError
+
+        run_agent = run_ark_v2
 
     else:
         raise ValueError(f"Unsupported Agent: {AGENT_VERSION}")
@@ -267,6 +283,7 @@ def main() -> None:
                     sample_id = int(item.metadata["sample_id"])
                     sample = load_gtsqa_sample(sample_id)
                 else:
+                    # ARK v1.1 and ARK v2 share this GTSQA_UA loader, so both Agents receive the same samples.
                     from ark_v1_1.adapters.gtsqa_ua import (
                         load_gtsqa_ua_sample,
                     )

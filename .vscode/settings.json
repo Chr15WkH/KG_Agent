@@ -6,6 +6,7 @@
   "python.analysis.extraPaths": [
     "./agent/ark_v1",
     "./agent/ark_v1_1",
+    "./agent/ark_v2",
   ],
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
 }
