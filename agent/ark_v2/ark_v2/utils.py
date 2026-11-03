@@ -19,6 +19,7 @@ OPENAI_MODELS = [
     "gpt-5-chat-latest",
 ]
 OPEN_ROUTER_MODELS = [
+    "qwen/qwen3.8-27b",
     "deepseek/deepseek-chat",
     "qwen/qwen3-235b-a22b-2507",
     "qwen/qwen3-next-80b-a3b-instruct",
@@ -96,6 +97,9 @@ def get_llm(
                 "top_p": top_p,  # Set TopP
             },
             seed=seed,
+            extra_body={
+                "provider": {"require_parameters": True},
+            },
         )
     else:
         raise ValueError(

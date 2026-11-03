@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 from ark_v2.data_models.agent_models import QuestionTypes
 from ark_v2.adapters.gtsqa import adapt_gtsqa_sample
 
-
 # Choose the dataset and question.
-DATASET = "gtsqa"  # "example" or "gtsqa"
+DATASET = "gtsqa"  # "example", "gtsqa", or "gtsqa_ua"
 # DATASET = "example"  # "example" or "gtsqa"
-SAMPLE_ID = 13311
+SAMPLE_ID = 40487
+# SAMPLE_ID = "13311-original" # "13311-ua-01" or "13311-original"
 
 EXAMPLES_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -24,7 +24,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-
+# load example data
 def load_sample():
     if DATASET == "example":
         path = EXAMPLES_DIR / "example_data.json"
@@ -49,15 +49,24 @@ def load_sample():
 
         raise ValueError(f"GTSQA sample {SAMPLE_ID} was not found.")
 
-    raise ValueError(f"Unsupported dataset: {DATASET}")
+    if DATASET == "gtsqa_ua":
+        from ark_v2.adapters.gtsqa_ua import adapt_gtsqa_ua_sample
 
+        return (
+            adapt_gtsqa_ua_sample(SAMPLE_ID),
+            QuestionTypes.ENTITY_LIST,
+        )
+
+    raise ValueError(f"Unsupported dataset: {DATASET}")
 
 def main():
     config = {
+        "complete_answer_qids": DATASET in ("gtsqa", "gtsqa_ua"),
         "llm": {
-            "model": "deepseek/deepseek-chat",
-            "temperature": 0,
-            "top_p": 0.95,
+            "model": "qwen/qwen3.8-27b",
+            "temperature": 0.9,
+            "top_p": 0.9,
+            "seed": 42,
         },
         # "max_reasoning_steps": 8, default is 8
         # "max_attempts": 5, default is 5
@@ -93,7 +102,18 @@ def main():
     if "answer" not in final_answer:
         raise RuntimeError("The returned final answer is missing 'answer'.")
 
-    logging.info("Final answer: %s", final_answer["answer"])
+    answer_payload = final_answer["answer"]
+    answer_status = (
+        "abstained" if answer_payload is None else "answered"
+    )
+
+    logging.info("Final answer: %s", answer_payload)
+    logging.info("Answer status: %s", answer_status)
+    logging.info(
+        "Termination reason: %s",
+        final_state.get("termination_reason"),
+    )
+
 
 
 if __name__ == "__main__":
