@@ -8,10 +8,10 @@ from ark_v2.data_models.agent_models import QuestionTypes
 from ark_v2.adapters.gtsqa import adapt_gtsqa_sample
 
 # Choose the dataset and question.
-DATASET = "gtsqa_ua"  # "example", "gtsqa", or "gtsqa_ua"
+DATASET = "gtsqa"  # "example", "gtsqa", or "gtsqa_ua"
 # DATASET = "example"  # "example" or "gtsqa"
-# SAMPLE_ID = 40487
-SAMPLE_ID = "13311-original" # "13311-ua-01" or "13311-original"
+SAMPLE_ID = 40154
+# SAMPLE_ID = "13311-original" # "13311-ua-01" or "13311-original"
 
 EXAMPLES_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -76,6 +76,9 @@ def main():
             "top_p": 0.9,
             "seed": 42,
         },
+        # "max_reasoning_steps": 8, default is 8
+        # "max_attempts": 5, default is 5
+        # "recursion_limit": 200, default is 200
     }
 
     sample, question_type = load_sample()
@@ -90,22 +93,20 @@ def main():
 
     agent = ARK_V2()
     agent.load_configuration(config=config)
-
-    
-   
-
     agent.load_graph_data(sample["graph"])
+
     agent.set_initial_state(
         question=sample["question"],
         question_type=question_type,
     )
+
     final_state = agent.run()
 
     if final_state is None or final_state.get("finalAnswer") is None:
         raise RuntimeError("Agent finished without a final answer.")
-    
+
     final_answer = final_state["finalAnswer"]
-    
+
     if "answer" not in final_answer:
         raise RuntimeError("The returned final answer is missing 'answer'.")
 
@@ -120,7 +121,7 @@ def main():
         "Termination reason: %s",
         final_state.get("termination_reason"),
     )
-    
+
 
 
 if __name__ == "__main__":

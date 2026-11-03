@@ -156,29 +156,48 @@ class Conclusion(BaseModel):
         ),
     )
     status: ConclusionStatus = Field(
-        description="Whether the candidate satisfies the condition.",
+        description=(
+            "Whether the candidate satisfies the condition. Use 'undetermined' only if the evidence "
+            "does not decide it; an undetermined conclusion cannot use the evidence type 'kg_triple' or 'kg_absence'."
+        ),
     )
     evidence_type: EvidenceType = Field(
         description=(
-            "'kg_triple': supported by triples retrieved in this step; list their keys. "
-            "'kg_absence': the triples retrieved in this step are the complete result for the current anchor and relation, "
-            "and the expected entity is not among them; set absent_entity. "
+            "The basis of the status: what shows that the candidate satisfies or does not satisfy "
+            "the condition. Choose the type by the actual basis; a wrongly labelled conclusion "
+            "is rejected or misleads later steps. "
+            "'kg_triple': one or more triples retrieved in this step state the fact, and the candidate "
+            "appears in them. List the keys of these triples in keys and set absent_entity to null. "
+            "Example: for 'Which paintings were made by a Spanish painter?', the triple "
+            "(Max Doe, country of citizenship, France) shows that the candidate Max Doe does not "
+            "satisfy the condition 'is Spanish'. "
+            "'kg_absence': the fact follows from a missing triple. The triples retrieved in this step "
+            "are all triples for the current anchor, relation and direction; the candidate or "
+            "absent_entity is the anchor, and the other one does not appear in these triples. "
+            "Set absent_entity to the entity at the other end of the missing triple and keys to an "
+            "empty list. "
             "'background': based on general knowledge, not on the knowledge graph. "
-            "'guess': an unverified assumption, e.g. inferred from a name."
+            "'guess': an unverified assumption, e.g. inferred from an entity name. "
+            "For 'background' and 'guess', keys is an empty list and absent_entity is null."
         ),
     )
     keys: List[str] = Field(
         description=(
-            "Keys of the triples from this step that support the conclusion. "
-            "Required for 'kg_triple', otherwise empty."
+            "An empty list unless evidence_type is 'kg_triple'. "
+            "For 'kg_triple': the keys of the triples from this step that support the conclusion."
         ),
-        default=[],
     )
     absent_entity: Optional[str] = Field(
         description=(
-            "Only for 'kg_absence': the entity that was expected but is missing from the retrieved triples."
+            "Null unless evidence_type is 'kg_absence'. "
+            "For 'kg_absence': the entity at the other end of the missing triple, i.e. the entity "
+            "the candidate would be connected to if it satisfied the condition, written exactly "
+            "as it appears in the triples or the summary. "
+            "Example: for 'Which municipality shares a border with both Cistella and Esponellà?', "
+            "if the anchor is Esponellà, the relation is 'shares border with' and municipality A "
+            "is not among the retrieved neighbours, then candidate = A and absent_entity = Esponellà. "
+            "The same holds if the anchor is A and Esponellà is not among the neighbours of A."
         ),
-        default=None,
     )
 
 
@@ -195,14 +214,15 @@ class ReasoningStepResult(Keys):
     conclusions: List[Conclusion] = Field(
         description=(
             "Conclusions drawn in this step about candidates and conditions of the user request. "
-            "Include negative conclusions, e.g. a candidate that does not satisfy a condition."
+            "Include negative conclusions, e.g. a candidate that does not satisfy a condition. "
+            "Use an empty list if this step informs no condition."
         ),
-        default=[],
     )
     action: StepAction = Field(
         description=(
             "What to do next. "
-            "'continue_path': follow the current path further, e.g. explore an entity found in this step. "
+            "'continue_path': follow the current path further: explore an entity found in this step, "
+            "or another relation of the current anchor. "
             "'switch_candidate': the current candidate is excluded or cannot be verified; continue with another pending candidate. "
             "'backtrack': the current path is not useful; return to an entity from an earlier step and try another relation. "
             "'stop': end exploration because the user request can be fully answered from verified facts, or no further exploration is possible."
@@ -211,8 +231,8 @@ class ReasoningStepResult(Keys):
     next_anchor: Optional[str] = Field(
         description=(
             "The entity you intend to explore in the next reasoning step, written exactly as it appears "
-            "in the retrieved triples or the exploration summary, including its ID in parentheses "
-            "if present. Leave empty if the action is 'stop'."
+            "in the retrieved triples or the exploration summary, including its ID in parentheses if present. "
+            "Leave empty if the action is 'stop'."
         ),
         default=None,
     )

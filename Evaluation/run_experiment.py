@@ -31,7 +31,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # ======================================================================
 
 # Choose the Agent
-AGENT_VERSION = "ark_v1" # "ark_v1"(CRLT only), "ark_v1_1", "ark_v2"
+AGENT_VERSION = "ark_v1" # "ark_v1" (CRLT only), "ark_v1_1", "ark_v2"
 # Choose the dataset
 DATASET_TYPE = "crlt" # "gtsqa", "gtsqa_ua" or "crlt"
 DATASET_NAME = "CR-LT-KGQA" # "gtsqa-development", "gtsqa-ua-development" or "CR-LT-KGQA"

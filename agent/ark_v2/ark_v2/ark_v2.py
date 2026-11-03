@@ -122,9 +122,20 @@ def _record_step_conclusions(
                     record.triples = cited
                     record.verified = True
                 else:
-                    record.rejection_reason = (
-                        "candidate is not a unique entity of the cited triples"
-                    )
+                    # A unique match would have been resolved above, so any
+                    # remaining match means the name fits several cited entities
+                    matches = list(dict.fromkeys(
+                        e for e in cited_entities if same_entity(e, conclusion.candidate)
+                    ))
+                    if matches:
+                        record.rejection_reason = (
+                            "candidate name without ID matches several cited entities: "
+                            + "; ".join(matches)
+                        )
+                    else:
+                        record.rejection_reason = (
+                            "candidate is not an entity of the cited triples"
+                        )
 
         elif conclusion.evidence_type == "kg_absence":
             if not conclusion.absent_entity:
@@ -360,7 +371,7 @@ def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
     """
     Describe the action and plan of the previous reasoning step for anchor selection (Step 2.1).
     The listed entities depend on the action:
-    - continue_path: entities at the other end of the previous step's Used Triples
+    - continue_path: anchor of the previous step and entities at the other end of the previous step's Used Triples
       (of all its retrieved triples if it used none)
     - switch_candidate: pending candidates
     - backtrack: anchors of earlier reasoning steps
@@ -377,8 +388,8 @@ def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
     if result.action == "continue_path":
         direction = previous.relation_selected.candidate.direction
         triples = previous.result.triples or previous.triples_retrieved or []
-        names = [t.tail.value if direction == "outgoing" else t.head.value for t in triples]
-        title = f"Entities found in Reasoning Step {previous_iteration}"
+        names = [previous.anchor.anchor.value] + [t.tail.value if direction == "outgoing" else t.head.value for t in triples]
+        title = f"Anchor and Entities found in Reasoning Step {previous_iteration}"
     elif result.action == "switch_candidate":
         names = [c.name for c in state.exploration.candidates if c.status == "pending"]
         title = "Pending candidates"
@@ -948,10 +959,10 @@ class ARK_V2(Agent):
                 verified_result.valid = False
                 state.append_message(
                     AIMessage(
-                        content=f"While trying to generate a reasoning step you used wrongly formatted keys. "
+                        content=f"While trying to generate a reasoning step your output did not match the schema ({type(e).__name__}). "
+                        "Return every required field; use an empty list or null where a field does not apply. "
                         f"The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. "
-                        "Choose only from these keys. If none of the triples are relevant, "
-                        "set keys to an empty list and discard_step to true."
+                        "If none of the triples are relevant, set keys to an empty list and discard_step to true."
                     )
                 )
                 # No valid attempt within the attempt limit: exploration ends here
