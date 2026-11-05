@@ -339,6 +339,19 @@ def _render_exploration_summary(
         else:
             lines.append(f"- {candidate.name}")
 
+    # Anchors given up in Step 2.2, with the latest reason per anchor
+    latest = {}
+    for record in exploration.rejected_anchors:
+        latest[record["anchor"]] = record
+    lines.append("")
+    lines.append("Anchors given up (their relations were judged not useful in Step 2.2):")
+    if not latest:
+        lines.append("none")
+    for record in latest.values():
+        lines.append(
+            f"- {record['anchor']} (Reasoning Step {record['iteration']}): {record['justification']}"
+        )
+
     # Pending candidates grouped by the step that retrieved them.
     # Candidates with conclusions come first, the rest keep the retrieval order.
     groups: Dict[int, List[CandidateRecord]] = {}
@@ -366,6 +379,28 @@ def _render_exploration_summary(
     return "\n".join(lines)
 
 # Selection Hints
+
+def _render_rejected_in_step(state: RuntimeState) -> str:
+    """
+    List the anchors given up in Step 2.2 of the current reasoning step, with their justification.
+    Nothing new is retrieved between giving an anchor up and selecting the next one,
+    so they should not be selected again in this step. Earlier steps are shown in the summary.
+    Returns "" if no anchor was given up in this step.
+    """
+    lines = []
+    listed = []
+    for record in state.exploration.rejected_anchors:
+        if record["iteration"] != str(state.iteration) or record["anchor"] in listed:
+            continue
+        listed.append(record["anchor"])
+        lines.append(f"- {record['anchor']}: {record['justification']}")
+    if not lines:
+        return ""
+    return (
+        "Anchors given up in this step after seeing their relations. "
+        "Do not select them again in this step:\n" + "\n".join(lines) + "\n"
+    )
+
 
 def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
     """
@@ -408,9 +443,13 @@ def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
     if len(names) > max_options:
         shown += f"; and {len(names) - max_options} more"
 
+    planned = result.next_anchor or "none"
+    if result.next_anchor and _render_rejected_in_step(state):
+        planned += " (no longer binding: an anchor was given up in this step, see below)"
+
     lines = [
         f"Previous action (Reasoning Step {previous_iteration}): {result.action}",
-        f"Planned next anchor: {result.next_anchor or 'none'}",
+        f"Planned next anchor: {planned}",
         f"{title}: {shown}",
     ]
     return "\n".join(lines) + "\n"
@@ -579,7 +618,7 @@ class ARK_V2(Agent):
             current_reasoning_step = state.reasoningSteps[-1]
             current_anchor: AnchorVerified = current_reasoning_step.anchor
 
-            failed_attempts_prompt = ""
+            failed_attempts_prompt = _render_rejected_in_step(state)
             if (
                 current_anchor.attempt >= 1
                 and current_anchor.verificationResults is not None
@@ -794,6 +833,14 @@ class ARK_V2(Agent):
             relation_verified.candidate = relations_selected
 
             if relations_selected.value == "":
+                # Record the anchor given up for Step 2.1 and the summary
+                state.exploration.rejected_anchors.append(
+                    {
+                        "anchor": current_reasoning_step.anchor.anchor.value,
+                        "iteration": str(state.iteration),
+                        "justification": relations_selected.justification,
+                    }
+                )
                 state.append_message(
                     AIMessage(
                         content=(

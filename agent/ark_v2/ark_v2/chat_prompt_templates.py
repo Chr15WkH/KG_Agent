@@ -45,7 +45,7 @@ def get_prompt_summarize_reasoning() -> ChatPromptTemplate:
             (
                 "user",
                 "This is a summary of {number_of_steps} reasoning steps completed so far. "
-                "It has five sections:\n"
+                "It has six sections:\n"
                 "- Detailed Reasoning Steps: the anchor and relation of each valid step, the triples it used "
                 "(Used Triples) and its implications. "
                 "A step discarded as irrelevant has no Used Triples or Implications.\n"
@@ -54,6 +54,8 @@ def get_prompt_summarize_reasoning() -> ChatPromptTemplate:
                 "- Unverified assumptions: conclusions not confirmed by the knowledge graph, e.g. based on "
                 "background knowledge, a guess or rejected evidence. Do not treat them as facts.\n"
                 "- Excluded candidates: candidates verified to fail a condition.\n"
+                "- Anchors given up: anchors whose relations were judged not useful in Step 2.2, with the reason. "
+                "Select one of them again only if there is a new reason.\n"
                 "- Pending candidates: candidates not excluded so far, grouped by the reasoning step that "
                 "retrieved them. They include intermediate entities and entities irrelevant to the request.\n\n"
                 "{summary}\n\n"

@@ -442,6 +442,13 @@ class ExplorationRecord(BaseModel):
     )
     candidates: List[CandidateRecord] = []
     conclusions: List[ConclusionRecord] = []
+    rejected_anchors: List[Dict[str, str]] = Field(
+        default=[],
+        description=(
+            "Anchors given up in Step 2.2 with an empty relation value. "
+            "Keys: anchor, iteration, justification."
+        ),
+    )
 
     def find_candidate(self, name: str) -> Optional[CandidateRecord]:
         """
