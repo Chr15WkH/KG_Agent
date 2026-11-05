@@ -33,6 +33,13 @@ LITELLM_MODELS = [
 ]
 OLLAMA_MODELS = ["llama3.2:latest", "qwq:latest", "qwen3:14b", "qwen3:8b"]
 
+# Per-model OpenRouter-specific request fields,
+# merged into the request body via extra_body.
+OPEN_ROUTER_EXTRA_BODY = {
+    "qwen/qwen3.8-27b": {
+        "reasoning": {"enabled": False}, # Keep thinking mode consistent with the local deployment.
+    },
+}
 
 def get_llm(
     name: str = "qwq:latest",
@@ -97,8 +104,15 @@ def get_llm(
                 "top_p": top_p,  # Set TopP
             },
             seed=seed,
+            # Fail a hanging request after 120 s instead of the client default (600 s),
+            # retried at most twice.
+            timeout=120,
+            max_retries=2,
+            # route only to providers that support all request params
+            # (e.g. json_schema), plus per-model extras.
             extra_body={
                 "provider": {"require_parameters": True},
+                **OPEN_ROUTER_EXTRA_BODY.get(name, {}),
             },
         )
     else:

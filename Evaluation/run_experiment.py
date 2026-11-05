@@ -31,26 +31,26 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # ======================================================================
 
 # Choose the Agent
-AGENT_VERSION = "ark_v1" # "ark_v1" (CRLT only), "ark_v1_1", "ark_v2"
+AGENT_VERSION = "ark_v2" # "ark_v1" (CRLT only), "ark_v1_1", "ark_v2"
 # Choose the dataset
-DATASET_TYPE = "crlt" # "gtsqa", "gtsqa_ua" or "crlt"
-DATASET_NAME = "CR-LT-KGQA" # "gtsqa-development", "gtsqa-ua-development" or "CR-LT-KGQA"
+DATASET_TYPE = "gtsqa" # "gtsqa", "gtsqa_ua" or "crlt"
+DATASET_NAME = "gtsqa-development" # "gtsqa-development", "gtsqa-ua-development" or "CR-LT-KGQA"
 # Select exactly which samples to run, in this order.
 # Sample IDs for GTSQA:
-# SAMPLE_IDS = (
-#     13311,
-#     37715,
-#     40154,
-#     42587,
-#     4519,
-#     8865,
-#     16154,
-#     31606,
-#     33122,
-#     40487,
-#     1012,
-#     41371,
-# )
+SAMPLE_IDS = (
+    13311,
+    37715,
+    40154,
+    42587,
+    4519,
+    8865,
+    16154,
+    31606,
+    33122,
+    40487,
+    1012,
+    41371,
+)
 # Sample IDs for GTSQA_UA:
 # SAMPLE_IDS = (
 #     "13311-original",
@@ -79,23 +79,23 @@ DATASET_NAME = "CR-LT-KGQA" # "gtsqa-development", "gtsqa-ua-development" or "CR
     # "41371-ua-01",
 # )
 # Sample IDs for CR-LT-KGQA:
-SAMPLE_IDS = (
-    "S2",
-    "S3",
-    "S101",
-    "S104",
-    "S107",
-    "S115",
-    "S123",
-    "S176",
-    "S183",
-    "S185",
-    "S188",
-    "S192",
-    "S195",
-    "S198",
-    "S200",
-)
+# SAMPLE_IDS = (
+#     "S2",
+#     "S3",
+#     "S101",
+#     "S104",
+#     "S107",
+#     "S115",
+#     "S123",
+#     "S176",
+#     "S183",
+#     "S185",
+#     "S188",
+#     "S192",
+#     "S195",
+#     "S198",
+#     "S200",
+# )
 # Allow creation of missing datasets and items.
 SYNC_MISSING_ITEMS = False
 # Update existing items when local content changes.
@@ -109,7 +109,7 @@ AGENT_CONFIG = {
     "complete_answer_qids": DATASET_TYPE == "gtsqa",
     "llm": {
         # "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
-        "model": "qwen3.8:27b", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
+        "model": "qwen/qwen3.8-27b", # "deepseek/deepseek-chat" and "qwen/qwen3.8-27b" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
         "temperature": 0.9,
         "top_p": 0.9,
         "seed": 42,
