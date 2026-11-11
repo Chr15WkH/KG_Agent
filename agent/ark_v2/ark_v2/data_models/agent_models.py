@@ -67,6 +67,18 @@ class Keys(BaseModel):
         return value
 
 
+# Known Entity Models
+
+
+class KnownEntities(BaseModel):
+    """Entities named in the user request"""
+
+    names: List[str] = Field(
+        description="Names of the specific entities named in the user request, as written in the request.",
+        default=[],
+    )
+
+
 # Anchor Models
 
 
@@ -439,6 +451,20 @@ class ExplorationRecord(BaseModel):
     constraints: List[Dict[str, Any]] = Field(
         default=[],
         description="Constraint list; filled from stage B on.",
+    )
+    known_entities: List[Dict[str, Any]] = Field(
+        default=[],
+        description=(
+            "Entities named in the user request. Keys: id (E1, E2, ...), mention (name written by the LLM), "
+            "entities (graph names of the mention; empty if none, several if they share the name)."
+        ),
+    )
+    common_neighbors: List[Dict[str, Any]] = Field(
+        default=[],
+        description=(
+            "Entities directly connected to two graph entities of different mentions. "
+            "Keys: entity_a, entity_b, neighbors (graph names)."
+        ),
     )
     candidates: List[CandidateRecord] = []
     conclusions: List[ConclusionRecord] = []

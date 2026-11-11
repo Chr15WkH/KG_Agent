@@ -26,6 +26,7 @@ from ark_v2.data_models.query_models import (
     QueryResultGetEdges,
     QueryResultRelationsExist,
     QueryResultGetTriples,
+    QueryResultGetEntities,
 )
 
 from ark_v2.graph.graph_interface import (
@@ -52,7 +53,9 @@ from ark_v2.data_models.agent_models import (
     strip_entity_id,
     same_entity,
     get_entity_id,
+    KnownEntities,
 )
+from ark_v2.data_models.graph_models import NodeVerified
 
 # Exploration Record
 
@@ -69,6 +72,34 @@ def _resolve_entity_name(name: str, known_entities: List[str]) -> str:
             return entity
     matches = list(dict.fromkeys(e for e in known_entities if same_entity(e, name)))
     return matches[0] if len(matches) == 1 else name
+
+
+def _resolve_known_entity(result: NodeVerified) -> List[str]:
+    """
+    Map an entity name written by the LLM to the graph entities it refers to.
+    result is the entities_exist result for the name, with alternatives.
+    - The name is a graph name: [name].
+    - Otherwise the alternatives with the same name (same_entity). If several remain,
+      keep those that also match in letter case, if any; otherwise keep all of them.
+    Returns [] if no alternative has the same name.
+    """
+    if result.verified:
+        return [result.value]
+
+    matches = []
+    for alternative in result.alternatives or []:
+        node = alternative["node"]
+        if same_entity(node, result.value) and node not in matches:
+            matches.append(node)
+
+    if len(matches) > 1:
+        same_case = []
+        for node in matches:
+            if strip_entity_id(node) == strip_entity_id(result.value):
+                same_case.append(node)
+        if same_case:
+            matches = same_case
+    return matches
 
 
 def _record_step_conclusions(
@@ -380,6 +411,44 @@ def _render_exploration_summary(
 
 # Selection Hints
 
+def _render_known_entities_hint(state: RuntimeState, max_neighbors: int) -> str:
+    """
+    Describe the entities of the user request found in the knowledge graph and their common neighbors
+    for anchor selection (Step 2.1). Graph entities of one mention are shown together.
+    Pairs without common neighbors are not shown; pairs with more than max_neighbors are shown as a count.
+    Returns "" if no entity of the request was found (e.g. when the hint is switched off).
+    """
+    groups = []
+    for record in state.exploration.known_entities:
+        if not record["entities"]:
+            continue
+        group = " / ".join(record["entities"])
+        if len(record["entities"]) > 1:
+            group += " (same name)"
+        groups.append(group)
+    if not groups:
+        return ""
+    lines = ["Entities of the user request found in the knowledge graph: " + "; ".join(groups)]
+
+    pair_lines = []
+    for pair in state.exploration.common_neighbors:
+        neighbors = pair["neighbors"]
+        if not neighbors:
+            continue
+        if len(neighbors) > max_neighbors:
+            shown = f"{len(neighbors)} entities, not listed"
+        else:
+            shown = "; ".join(neighbors)
+        pair_lines.append(f"- {pair['entity_a']} and {pair['entity_b']}: {shown}")
+    if pair_lines:
+        lines.append(
+            "Entities directly linked to two of them "
+            "(found by the program; not yet retrieved in a reasoning step):"
+        )
+        lines.extend(pair_lines)
+    return "\n".join(lines) + "\n"
+
+
 def _render_rejected_in_step(state: RuntimeState) -> str:
     """
     List the anchors given up in Step 2.2 of the current reasoning step, with their justification.
@@ -512,6 +581,14 @@ class ARK_V2(Agent):
         self.complete_answer_qids = config.get("complete_answer_qids", False)
         self.max_conclusion_lines = config.get("max_conclusion_lines", 30)
         self.max_candidates_per_group = config.get("max_candidates_per_group", 10)
+        self.known_entities_hint = config.get("known_entities_hint", False)
+        self.max_common_neighbors = config.get("max_common_neighbors", 10)
+        # Copy of the LLM for known entity extraction: the same model and settings,
+        # but its own temperature (default 0), since extraction should not vary between runs
+        extraction_temperature = config.get("known_entities_temperature", 0.0)
+        self.extraction_llm = None
+        if self.llm is not None:
+            self.extraction_llm = self.llm.model_copy(update={"temperature": extraction_temperature})
 
     def load_configuration_from_file(self, file_path: str) -> None:
         """Load the configuration from a JSON file"""
@@ -576,6 +653,9 @@ class ARK_V2(Agent):
         self.add_prompt_template(
             "system_description", prompts.get_prompt_system_description()
         )
+        self.add_prompt_template(
+            "extract_known_entities", prompts.get_prompt_extract_known_entities()
+        )
         self.add_prompt_template("select_anchor", prompts.get_prompt_select_anchor())
         self.add_prompt_template(
             "select_relation", prompts.get_prompt_select_relation()
@@ -604,6 +684,72 @@ class ARK_V2(Agent):
         self._graph_interface.graph.vectorize(head_nodes_only=False)
 
     def _create_graph(self, draw: bool = True) -> CompiledStateGraph:
+
+        # Known Entities
+
+        def extract_known_entities(state: RuntimeState) -> RuntimeState:
+            """Extract the entities named in the user request and find their common neighbors (once per question)."""
+            if not self.known_entities_hint:
+                return state
+
+            # The prompt is only sent for this call and not kept in the message history
+            prompt = self.get_message_from_prompt_template(
+                "extract_known_entities",
+                {"schema": json.dumps(KnownEntities.model_json_schema())},
+            )
+            try:
+                extracted = self.extraction_llm.with_structured_output(KnownEntities).invoke(
+                    state.messages + prompt
+                )
+                names = extracted.names
+            except Exception as error:
+                self.logger.warning(f"Known entity extraction failed: {error}")
+                names = []
+
+            # Verify each name and keep the graph entities it refers to
+            records = []
+            seen = []
+            for name in names:
+                name = name.strip()
+                if not name or name in seen:
+                    continue
+                seen.append(name)
+                result: QueryResultEntitiesExist = self.get_tool_by_name("entities_exist").invoke(
+                    {"entities": [name], "retrieve_alternatives": True}
+                )
+                entities = []
+                if result.success and result.results:
+                    entities = _resolve_known_entity(result.results[0])
+                records.append(
+                    {"id": f"E{len(records) + 1}", "mention": name, "entities": entities}
+                )
+            state.exploration.known_entities = records
+
+            # Common neighbors of every two graph entities from different mentions
+            pairs = []
+            for i in range(len(records)):
+                for j in range(i + 1, len(records)):
+                    for entity_a in records[i]["entities"]:
+                        for entity_b in records[j]["entities"]:
+                            if entity_a == entity_b:
+                                continue
+                            result: QueryResultGetEntities = self.get_tool_by_name(
+                                "get_common_neighbors"
+                            ).invoke({"entity_a": entity_a, "entity_b": entity_b})
+                            neighbors = result.results if result.success else []
+                            pairs.append(
+                                {"entity_a": entity_a, "entity_b": entity_b, "neighbors": neighbors}
+                            )
+            state.exploration.common_neighbors = pairs
+
+            lines = []
+            for record in records:
+                found = ", ".join(record["entities"]) or "not found"
+                lines.append(f"{record['id']}: {record['mention']} -> {found}")
+            state.append_message(
+                AIMessage(content="Result (Known entities):\n" + ("\n".join(lines) or "none"))
+            )
+            return state
 
         def initialize_reasoning_step(state: RuntimeState) -> RuntimeState:
             """Initialize a new reasoning step"""
@@ -634,6 +780,7 @@ class ARK_V2(Agent):
                 {
                     "iteration": state.iteration,
                     "attempt": current_anchor.attempt,
+                    "known_entities_hint": _render_known_entities_hint(state, self.max_common_neighbors),
                     "action_hint": _render_anchor_hint(state, self.max_candidates_per_group),
                     "failed_attempts": failed_attempts_prompt,
                     "schema": json.dumps(Anchor.model_json_schema()),
@@ -1229,6 +1376,9 @@ class ARK_V2(Agent):
 
         graph_builder = StateGraph(RuntimeState)
 
+        # known entities
+        graph_builder.add_node("extract_known_entities", extract_known_entities)
+
         # anchor
         graph_builder.add_node("initialize_reasoning_step", initialize_reasoning_step)
         graph_builder.add_node("prompt_select_anchor", prompt_select_anchor)
@@ -1248,7 +1398,8 @@ class ARK_V2(Agent):
         graph_builder.add_node("generate_answer", generate_answer)
 
         # Connections
-        graph_builder.add_edge(START, "initialize_reasoning_step")
+        graph_builder.add_edge(START, "extract_known_entities")
+        graph_builder.add_edge("extract_known_entities", "initialize_reasoning_step")
         graph_builder.add_edge("initialize_reasoning_step", "prompt_select_anchor")
         graph_builder.add_edge("prompt_select_anchor", "select_anchor")
         graph_builder.add_conditional_edges(

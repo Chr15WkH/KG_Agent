@@ -65,12 +65,39 @@ def get_prompt_summarize_reasoning() -> ChatPromptTemplate:
     )
 
 
+def get_prompt_extract_known_entities() -> ChatPromptTemplate:
+    return ChatPromptTemplate(
+        [
+            (
+                "user",
+                "(Before exploration):\n"
+                "Task: List the specific entities that the user request names or uses as a fixed condition, "
+                "e.g. persons, places, organizations, works, events, languages, concepts, genres or objects.\n"
+                "Rules:\n"
+                "- Copy each name as written in the request. For a descriptive word such as 'Spanish-speaking', "
+                "give the entity it refers to ('Spanish').\n"
+                "- Also list a common noun when the request uses it as a fixed condition, "
+                "e.g. an instrument, a genre, a sport or a material.\n"
+                "- Do not list words that only say what kind of thing is asked for or searched, "
+                "e.g. 'political party', 'city', 'person', 'album'.\n"
+                "- Do not add entities that the request does not name, even if you know them.\n"
+                "Examples:\n"
+                "'Which film directed by Akira Kurosawa starred Toshiro Mifune?' -> "
+                "names: ['Akira Kurosawa', 'Toshiro Mifune']\n"
+                "'Which jazz album recorded in Tokyo features a harp?' -> names: ['jazz', 'Tokyo', 'harp']\n"
+                "Return your answer in the following structured schema:\n{schema}",
+            )
+        ]
+    )
+
+
 def get_prompt_select_anchor() -> ChatPromptTemplate:
     return ChatPromptTemplate(
         [
             (
                 "user",
                 "(Iteration {iteration}, Step 2.1, Attempt {attempt}):\n"
+                "{known_entities_hint}"
                 "{action_hint}"
                 "{failed_attempts}"
                 "Task: Select exactly ONE specific anchor entity (a node name) from the knowledge graph "

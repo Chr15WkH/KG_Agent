@@ -16,6 +16,7 @@ from ark_v2.data_models.query_models import (
     QueryResultGetEdges,
     QueryResultRelationsExist,
     QueryResultGetTriples,
+    QueryResultGetEntities,
 )
 
 GRAPH = LocalGraph()
@@ -228,6 +229,29 @@ def relations_exist(
     return query_result
 
 
+@tool
+def get_common_neighbors(
+    entity_a: str,
+    entity_b: str,
+) -> QueryResultGetEntities:
+    """
+    Get entities directly connected to both entities, by any relation in either direction.
+    The two entities themselves are excluded.
+    """
+    try:
+        return QueryResultGetEntities(
+            results=GRAPH.get_common_neighbors(entity_a, entity_b),
+            success=True,
+            errors="",
+        )
+    except Exception as e:
+        return QueryResultGetEntities(
+            results=[],
+            success=False,
+            errors=str(e),
+        )
+
+
 class GraphInterface:
     def __init__(self):
         self.graph = GRAPH
@@ -238,6 +262,7 @@ class GraphInterface:
             "get_relations": get_relations,
             "get_edges": get_edges,
             "relations_exist": relations_exist,
+            "get_common_neighbors": get_common_neighbors,
         }
 
     def load_graph_data(self, graph_data: List):

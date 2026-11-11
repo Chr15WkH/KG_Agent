@@ -42,3 +42,9 @@ class QueryResultGetTriples(QueryResult):
     """A model to represent the result of retrieving triples from the graph."""
 
     results: List[TripleVerified] = []
+
+
+class QueryResultGetEntities(QueryResult):
+    """A model to represent the result of retrieving entity names from the graph."""
+
+    results: List[str] = []

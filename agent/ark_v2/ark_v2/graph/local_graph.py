@@ -218,6 +218,17 @@ class LocalGraph:
 
         return results
 
+    def get_common_neighbors(self, entity_a: str, entity_b: str) -> List[str]:
+        """
+        Get entities directly connected to both entity_a and entity_b,
+        by any relation in either direction. entity_a and entity_b themselves are excluded.
+        Returns the names in alphabetical order, or [] if there are none.
+        """
+        neighbors_a = set(self.graph.successors(entity_a)) | set(self.graph.predecessors(entity_a))
+        neighbors_b = set(self.graph.successors(entity_b)) | set(self.graph.predecessors(entity_b))
+        common = (neighbors_a & neighbors_b) - {entity_a, entity_b}
+        return sorted(common)
+
     def entities_exist(self, entities: List[str]) -> List[bool]:
         """Check if the entities exist in the graph."""
         return [entity in self.graph for entity in entities]
