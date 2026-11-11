@@ -87,9 +87,11 @@ def get_llm(
             ),
             api_key=api_key,
             temperature=temperature,  # Set temperature
-            top_p=top_p,  # Set TopP
-            seed=seed,  # Set seed
-        ) 
+            model_kwargs={
+                "top_p": top_p, # Set TopP
+                "seed": seed, # Set seed
+            },
+        )
     elif name in OPEN_ROUTER_MODELS:
         if not os.environ.get("OPENROUTER_API_KEY"):
             os.environ["OPENROUTER_API_KEY"] = getpass.getpass(
