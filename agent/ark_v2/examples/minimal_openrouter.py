@@ -62,6 +62,7 @@ def load_sample():
 def main():
     config = {
         "complete_answer_qids": DATASET in ("gtsqa", "gtsqa_ua"),
+        "known_entities_hint": True,
         "llm": {
             "model": "qwen/qwen3.8-27b",
             "temperature": 0.9,

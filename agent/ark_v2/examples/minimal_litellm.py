@@ -10,7 +10,7 @@ from ark_v2.adapters.gtsqa import adapt_gtsqa_sample
 # Choose the dataset and question.
 DATASET = "gtsqa"  # "example", "gtsqa", or "gtsqa_ua"
 # DATASET = "example"  # "example" or "gtsqa"
-SAMPLE_ID = 40154
+SAMPLE_ID = 40487
 # SAMPLE_ID = "13311-original" # "13311-ua-01" or "13311-original"
 
 EXAMPLES_DIR = Path(__file__).resolve().parent
@@ -70,6 +70,7 @@ def main():
 
     config = {
         "complete_answer_qids": DATASET in ("gtsqa", "gtsqa_ua"),
+        "known_entities_hint": True,
         "llm": {
             "model": model_name,
             "temperature": 0.9,
