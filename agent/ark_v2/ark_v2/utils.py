@@ -90,7 +90,13 @@ def get_llm(
             model_kwargs={
                 "top_p": top_p, # Set TopP
                 "seed": seed, # Set seed
+                # Disable the OpenAI client's internal retries inside litellm (default 2).
+                "max_retries": 0,
             },
+            max_tokens=2000,
+            # Fail a hanging request instead of waiting for the LiteLLM default.
+            request_timeout=90,
+            max_retries=1,
         )
     elif name in OPEN_ROUTER_MODELS:
         if not os.environ.get("OPENROUTER_API_KEY"):
@@ -106,10 +112,10 @@ def get_llm(
                 "top_p": top_p,  # Set TopP
             },
             seed=seed,
-            # Fail a hanging request after 120 s instead of the client default (600 s),
-            # retried at most twice.
-            timeout=120,
-            max_retries=2,
+            max_tokens=2000,
+            # Fail a hanging request after 90 s instead of the client default (600 s),
+            timeout=90,
+            max_retries=0,
             # route only to providers that support all request params
             # (e.g. json_schema), plus per-model extras.
             extra_body={
