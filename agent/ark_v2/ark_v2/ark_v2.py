@@ -471,6 +471,12 @@ def _render_rejected_in_step(state: RuntimeState) -> str:
     )
 
 
+def _is_excluded_candidate(state: RuntimeState, name: str) -> bool:
+    """True if name refers to a candidate that is excluded in the exploration record."""
+    candidate = state.exploration.find_candidate(name)
+    return candidate is not None and candidate.status == "excluded"
+
+
 def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
     """
     Describe the action and plan of the previous reasoning step for anchor selection (Step 2.1).
@@ -515,6 +521,8 @@ def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
     planned = result.next_anchor or "none"
     if result.next_anchor and _render_rejected_in_step(state):
         planned += " (no longer binding: an anchor was given up in this step, see below)"
+    elif result.next_anchor and _is_excluded_candidate(state, result.next_anchor):
+        planned += " (an excluded candidate: select it only to explore a relation not yet explored for it)"
 
     lines = [
         f"Previous action (Reasoning Step {previous_iteration}): {result.action}",
@@ -537,13 +545,15 @@ def _render_explored_relations(state: RuntimeState) -> str:
         relation = step.relation_selected.candidate
         if relation is None or step.anchor.anchor.value != anchor:
             continue
-        explored.append(f"{relation.value} ({relation.direction}) in Reasoning Step {i}")
+        tag = " [discarded as irrelevant]" if step.discarded else ""
+        explored.append(f"{relation.value} ({relation.direction}) in Reasoning Step {i}{tag}")
     if not explored:
         return ""
     return (
         "Relation-direction pairs already explored for this anchor: "
         + "; ".join(explored)
-        + ". Select a different pair unless repeating one is necessary.\n"
+        + ". Select a different pair unless repeating one is necessary; "
+        "do not repeat a pair discarded as irrelevant.\n"
     )
 
 

@@ -183,6 +183,7 @@ class Conclusion(BaseModel):
             "Example: for 'Which paintings were made by a Spanish painter?', the triple "
             "(Max Doe, country of citizenship, France) shows that the candidate Max Doe does not "
             "satisfy the condition 'is Spanish'. "
+            "The triples alone must decide the condition; if general knowledge is also needed, use 'background'. "
             "'kg_absence': the fact follows from a missing triple. The triples retrieved in this step "
             "are all triples for the current anchor, relation and direction; the candidate or "
             "absent_entity is the anchor, and the other one does not appear in these triples. "
