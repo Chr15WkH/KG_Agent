@@ -397,15 +397,21 @@ def _render_exploration_summary(
     for iteration, group in sorted(groups.items()):
         step = state.reasoningSteps[iteration - 1]
         tag = " [discarded as irrelevant]" if step.discarded else ""
-        with_conclusions = [c for c in group if c.conclusion_ids]
-        without_conclusions = [c for c in group if not c.conclusion_ids]
-        ordered = with_conclusions + without_conclusions
+        # Unexplored namesakes of excluded candidates first, so that they are not cut off
+        namesakes = [c for c in group if _unexplored_namesake_of_excluded(state, c)]
+        rest = [c for c in group if all(c is not n for n in namesakes)]
+        with_conclusions = [c for c in rest if c.conclusion_ids]
+        without_conclusions = [c for c in rest if not c.conclusion_ids]
+        ordered = namesakes + with_conclusions + without_conclusions
         shown = "; ".join(c.name for c in ordered[:max_candidates_per_group])
         more = len(group) - max_candidates_per_group
         if more > 0:
             shown += f"; and {more} more"
         noun = "entity" if len(group) == 1 else "entities"
         lines.append(f"- Retrieved in Reasoning Step {iteration}{tag}, {len(group)} {noun}: {shown}")
+    namesakes = [c.name for c in exploration.candidates if _unexplored_namesake_of_excluded(state, c)]
+    if namesakes:
+        lines.append("- Same name as an excluded candidate, not yet explored: " + "; ".join(namesakes))
 
     return "\n".join(lines)
 
@@ -471,6 +477,131 @@ def _render_rejected_in_step(state: RuntimeState) -> str:
     )
 
 
+# Same-name entities
+
+def _same_name_key(name: str) -> str:
+    """Name without its ID, normalized, to find different entities that share a name."""
+    return normalize_entity_name(strip_entity_id(name))
+
+
+def _entity_exploration_status(state: RuntimeState, name: str) -> str:
+    """
+    Describe what was done with an entity, for the same-name note. The first match is returned:
+    anchor of the current step, excluded, relations checked as anchor in earlier steps,
+    given up as anchor, or not yet explored.
+    Names are compared with their ID, so entities that only share a name are kept apart.
+    """
+    key = normalize_entity_name(name)
+    exploration = state.exploration
+    current = state.reasoningSteps[-1] if state.reasoningSteps else None
+    if (
+        current is not None
+        and current.anchor is not None
+        and current.anchor.valid
+        and current.triples_retrieved is not None
+        and normalize_entity_name(current.anchor.anchor.value) == key
+    ):
+        return "anchor of this step"
+
+    by_id = {r.conclusion_id: r for r in exploration.conclusions}
+    for candidate in exploration.candidates:
+        if candidate.status == "excluded" and normalize_entity_name(candidate.name) == key:
+            reasons = [
+                by_id[i]
+                for i in candidate.conclusion_ids
+                if i in by_id and by_id[i].verified and by_id[i].status == "not_satisfied"
+            ]
+            if reasons:
+                return (
+                    f"excluded in Step {reasons[-1].iteration} "
+                    f"(fails condition: {reasons[-1].condition})"
+                )
+            return "excluded"
+
+    checked = []
+    for i, step in enumerate(state.reasoningSteps[:-1], start=1):
+        if (
+            step.anchor is None
+            or not step.anchor.valid
+            or step.triples_retrieved is None
+            or step.relation_selected is None
+            or step.relation_selected.candidate is None
+        ):
+            continue
+        if normalize_entity_name(step.anchor.anchor.value) == key:
+            checked.append(f"{step.relation_selected.candidate.value} in Step {i}")
+    if checked:
+        shown = ", ".join(checked[:3])
+        if len(checked) > 3:
+            shown += f", and {len(checked) - 3} more"
+        return f"checked relations: {shown}"
+
+    for record in exploration.rejected_anchors:
+        if normalize_entity_name(record["anchor"]) == key:
+            return f"given up as anchor in Step {record['iteration']}"
+    return "not yet explored"
+
+
+def _render_namesakes(state: RuntimeState, step: ReasoningStep, max_lines: int = 10) -> str:
+    """
+    Note the entities of this step (the anchor and the other ends of the retrieved triples)
+    that share their name with another known entity of a different ID, with what was done
+    with each ID. Only names with an ID are considered. Returns "" if there are none.
+    """
+    direction = step.relation_selected.candidate.direction
+    in_step = [step.anchor.anchor.value] + [
+        t.tail.value if direction == "outgoing" else t.head.value
+        for t in step.triples_retrieved or []
+    ]
+    # Name without ID -> {ID: full name}, entities of this step first
+    groups: Dict[str, Dict[str, str]] = {}
+    for name in in_step + [c.name for c in state.exploration.candidates]:
+        entity_id = get_entity_id(name)
+        if entity_id is not None:
+            groups.setdefault(_same_name_key(name), {}).setdefault(entity_id, name)
+    step_keys = {_same_name_key(name) for name in in_step if get_entity_id(name) is not None}
+
+    lines = []
+    for key, members in groups.items():
+        if key not in step_keys or len(members) < 2:
+            continue
+        parts = [
+            f"{entity_id} ({_entity_exploration_status(state, name)})"
+            for entity_id, name in members.items()
+        ]
+        lines.append(f"- {strip_entity_id(next(iter(members.values())))}: " + "; ".join(parts))
+    if not lines:
+        return ""
+    shown = lines[:max_lines]
+    if len(lines) > max_lines:
+        shown.append(f"- and {len(lines) - max_lines} more names")
+    return (
+        "Different entities that share a name (check each ID separately; "
+        "a result for one ID does not apply to the other):\n" + "\n".join(shown)
+    )
+
+
+def _unexplored_namesake_of_excluded(state: RuntimeState, candidate: CandidateRecord) -> bool:
+    """
+    True if a pending candidate shares its name with an excluded candidate of a different ID
+    and was not yet explored.
+    """
+    entity_id = get_entity_id(candidate.name)
+    if entity_id is None or candidate.status != "pending":
+        return False
+    key = _same_name_key(candidate.name)
+    has_excluded_namesake = any(
+        other.status == "excluded"
+        and get_entity_id(other.name) not in (None, entity_id)
+        and _same_name_key(other.name) == key
+        for other in state.exploration.candidates
+    )
+    return (
+        has_excluded_namesake
+        and _entity_exploration_status(state, candidate.name) == "not yet explored"
+    )
+
+
 def _reached_output_limit(llm, message) -> bool:
     """True if the LLM response was cut off at the output token limit."""
     if message is None:
@@ -506,6 +637,7 @@ def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
     if previous.result is None or not previous.result.valid or previous.result.result is None:
         return ""
     result = previous.result.result
+    namesakes: List[str] = []
 
     if result.action == "continue_path":
         direction = previous.relation_selected.candidate.direction
@@ -513,7 +645,10 @@ def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
         names = [previous.anchor.anchor.value] + [t.tail.value if direction == "outgoing" else t.head.value for t in triples]
         title = f"Anchor and Entities found in Reasoning Step {previous_iteration}"
     elif result.action == "switch_candidate":
-        names = [c.name for c in state.exploration.candidates if c.status == "pending"]
+        pending = [c for c in state.exploration.candidates if c.status == "pending"]
+        # Unexplored namesakes of excluded candidates first, so that they are not cut off
+        namesakes = [c.name for c in pending if _unexplored_namesake_of_excluded(state, c)]
+        names = namesakes + [c.name for c in pending]
         title = "Pending candidates"
     elif result.action == "backtrack":
         names = [
@@ -541,6 +676,8 @@ def _render_anchor_hint(state: RuntimeState, max_options: int) -> str:
         f"Planned next anchor: {planned}",
         f"{title}: {shown}",
     ]
+    if namesakes:
+        lines.append("Same name as an excluded candidate, not yet explored: " + "; ".join(namesakes))
     return "\n".join(lines) + "\n"
 
 
@@ -1132,12 +1269,12 @@ class ARK_V2(Agent):
             # Add the entities at the other end of the retrieved triples as pending candidates.
             _add_retrieved_candidates(state, current_reasoning_step)
 
-            state.append_message(
-                SystemMessage(
-                    content="Retrieved Triples: \n"
-                    + str(current_reasoning_step.get_triples_retrieved()),
-                )
-            )
+            content = "Retrieved Triples: \n" + str(current_reasoning_step.get_triples_retrieved())
+            # Note different entities that share a name before the LLM reasons about them
+            namesakes = _render_namesakes(state, current_reasoning_step)
+            if namesakes:
+                content += "\n" + namesakes
+            state.append_message(SystemMessage(content=content))
             state.currentState = AgentState.RETRIEVE_TRIPLES
             return state
 
