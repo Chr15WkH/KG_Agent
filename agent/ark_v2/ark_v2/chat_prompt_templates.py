@@ -162,6 +162,8 @@ def get_prompt_perform_reasoning() -> ChatPromptTemplate:
                 "user",
                 "(Iteration {iteration}, Step 3, Attempt {attempt})\n"
                 "You have received all triples from the KG for the selected anchor, relation and direction.\n"
+                "Retrieved triples are written as (head, tail, {{'relation': R}}) and summary lines as (head, R, tail); "
+                "both mean that the tail is the R of the head.\n"
                 "Task: Reason based on these triples towards answering the user request.\n"
                 "Rules for keys and discard_step:\n"
                 "- keys: the keys of the triples from this step that you use. Select only keys from: {allowed_keys}.\n"

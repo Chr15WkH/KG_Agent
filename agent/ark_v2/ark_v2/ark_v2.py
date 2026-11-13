@@ -471,6 +471,18 @@ def _render_rejected_in_step(state: RuntimeState) -> str:
     )
 
 
+def _reached_output_limit(llm, message) -> bool:
+    """True if the LLM response was cut off at the output token limit."""
+    if message is None:
+        return False
+    metadata = getattr(message, "response_metadata", None) or {}
+    if metadata.get("finish_reason") == "length":
+        return True
+    max_tokens = getattr(llm, "max_tokens", None)
+    output_tokens = (getattr(message, "usage_metadata", None) or {}).get("output_tokens")
+    return bool(max_tokens) and output_tokens is not None and output_tokens >= max_tokens
+
+
 def _is_excluded_candidate(state: RuntimeState, name: str) -> bool:
     """True if name refers to a candidate that is excluded in the exploration record."""
     candidate = state.exploration.find_candidate(name)
@@ -1154,18 +1166,36 @@ class ARK_V2(Agent):
             )
             state.extend_messages(prompt)
 
+            raw = None
             try:
-                verified_result.result = self.llm.with_structured_output(
-                    ReasoningStepResult
+                response = self.llm.with_structured_output(
+                    ReasoningStepResult, include_raw=True
                 ).invoke(state.messages)
+                raw = response["raw"]
+                if response["parsing_error"] is not None:
+                    raise response["parsing_error"]
+                if response["parsed"] is None:
+                    raise ValueError("No parsed reasoning step result.")
+                verified_result.result = response["parsed"]
             except Exception as e:
-                print(f"Failed to reason: {e}")
                 verified_result.valid = False
+                # A cut-off answer needs different feedback than a schema error
+                if _reached_output_limit(self.llm, raw):
+                    print("Failed to reason: output token limit reached")
+                    feedback = (
+                        "Your previous answer reached the output token limit before the JSON was complete. "
+                        "Keep your reasoning short and write the JSON answer. "
+                    )
+                else:
+                    print(f"Failed to reason: {e}")
+                    feedback = (
+                        f"While trying to generate a reasoning step your output did not match the schema ({type(e).__name__}). "
+                        "Return every required field; use an empty list or null where a field does not apply. "
+                    )
                 state.append_message(
                     AIMessage(
-                        content=f"While trying to generate a reasoning step your output did not match the schema ({type(e).__name__}). "
-                        "Return every required field; use an empty list or null where a field does not apply. "
-                        f"The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. "
+                        content=feedback
+                        + f"The only allowed keys in this step are {current_reasoning_step.get_keys_triples_retrieved()}. "
                         "If none of the triples are relevant, set keys to an empty list and discard_step to true."
                     )
                 )
