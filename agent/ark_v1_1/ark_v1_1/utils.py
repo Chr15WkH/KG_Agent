@@ -79,9 +79,17 @@ def get_llm(
             ),
             api_key=api_key,
             temperature=temperature,  # Set temperature
-            top_p=top_p,  # Set TopP
-            seed=seed,  # Set seed
-        ) 
+            model_kwargs={
+                "top_p": top_p, # Set TopP
+                "seed": seed, # Set seed
+                # Disable the OpenAI client's internal retries inside litellm (default 2).
+                "max_retries": 0,
+            },
+            max_tokens=2000,
+            # Fail a hanging request instead of waiting for the LiteLLM default.
+            request_timeout=90,
+            max_retries=1,
+        )
     elif name in OPEN_ROUTER_MODELS:
         if not os.environ.get("OPENROUTER_API_KEY"):
             os.environ["OPENROUTER_API_KEY"] = getpass.getpass(
