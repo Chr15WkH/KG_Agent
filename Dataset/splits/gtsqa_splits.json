@@ -1,0 +1,26 @@
+{
+  "dataset_type": "gtsqa",
+  "splits": {
+    "development": {
+      "langfuse_dataset": "gtsqa-development",
+      "sample_ids": [
+        13311,
+        37715,
+        40154,
+        42587,
+        4519,
+        8865,
+        16154,
+        31606,
+        33122,
+        40487,
+        1012,
+        41371
+      ]
+    },
+    "test": {
+      "langfuse_dataset": "gtsqa-test",
+      "sample_ids": []
+    }
+  }
+}

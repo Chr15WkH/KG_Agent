@@ -17,6 +17,7 @@ from Evaluation.evaluators import (
 )
 from Evaluation.dataset_loader import load_gtsqa_sample
 from Evaluation.prepare_dataset import prepare_dataset
+from Evaluation.splits import resolve_selection
 from Evaluation.langfuse_support import (
     initialize_langfuse,
     create_langfuse_callback,
@@ -31,73 +32,24 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # ======================================================================
 
 # Choose the Agent
-AGENT_VERSION = "ark_v2" # "ark_v1" (CRLT only), "ark_v1_1", "ark_v2"
+AGENT_VERSION = "ark_v1_1" # "ark_v1" (CRLT only), "ark_v1_1", "ark_v2"
+
 # Choose the dataset
-DATASET_TYPE = "gtsqa" # "gtsqa", "gtsqa_ua" or "crlt"
-DATASET_NAME = "gtsqa-development" # "gtsqa-development", "gtsqa-ua-development" or "CR-LT-KGQA"
-# Select exactly which samples to run, in this order.
-# Sample IDs for GTSQA:
-SAMPLE_IDS = (
-    13311,
-    37715,
-    40154,
-    42587,
-    4519,
-    8865,
-    16154,
-    31606,
-    33122,
-    40487,
-    1012,
-    41371,
-)
-# Sample IDs for GTSQA_UA:
-# SAMPLE_IDS = (
-#     "13311-original",
-#     "13311-ua-01",
-#     "37715-original",
-#     "37715-ua-01",
-#     "40154-original",
-#     "40154-ua-01",
-#     "42587-original",
-#     "42587-ua-01",
-#     "4519-original",
-#     "4519-ua-01",
-#     "8865-original",
-#     "8865-ua-01",
-#     "16154-original",
-#     "16154-ua-01",
-#     "31606-original",
-#     "31606-ua-01",
-#     "33122-original",
-#     "33122-ua-01",
-#     "40487-original",
-#     "40487-ua-01",
-#     "1012-original",
-#     "1012-ua-01",
-#     "41371-original",
-    # "41371-ua-01",
-# )
-# Sample IDs for CR-LT-KGQA:
-# SAMPLE_IDS = (
-#     "S2",
-#     "S3",
-#     "S101",
-#     "S104",
-#     "S107",
-#     "S115",
-#     "S123",
-#     "S176",
-#     "S183",
-#     "S185",
-#     "S188",
-#     "S192",
-#     "S195",
-#     "S198",
-#     "S200",
-# )
+DATASET_TYPE = "crlt" # "gtsqa", "gtsqa_ua" or "crlt"
+
+# Choose the split. Sample IDs and the Langfuse dataset name come from
+# Dataset/splits/<dataset>_splits.json, so development and test never mix.
+SPLIT = "development" # "development" or "test"
+
+# None runs the whole split in manifest order.
+# A tuple runs only these samples, in this order; every ID must belong to SPLIT.
+# GTSQA IDs are integers (e.g. 13311), GTSQA_UA IDs are strings
+# (e.g. "13311-original", "13311-ua-01"), CRLT IDs are strings (e.g. "S2").
+SAMPLE_IDS = None
+
 # Allow creation of missing datasets and items.
-SYNC_MISSING_ITEMS = False
+SYNC_MISSING_ITEMS = True
+
 # Update existing items when local content changes.
 UPDATE_EXISTING_ITEMS = False
 ENV_FILE = PROJECT_ROOT / ".env"
@@ -107,9 +59,12 @@ AGENT_VERBOSE = False
 
 AGENT_CONFIG = {
     "complete_answer_qids": DATASET_TYPE == "gtsqa",
+    # ARK v2 only: show known entities and their common neighbours in Step 2.1.
+    # Written explicitly so the setting is recorded in the experiment metadata.
+    "known_entities_hint": True,
     "llm": {
         # "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
-        "model": "qwen/qwen3.8-27b", # "deepseek/deepseek-chat" and "qwen/qwen3.8-27b" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
+        "model": "qwen3.8:27b", # "deepseek/deepseek-chat" and "qwen/qwen3.8-27b" for openrouter, "qwen3.5:9b" and "qwen3.8:27b" for litellm
         "temperature": 0.9,
         "top_p": 0.9,
         "seed": 42,
@@ -118,6 +73,18 @@ AGENT_CONFIG = {
 
 
 def main() -> None:
+    # Resolve the sample selection first, before any remote call.
+    selection = resolve_selection(DATASET_TYPE, SPLIT, SAMPLE_IDS)
+    dataset_name = selection["dataset_name"]
+    sample_ids = selection["sample_ids"]
+    selection_mode = selection["selection_mode"]
+
+    print(
+        f"Selection: {DATASET_TYPE} | split={SPLIT} | mode={selection_mode} | "
+        f"items={len(sample_ids)} | Langfuse dataset={dataset_name}",
+        flush=True,
+    )
+
     # Select item and run evaluators for the dataset.
     if DATASET_TYPE == "gtsqa":
         item_evaluators = [entity_exact_match_evaluator, graph_grounding_evaluator,]
@@ -144,8 +111,9 @@ def main() -> None:
 
     else:
         raise ValueError(f"Unsupported dataset type: {DATASET_TYPE}")
-    # Define the Experiment name: agent-model-dataset-evaluator-item count.
-    experiment_name = f"{AGENT_VERSION}-{AGENT_CONFIG['llm']['model']}-{DATASET_TYPE}-{evaluator_label}-{len(SAMPLE_IDS)}items"
+    # Define the Experiment name: agent-model-dataset-split[-manual]-evaluator-item count.
+    split_label = SPLIT if selection_mode == "full_split" else f"{SPLIT}-manual"
+    experiment_name = f"{AGENT_VERSION}-{AGENT_CONFIG['llm']['model']}-{DATASET_TYPE}-{split_label}-{evaluator_label}-{len(sample_ids)}items"
 
     if not ENV_FILE.is_file():
         raise FileNotFoundError(
@@ -198,9 +166,10 @@ def main() -> None:
     try:
         selected_items = prepare_dataset(
             client=client,
-            dataset_name=DATASET_NAME,
-            sample_ids=SAMPLE_IDS,
+            dataset_name=dataset_name,
+            sample_ids=sample_ids,
             dataset_type=DATASET_TYPE,
+            split=SPLIT,
             sync_missing_items=SYNC_MISSING_ITEMS,
             update_existing_items=UPDATE_EXISTING_ITEMS,
         )
@@ -371,7 +340,7 @@ def main() -> None:
         result = client.run_experiment(
             name=experiment_name,
             description=(
-                f"{DATASET_TYPE} development experiment with "
+                f"{DATASET_TYPE} {SPLIT} experiment ({selection_mode}) with "
                 f"{len(selected_items)} selected items "
                 f"and {evaluation_description}."
             ),
@@ -384,7 +353,9 @@ def main() -> None:
                 "agent_version": AGENT_VERSION,
                 "agent_config": AGENT_CONFIG,
                 "dataset_type": DATASET_TYPE,
-                "dataset": DATASET_NAME,
+                "dataset": dataset_name,
+                "split": SPLIT,
+                "selection_mode": selection_mode,
                 "sample_count": len(selected_items),
             },
         )

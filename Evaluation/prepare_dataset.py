@@ -178,6 +178,7 @@ def prepare_dataset(
     dataset_name,
     sample_ids,
     dataset_type="gtsqa",
+    split="development",
     sync_missing_items=False,
     update_existing_items=False,
 ):
@@ -185,6 +186,8 @@ def prepare_dataset(
     Load selected items from Langfuse and check their data.
     GTSQA datasets may be created or updated from local data.
     CRLT items are read directly from Langfuse.
+    The split only labels newly created Langfuse datasets;
+    sample selection is resolved beforehand by Evaluation.splits.
     """
 
     # Read and validate existing CRLT items without changing them.
@@ -267,6 +270,11 @@ def prepare_dataset(
         if dataset_type == "gtsqa_ua"
         else "Entity exact-match and graph evidence coverage evaluation."
     )
+    split_note = (
+        "Not a held-out test set."
+        if split == "development"
+        else "Held-out test set."
+    )
 
     try:
         dataset = client.get_dataset(dataset_name)
@@ -280,13 +288,13 @@ def prepare_dataset(
         client.create_dataset(
             name=dataset_name,
             description=(
-                f"{source_dataset} development experiments. "
+                f"{source_dataset} {split} experiments. "
                 f"{evaluation_description} "
-                "Full graphs remain local. Not a held-out test set."
+                f"Full graphs remain local. {split_note}"
             ),
             metadata={
                 "source_dataset": source_dataset,
-                "subset": "development",
+                "subset": split,
             },
         )
         dataset = client.get_dataset(dataset_name)
