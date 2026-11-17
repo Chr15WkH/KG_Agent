@@ -4,7 +4,7 @@
     "source_split": "test",
     "knowledge_graph": "ogbl-wikikg2",
     "subset_name": "development",
-    "number_of_questions": 12
+    "number_of_questions": 38
   },
   "field_definitions": {
     "redundant": {
@@ -826,6 +826,1608 @@
             "Q8438",
             "P156",
             "Q8444"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 29248,
+      "question_profile": {
+        "question": "Who established the institution that educated the spouse of Princess Louise of Belgium's mother?",
+        "n_hops": 4,
+        "graph_isomorphism": "(4)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Leopold I of Belgium (Q12971)",
+        "answer_subgraph": [
+          [
+            "Princess Louise of Belgium (Q2051575)",
+            "mother (P25)",
+            "Princess Claire of Belgium (Q272191)"
+          ],
+          [
+            "Princess Claire of Belgium (Q272191)",
+            "spouse (P26)",
+            "Prince Laurent of Belgium (Q700152)"
+          ],
+          [
+            "Prince Laurent of Belgium (Q700152)",
+            "educated at (P69)",
+            "Royal Military Academy (Q1515214)"
+          ],
+          [
+            "Royal Military Academy (Q1515214)",
+            "founded by (P112)",
+            "Leopold I of Belgium (Q12971)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q2051575 wdt:P25 ?mother. ?mother wdt:P26 ?spouse. ?spouse wdt:P69 ?academy. ?academy wdt:P112 ?answer}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Princess Louise of Belgium (Q2051575)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q12971"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q700152",
+            "P69",
+            "Q1515214"
+          ],
+          [
+            "Q1515214",
+            "P112",
+            "Q12971"
+          ],
+          [
+            "Q272191",
+            "P26",
+            "Q700152"
+          ],
+          [
+            "Q2051575",
+            "P25",
+            "Q272191"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 35550,
+      "question_profile": {
+        "question": "What does the company whose headquarters are in a town that is twinned with a town twinned with Ploemeur produce?",
+        "n_hops": 4,
+        "graph_isomorphism": "(4)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "bicycle (Q11442)",
+        "answer_subgraph": [
+          [
+            "Ploemeur (Q128369)",
+            "twinned administrative body (P190)",
+            "Diksmuide (Q215244)"
+          ],
+          [
+            "Diksmuide (Q215244)",
+            "twinned administrative body (P190)",
+            "Rottach-Egern (Q504255)"
+          ],
+          [
+            "Bionicon (Q864624)",
+            "headquarters location (P159)",
+            "Rottach-Egern (Q504255)"
+          ],
+          [
+            "Bionicon (Q864624)",
+            "product or material produced (P1056)",
+            "bicycle (Q11442)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {  wd:Q128369 wdt:P190 ?firstTown.  ?firstTown wdt:P190 ?secondTown.  ?company wdt:P159 ?secondTown.  ?company wdt:P1056 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Ploemeur (Q128369)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q11442"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q128369",
+            "P190",
+            "Q215244"
+          ],
+          [
+            "Q215244",
+            "P190",
+            "Q504255"
+          ],
+          [
+            "Q864624",
+            "P159",
+            "Q504255"
+          ],
+          [
+            "Q864624",
+            "P1056",
+            "Q11442"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 37564,
+      "question_profile": {
+        "question": "Who is the father of the individual buried at the church designed by the architect of Kampen Church?",
+        "n_hops": 4,
+        "graph_isomorphism": "(4)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Jo Ørjasæter (Q10358582)",
+        "answer_subgraph": [
+          [
+            "Kampen Church (Q10297259)",
+            "architect (P84)",
+            "Jacob Wilhelm Nordan (Q10297265)"
+          ],
+          [
+            "Jacob Wilhelm Nordan (Q10297265)",
+            "notable work (P800)",
+            "Nordberg Church (Q4167005)"
+          ],
+          [
+            "Tore Ørjasæter (Q3502504)",
+            "place of burial (P119)",
+            "Nordberg Church (Q4167005)"
+          ],
+          [
+            "Jo Ørjasæter (Q10358582)",
+            "father (P22)",
+            "Tore Ørjasæter (Q3502504)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { wd:Q10297259 wdt:P84 ?arch. ?arch wdt:P800 ?church. ?person wdt:P119 ?church. ?answer wdt:P22 ?person. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Kampen Church (Q10297259)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q10358582"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q10358582",
+            "P22",
+            "Q3502504"
+          ],
+          [
+            "Q10297259",
+            "P84",
+            "Q10297265"
+          ],
+          [
+            "Q3502504",
+            "P119",
+            "Q4167005"
+          ],
+          [
+            "Q10297265",
+            "P800",
+            "Q4167005"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 1734,
+      "question_profile": {
+        "question": "What is the capital of the country that borders Alfred Berthoud's home country and is also featured as a setting in the movie \"Inglourious Basterds\"?",
+        "n_hops": 3,
+        "graph_isomorphism": "(3)(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Paris (Q90)",
+        "answer_subgraph": [
+          [
+            "Alfred Berthoud (Q4722324)",
+            "country of citizenship (P27)",
+            "Switzerland (Q39)"
+          ],
+          [
+            "Switzerland (Q39)",
+            "shares border with (P47)",
+            "France (Q142)"
+          ],
+          [
+            "France (Q142)",
+            "capital (P36)",
+            "Paris (Q90)"
+          ],
+          [
+            "Inglourious Basterds (Q153723)",
+            "narrative location (P840)",
+            "Paris (Q90)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q4722324 wdt:P27 ?country1. ?country1 wdt:P47 ?country2. ?country2 wdt:P36 ?answer. wd:Q153723 wdt:P840 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Alfred Berthoud (Q4722324)",
+          "Inglourious Basterds (Q153723)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q90"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q153723",
+            "P840",
+            "Q90"
+          ],
+          [
+            "Q4722324",
+            "P27",
+            "Q39"
+          ],
+          [
+            "Q142",
+            "P36",
+            "Q90"
+          ],
+          [
+            "Q39",
+            "P47",
+            "Q142"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 34508,
+      "question_profile": {
+        "question": "Which adjacent station of Dillingen (Saar) is directly connected to a station that is two stations away from Bouzonville?",
+        "n_hops": 3,
+        "graph_isomorphism": "(3)(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Siersburg (Q16060095)",
+        "answer_subgraph": [
+          [
+            "Dillingen (Saar) station (Q13423541)",
+            "adjacent station (P197)",
+            "Siersburg (Q16060095)"
+          ],
+          [
+            "Siersburg (Q16060095)",
+            "adjacent station (P197)",
+            "Hemmersdorf (Q16060088)"
+          ],
+          [
+            "Hemmersdorf (Q16060088)",
+            "adjacent station (P197)",
+            "Niedaltdorf (Q16060008)"
+          ],
+          [
+            "Niedaltdorf (Q16060008)",
+            "adjacent station (P197)",
+            "Bouzonville (Q3096047)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { wd:Q13423541 wdt:P197 ?answer. ?answer wdt:P197 ?station2. ?station2 wdt:P197 ?station3. ?station3 wdt:P197 wd:Q3096047. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Dillingen (Saar) station (Q13423541)",
+          "Bouzonville (Q3096047)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q16060095"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q13423541",
+            "P197",
+            "Q16060095"
+          ],
+          [
+            "Q16060095",
+            "P197",
+            "Q16060088"
+          ],
+          [
+            "Q16060008",
+            "P197",
+            "Q3096047"
+          ],
+          [
+            "Q16060088",
+            "P197",
+            "Q16060008"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 37366,
+      "question_profile": {
+        "question": "Which institution is home to both \"The Departure\" and a piece from the series that features the \"Reclining Figure\" sculpture?",
+        "n_hops": 3,
+        "graph_isomorphism": "(3)(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "National Gallery of Art (Q214867)",
+        "answer_subgraph": [
+          [
+            "Reclining Figure (Q19759271)",
+            "part of the series (P179)",
+            "Reclining Figure (Q19760156)"
+          ],
+          [
+            "Reclining Figure (Q19760156)",
+            "has part (P527)",
+            "Reclining Figure (Q19759270)"
+          ],
+          [
+            "Reclining Figure (Q19759270)",
+            "collection (P195)",
+            "National Gallery of Art (Q214867)"
+          ],
+          [
+            "The Departure (Q19900688)",
+            "collection (P195)",
+            "National Gallery of Art (Q214867)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { wd:Q19900688 wdt:P195 ?answer. wd:Q19759271 wdt:P179 ?series. ?series wdt:P527 ?rf2. ?rf2 wdt:P195 ?answer. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "The Departure (Q19900688)",
+          "Reclining Figure (Q19759271)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q214867"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q19759271",
+            "P179",
+            "Q19760156"
+          ],
+          [
+            "Q19900688",
+            "P195",
+            "Q214867"
+          ],
+          [
+            "Q19760156",
+            "P527",
+            "Q19759270"
+          ],
+          [
+            "Q19759270",
+            "P195",
+            "Q214867"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 5902,
+      "question_profile": {
+        "question": "What job do both the illustrator of \"Grandfather's Journey\" and Jinvijay's student have in common?",
+        "n_hops": 2,
+        "graph_isomorphism": "(2)(2)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "writer (Q36180)",
+        "answer_subgraph": [
+          [
+            "Grandfather's Journey (Q3228274)",
+            "illustrator (P110)",
+            "Allen Say (Q4731868)"
+          ],
+          [
+            "Allen Say (Q4731868)",
+            "occupation (P106)",
+            "writer (Q36180)"
+          ],
+          [
+            "Jinvijay (Q15677761)",
+            "student (P802)",
+            "Harivallabh Bhayani (Q18145333)"
+          ],
+          [
+            "Harivallabh Bhayani (Q18145333)",
+            "occupation (P106)",
+            "writer (Q36180)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q3228274 wdt:P110 ?illustrator. ?illustrator wdt:P106 ?answer. wd:Q15677761 wdt:P802 ?student. ?student wdt:P106 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Grandfather's Journey (Q3228274)",
+          "Jinvijay (Q15677761)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q36180"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q18145333",
+            "P106",
+            "Q36180"
+          ],
+          [
+            "Q4731868",
+            "P106",
+            "Q36180"
+          ],
+          [
+            "Q15677761",
+            "P802",
+            "Q18145333"
+          ],
+          [
+            "Q3228274",
+            "P110",
+            "Q4731868"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 10699,
+      "question_profile": {
+        "question": "In which military branch did both Paul Hindemith's student and Maxine Elliott's spouse serve?",
+        "n_hops": 2,
+        "graph_isomorphism": "(2)(2)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Royal Navy (Q172771)",
+        "answer_subgraph": [
+          [
+            "Paul Hindemith (Q57244)",
+            "student (P802)",
+            "Arnold Cooke (Q266919)"
+          ],
+          [
+            "Arnold Cooke (Q266919)",
+            "military branch (P241)",
+            "Royal Navy (Q172771)"
+          ],
+          [
+            "Maxine Elliott (Q434022)",
+            "spouse (P26)",
+            "Anthony Wilding (Q505788)"
+          ],
+          [
+            "Anthony Wilding (Q505788)",
+            "military branch (P241)",
+            "Royal Navy (Q172771)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {  wd:Q57244 wdt:P802 ?student.  ?student wdt:P241 ?answer.  wd:Q434022 wdt:P26 ?spouse.  ?spouse wdt:P241 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Paul Hindemith (Q57244)",
+          "Maxine Elliott (Q434022)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q172771"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q505788",
+            "P241",
+            "Q172771"
+          ],
+          [
+            "Q57244",
+            "P802",
+            "Q266919"
+          ],
+          [
+            "Q434022",
+            "P26",
+            "Q505788"
+          ],
+          [
+            "Q266919",
+            "P241",
+            "Q172771"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 26818,
+      "question_profile": {
+        "question": "What type of voice do both the lyricist of \"Don't Leave Home\" and Stas Piekha's relative have in common?",
+        "n_hops": 2,
+        "graph_isomorphism": "(2)(2)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "contralto (Q37137)",
+        "answer_subgraph": [
+          [
+            "Stas Piekha (Q1340169)",
+            "relative (P1038)",
+            "Edita Piekha (Q80399)"
+          ],
+          [
+            "Edita Piekha (Q80399)",
+            "voice type (P412)",
+            "contralto (Q37137)"
+          ],
+          [
+            "Don't Leave Home (Q2604626)",
+            "lyrics by (P676)",
+            "Dido (Q202550)"
+          ],
+          [
+            "Dido (Q202550)",
+            "voice type (P412)",
+            "contralto (Q37137)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {  wd:Q1340169 wdt:P1038 ?relative.  ?relative wdt:P412 ?answer.  wd:Q2604626 wdt:P676 ?lyricist.  ?lyricist wdt:P412 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Stas Piekha (Q1340169)",
+          "Don't Leave Home (Q2604626)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q37137"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q2604626",
+            "P676",
+            "Q202550"
+          ],
+          [
+            "Q202550",
+            "P412",
+            "Q37137"
+          ],
+          [
+            "Q80399",
+            "P412",
+            "Q37137"
+          ],
+          [
+            "Q1340169",
+            "P1038",
+            "Q80399"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 32536,
+      "question_profile": {
+        "question": "What does the producer of Wild America, who is the child of the person married to Preston Robert Tisch, do for a living?",
+        "n_hops": 3,
+        "graph_isomorphism": "((2)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "film producer (Q3282637)",
+        "answer_subgraph": [
+          [
+            "Preston Robert Tisch (Q1270995)",
+            "spouse (P26)",
+            "Joan Tisch (Q6205498)"
+          ],
+          [
+            "Joan Tisch (Q6205498)",
+            "child (P40)",
+            "Steve Tisch (Q7482626)"
+          ],
+          [
+            "Steve Tisch (Q7482626)",
+            "occupation (P106)",
+            "film producer (Q3282637)"
+          ],
+          [
+            "Wild America (Q221982)",
+            "producer (P162)",
+            "Steve Tisch (Q7482626)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q1270995 wdt:P26 ?spouse. ?spouse wdt:P40 ?child. wd:Q221982 wdt:P162 ?child. ?child wdt:P106 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Preston Robert Tisch (Q1270995)",
+          "Wild America (Q221982)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q3282637"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q7482626",
+            "P106",
+            "Q3282637"
+          ],
+          [
+            "Q221982",
+            "P162",
+            "Q7482626"
+          ],
+          [
+            "Q1270995",
+            "P26",
+            "Q6205498"
+          ],
+          [
+            "Q6205498",
+            "P40",
+            "Q7482626"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 38861,
+      "question_profile": {
+        "question": "Who designed the residential building situated on the same street as Cours Florent?",
+        "n_hops": 3,
+        "graph_isomorphism": "((2)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Martin van Treeck (Q15063028)",
+        "answer_subgraph": [
+          [
+            "Cours Florent (Q916444)",
+            "located on street (P669)",
+            "rue Archereau (Q3446983)"
+          ],
+          [
+            "tour Prélude (Q15063377)",
+            "located on street (P669)",
+            "rue Archereau (Q3446983)"
+          ],
+          [
+            "tour Prélude (Q15063377)",
+            "use (P366)",
+            "residence (Q699405)"
+          ],
+          [
+            "tour Prélude (Q15063377)",
+            "architect (P84)",
+            "Martin van Treeck (Q15063028)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { wd:Q916444 wdt:P669 ?street. ?building wdt:P669 ?street; wdt:P366 wd:Q699405; wdt:P84 ?answer. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Cours Florent (Q916444)",
+          "residence (Q699405)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q15063028"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q916444",
+            "P669",
+            "Q3446983"
+          ],
+          [
+            "Q15063377",
+            "P84",
+            "Q15063028"
+          ],
+          [
+            "Q15063377",
+            "P669",
+            "Q3446983"
+          ],
+          [
+            "Q15063377",
+            "P366",
+            "Q699405"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 42600,
+      "question_profile": {
+        "question": "What is the capital of the province that borders the one with Malabo, which is an administrative division of Equatorial Guinea?",
+        "n_hops": 3,
+        "graph_isomorphism": "((2)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Luba (Q985548)",
+        "answer_subgraph": [
+          [
+            "Malabo (Q3818)",
+            "capital of (P1376)",
+            "Bioko Norte Province (Q845834)"
+          ],
+          [
+            "Bioko Norte Province (Q845834)",
+            "shares border with (P47)",
+            "Bioko Sur Province (Q845817)"
+          ],
+          [
+            "Bioko Sur Province (Q845817)",
+            "capital (P36)",
+            "Luba (Q985548)"
+          ],
+          [
+            "Equatorial Guinea (Q983)",
+            "contains administrative territorial entity (P150)",
+            "Bioko Sur Province (Q845817)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { wd:Q3818 wdt:P1376 ?province1. ?province1 wdt:P47 ?province2. wd:Q983 wdt:P150 ?province2. ?province2 wdt:P36 ?answer. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Malabo (Q3818)",
+          "Equatorial Guinea (Q983)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q985548"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q983",
+            "P150",
+            "Q845817"
+          ],
+          [
+            "Q845834",
+            "P47",
+            "Q845817"
+          ],
+          [
+            "Q3818",
+            "P1376",
+            "Q845834"
+          ],
+          [
+            "Q845817",
+            "P36",
+            "Q985548"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 11794,
+      "question_profile": {
+        "question": "What language is spoken natively by the winger who took part in the 2014 Winter Olympics, and is also the name of the language associated with the 2008 Dakar Rally that got canceled due to a terrorist threat?",
+        "n_hops": 2,
+        "graph_isomorphism": "((1)(1))(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Finnish (Q1412)",
+        "answer_subgraph": [
+          [
+            "Juhamatti kakaaka (Q129141)",
+            "position played on team / speciality (P413)",
+            "winger (Q2827965)"
+          ],
+          [
+            "Juhamatti kakaaka (Q129141)",
+            "participant in (P1344)",
+            "2014 Winter Olympics (Q9678)"
+          ],
+          [
+            "Juhamatti kakaaka (Q129141)",
+            "native language (P103)",
+            "Finnish (Q1412)"
+          ],
+          [
+            "2008 Dakar Rally cancelled over terrorist threat (Q17600542)",
+            "language of work or name (P407)",
+            "Finnish (Q1412)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {   ?person wdt:P413 wd:Q2827965; wdt:P1344 wd:Q9678; wdt:P103 ?answer.  wd:Q17600542 wdt:P407 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "winger (Q2827965)",
+          "2014 Winter Olympics (Q9678)",
+          "2008 Dakar Rally cancelled over terrorist threat (Q17600542)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q1412"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q129141",
+            "P103",
+            "Q1412"
+          ],
+          [
+            "Q129141",
+            "P1344",
+            "Q9678"
+          ],
+          [
+            "Q17600542",
+            "P407",
+            "Q1412"
+          ],
+          [
+            "Q129141",
+            "P413",
+            "Q2827965"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 40448,
+      "question_profile": {
+        "question": "Who was the doctoral advisor in algebraic geometry for someone who speaks English as their first language and also knows Hebrew?",
+        "n_hops": 2,
+        "graph_isomorphism": "((1)(1))(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "David Mumford (Q334021)",
+        "answer_subgraph": [
+          [
+            "Malka Elisheva Schaps (Q7028517)",
+            "native language (P103)",
+            "English (Q1860)"
+          ],
+          [
+            "Malka Elisheva Schaps (Q7028517)",
+            "languages spoken, written or signed (P1412)",
+            "Hebrew (Q9288)"
+          ],
+          [
+            "Malka Elisheva Schaps (Q7028517)",
+            "doctoral advisor (P184)",
+            "David Mumford (Q334021)"
+          ],
+          [
+            "David Mumford (Q334021)",
+            "field of work (P101)",
+            "algebraic geometry (Q180969)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { ?student wdt:P103 wd:Q1860; wdt:P1412 wd:Q9288; wdt:P184 ?answer. ?answer wdt:P101 wd:Q180969. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "algebraic geometry (Q180969)",
+          "English (Q1860)",
+          "Hebrew (Q9288)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q334021"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q334021",
+            "P101",
+            "Q180969"
+          ],
+          [
+            "Q7028517",
+            "P1412",
+            "Q9288"
+          ],
+          [
+            "Q7028517",
+            "P184",
+            "Q334021"
+          ],
+          [
+            "Q7028517",
+            "P103",
+            "Q1860"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 40560,
+      "question_profile": {
+        "question": "Who was the partner of the academic artist buried at Père Lachaise Cemetery as mentioned in \"Women Painters of the World\"?",
+        "n_hops": 2,
+        "graph_isomorphism": "((1)(1))(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Jacqueline Comerre-Paton (Q1677808)",
+        "answer_subgraph": [
+          [
+            "Léon Comerre (Q1798144)",
+            "movement (P135)",
+            "academic art (Q189458)"
+          ],
+          [
+            "Léon Comerre (Q1798144)",
+            "place of burial (P119)",
+            "Père Lachaise Cemetery (Q311)"
+          ],
+          [
+            "Léon Comerre (Q1798144)",
+            "spouse (P26)",
+            "Jacqueline Comerre-Paton (Q1677808)"
+          ],
+          [
+            "Jacqueline Comerre-Paton (Q1677808)",
+            "described by source (P1343)",
+            "Women Painters of the World (Q19507487)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { ?artist wdt:P135 wd:Q189458; wdt:P119 wd:Q311; wdt:P26 ?answer. ?answer wdt:P1343 wd:Q19507487. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Women Painters of the World (Q19507487)",
+          "academic art (Q189458)",
+          "Père Lachaise Cemetery (Q311)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q1677808"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q1677808",
+            "P1343",
+            "Q19507487"
+          ],
+          [
+            "Q1798144",
+            "P135",
+            "Q189458"
+          ],
+          [
+            "Q1798144",
+            "P119",
+            "Q311"
+          ],
+          [
+            "Q1798144",
+            "P26",
+            "Q1677808"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 16747,
+      "question_profile": {
+        "question": "Which country is home to the rural district where Karl Benjamin Preusker and Ernst Freiherr von Althaus both worked?",
+        "n_hops": 3,
+        "graph_isomorphism": "(2(1)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "East Germany (Q16957)",
+        "answer_subgraph": [
+          [
+            "Karl Benjamin Preusker (Q1730465)",
+            "work location (P937)",
+            "Großenhain (Q8714)"
+          ],
+          [
+            "Ernst Freiherr von Althaus (Q5394988)",
+            "work location (P937)",
+            "Großenhain (Q8714)"
+          ],
+          [
+            "Großenhain (Q8714)",
+            "capital of (P1376)",
+            "Großenhain Rural District (Q599780)"
+          ],
+          [
+            "Großenhain Rural District (Q599780)",
+            "country (P17)",
+            "East Germany (Q16957)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q1730465 wdt:P937 ?location. wd:Q5394988 wdt:P937 ?location. ?location wdt:P1376 ?district. ?district wdt:P17 ?answer. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Karl Benjamin Preusker (Q1730465)",
+          "Ernst Freiherr von Althaus (Q5394988)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q16957"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q599780",
+            "P17",
+            "Q16957"
+          ],
+          [
+            "Q5394988",
+            "P937",
+            "Q8714"
+          ],
+          [
+            "Q8714",
+            "P1376",
+            "Q599780"
+          ],
+          [
+            "Q1730465",
+            "P937",
+            "Q8714"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 24883,
+      "question_profile": {
+        "question": "Which company was the primary contractor for the stadium that is home to the team that occupies Giants Stadium and is in the NFC East?",
+        "n_hops": 3,
+        "graph_isomorphism": "(2(1)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Skanska (Q1537811)",
+        "answer_subgraph": [
+          [
+            "Giants Stadium (Q375365)",
+            "occupant (P466)",
+            "New York Giants (Q190618)"
+          ],
+          [
+            "New York Giants (Q190618)",
+            "home venue (P115)",
+            "MetLife Stadium (Q10862290)"
+          ],
+          [
+            "MetLife Stadium (Q10862290)",
+            "main building contractor (P193)",
+            "Skanska (Q1537811)"
+          ],
+          [
+            "New York Giants (Q190618)",
+            "part of (P361)",
+            "NFC East (Q594428)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { wd:Q375365 wdt:P466 ?team. ?team wdt:P115 ?venue. ?venue wdt:P193 ?answer. ?team wdt:P361 wd:Q594428. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Giants Stadium (Q375365)",
+          "NFC East (Q594428)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q1537811"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q10862290",
+            "P193",
+            "Q1537811"
+          ],
+          [
+            "Q375365",
+            "P466",
+            "Q190618"
+          ],
+          [
+            "Q190618",
+            "P115",
+            "Q10862290"
+          ],
+          [
+            "Q190618",
+            "P361",
+            "Q594428"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 39707,
+      "question_profile": {
+        "question": "Which publisher released the book that inspired the movie filmed in both Paris and Florence?",
+        "n_hops": 3,
+        "graph_isomorphism": "(2(1)(1))",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Harcourt (Q5654997)",
+        "answer_subgraph": [
+          [
+            "Bobby Deerfield (Q2329314)",
+            "filming location (P915)",
+            "Paris (Q90)"
+          ],
+          [
+            "Bobby Deerfield (Q2329314)",
+            "filming location (P915)",
+            "Florence (Q2044)"
+          ],
+          [
+            "Bobby Deerfield (Q2329314)",
+            "based on (P144)",
+            "Heaven Has No Favorites (Q1194332)"
+          ],
+          [
+            "Heaven Has No Favorites (Q1194332)",
+            "publisher (P123)",
+            "Harcourt (Q5654997)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {  ?film wdt:P915 wd:Q90; wdt:P915 wd:Q2044; wdt:P144 ?book.  ?book wdt:P123 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Paris (Q90)",
+          "Florence (Q2044)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q5654997"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q2329314",
+            "P915",
+            "Q2044"
+          ],
+          [
+            "Q2329314",
+            "P144",
+            "Q1194332"
+          ],
+          [
+            "Q1194332",
+            "P123",
+            "Q5654997"
+          ],
+          [
+            "Q2329314",
+            "P915",
+            "Q90"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 14105,
+      "question_profile": {
+        "question": "What instruments are used in Prélude No. 3 in G major, Op. 28?",
+        "n_hops": 1,
+        "graph_isomorphism": "(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "piano (Q5994)",
+        "answer_subgraph": [
+          [
+            "Prélude no. 3 in G major, op. 28 (Q3910272)",
+            "instrumentation (P870)",
+            "piano (Q5994)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q3910272 wdt:P870 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Prélude no. 3 in G major, op. 28 (Q3910272)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q5994"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q3910272",
+            "P870",
+            "Q5994"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 27579,
+      "question_profile": {
+        "question": "From which source is William Williams mentioned?",
+        "n_hops": 1,
+        "graph_isomorphism": "(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "The Times (Q50008)",
+        "answer_subgraph": [
+          [
+            "William Williams (Q8020385)",
+            "stated in (P248)",
+            "The Times (Q50008)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q8020385 wdt:P248 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "William Williams (Q8020385)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q50008"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q8020385",
+            "P248",
+            "Q50008"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 24958,
+      "question_profile": {
+        "question": "What is the native language of the person whose ancestral home is Meizhou?",
+        "n_hops": 2,
+        "graph_isomorphism": "(2)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Cantonese (Q9186)",
+        "answer_subgraph": [
+          [
+            "Leslie Cheung (Q313596)",
+            "ancestral home (P66)",
+            "Meizhou (Q59184)"
+          ],
+          [
+            "Leslie Cheung (Q313596)",
+            "native language (P103)",
+            "Cantonese (Q9186)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {?person wdt:P66 wd:Q59184. ?person wdt:P103 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Meizhou (Q59184)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q9186"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q313596",
+            "P103",
+            "Q9186"
+          ],
+          [
+            "Q313596",
+            "P66",
+            "Q59184"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 31330,
+      "question_profile": {
+        "question": "What is the highest point of the country where Microcobitis is endemic?",
+        "n_hops": 2,
+        "graph_isomorphism": "(2)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Fansipan (Q123782)",
+        "answer_subgraph": [
+          [
+            "Microcobitis (Q17456319)",
+            "endemic to (P183)",
+            "Vietnam (Q881)"
+          ],
+          [
+            "Vietnam (Q881)",
+            "highest point (P610)",
+            "Fansipan (Q123782)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q17456319 wdt:P183 ?country. ?country wdt:P610 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Microcobitis (Q17456319)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q123782"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q17456319",
+            "P183",
+            "Q881"
+          ],
+          [
+            "Q881",
+            "P610",
+            "Q123782"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 9858,
+      "question_profile": {
+        "question": "Who with the last name Keller has worked at the University of New Mexico?",
+        "n_hops": 1,
+        "graph_isomorphism": "(1)(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Rebecca W. Keller (Q56181)",
+        "answer_subgraph": [
+          [
+            "Rebecca W. Keller (Q56181)",
+            "family name (P734)",
+            "Keller (Q1738213)"
+          ],
+          [
+            "Rebecca W. Keller (Q56181)",
+            "employer (P108)",
+            "University of New Mexico (Q1190812)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { ?answer wdt:P734 wd:Q1738213. ?answer wdt:P108 wd:Q1190812. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Keller (Q1738213)",
+          "University of New Mexico (Q1190812)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q56181"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q56181",
+            "P108",
+            "Q1190812"
+          ],
+          [
+            "Q56181",
+            "P734",
+            "Q1738213"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 24117,
+      "question_profile": {
+        "question": "What major event is Osama bin Laden linked to that involved an attack on the World Trade Center?",
+        "n_hops": 1,
+        "graph_isomorphism": "(1)(1)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "September 11 attack (Q10806)",
+        "answer_subgraph": [
+          [
+            "Osama bin Laden (Q1317)",
+            "significant event (P793)",
+            "September 11 attack (Q10806)"
+          ],
+          [
+            "September 11 attack (Q10806)",
+            "target (P533)",
+            "World Trade Center (Q11235)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q1317 wdt:P793 ?answer. ?answer wdt:P533 wd:Q11235.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Osama bin Laden (Q1317)",
+          "World Trade Center (Q11235)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q10806"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q10806",
+            "P533",
+            "Q11235"
+          ],
+          [
+            "Q1317",
+            "P793",
+            "Q10806"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 13321,
+      "question_profile": {
+        "question": "Who wrote the lyrics to the national anthem of the country featured in \"Looking for Fidel\"?",
+        "n_hops": 3,
+        "graph_isomorphism": "(3)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Perucho Figueredo (Q1349561)",
+        "answer_subgraph": [
+          [
+            "Looking for Fidel (Q2249437)",
+            "main subject (P921)",
+            "Cuba (Q241)"
+          ],
+          [
+            "Cuba (Q241)",
+            "anthem (P85)",
+            "La Bayamesa (Q237591)"
+          ],
+          [
+            "La Bayamesa (Q237591)",
+            "lyrics by (P676)",
+            "Perucho Figueredo (Q1349561)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE {wd:Q2249437 wdt:P921 ?country. ?country wdt:P85 ?anthem. ?anthem wdt:P676 ?answer.}"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Looking for Fidel (Q2249437)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q1349561"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q2249437",
+            "P921",
+            "Q241"
+          ],
+          [
+            "Q241",
+            "P85",
+            "Q237591"
+          ],
+          [
+            "Q237591",
+            "P676",
+            "Q1349561"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 38738,
+      "question_profile": {
+        "question": "Which stock exchange is the organizer of the event that Kenneth McKellar took part in listed on?",
+        "n_hops": 3,
+        "graph_isomorphism": "(3)",
+        "redundant": false
+      },
+      "generation_reference": {
+        "answer_node": "Frankfurt Stock Exchange (Q151139)",
+        "answer_subgraph": [
+          [
+            "Eurovision Song Contest 1966 (Q207889)",
+            "participant (P710)",
+            "Kenneth McKellar (Q1245757)"
+          ],
+          [
+            "Eurovision Song Contest 1966 (Q207889)",
+            "organizer (P664)",
+            "RTL Group (Q921159)"
+          ],
+          [
+            "RTL Group (Q921159)",
+            "stock exchange (P414)",
+            "Frankfurt Stock Exchange (Q151139)"
+          ]
+        ],
+        "sparql_query": "SELECT ?answer WHERE { ?event wdt:P710 wd:Q1245757. ?event wdt:P664 ?org. ?org wdt:P414 ?answer. }"
+      },
+      "entity_linking_gold": {
+        "seed_entities": [
+          "Kenneth McKellar (Q1245757)"
+        ]
+      },
+      "evaluation_gold": {
+        "all_answers_wikikg2": [
+          "Q151139"
+        ],
+        "full_answer_subgraph_wikikg2": [
+          [
+            "Q207889",
+            "P664",
+            "Q921159"
+          ],
+          [
+            "Q921159",
+            "P414",
+            "Q151139"
+          ],
+          [
+            "Q207889",
+            "P710",
+            "Q1245757"
           ]
         ]
       }
