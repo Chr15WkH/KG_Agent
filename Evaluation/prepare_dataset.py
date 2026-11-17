@@ -6,8 +6,17 @@ from Evaluation.dataset_loader import load_gtsqa_sample, load_gtsqa_gold, load_g
 from Evaluation.evaluators import normalize_entity_answers, normalize_triples
 
 
-def prepare_local_items(*, dataset_name, sample_ids, dataset_type="gtsqa",):
-    """Prepare dataset payloads locally without contacting Langfuse."""
+def prepare_local_items(
+    *,
+    dataset_name,
+    sample_ids,
+    dataset_type="gtsqa",
+    split="development",
+):
+    """Prepare dataset payloads locally without contacting Langfuse.
+
+    For GTSQA, the split selects the local agent input and Gold files.
+    """
 
     if not isinstance(dataset_name, str) or not dataset_name.strip():
         raise ValueError("Dataset name must be a non-empty string.")
@@ -62,8 +71,8 @@ def prepare_local_items(*, dataset_name, sample_ids, dataset_type="gtsqa",):
             continue
 
         # Preserve the existing GTSQA preparation and validation.
-        sample = load_gtsqa_sample(sample_id)
-        gold = load_gtsqa_gold(sample_id)
+        sample = load_gtsqa_sample(sample_id, split=split)
+        gold = load_gtsqa_gold(sample_id, split=split)
 
         question = sample.get("question")
 
@@ -186,8 +195,9 @@ def prepare_dataset(
     Load selected items from Langfuse and check their data.
     GTSQA datasets may be created or updated from local data.
     CRLT items are read directly from Langfuse.
-    The split only labels newly created Langfuse datasets;
-    sample selection is resolved beforehand by Evaluation.splits.
+    The split labels newly created Langfuse datasets and selects the
+    local GTSQA files; sample selection is resolved beforehand by
+    Evaluation.splits.
     """
 
     # Read and validate existing CRLT items without changing them.
@@ -260,6 +270,7 @@ def prepare_dataset(
         dataset_name=dataset_name,
         sample_ids=sample_ids,
         dataset_type=dataset_type,
+        split=split,
     )
 
     source_dataset = (

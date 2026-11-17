@@ -32,10 +32,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # ======================================================================
 
 # Choose the Agent
-AGENT_VERSION = "ark_v1_1" # "ark_v1" (CRLT only), "ark_v1_1", "ark_v2"
+AGENT_VERSION = "ark_v2" # "ark_v1" (CRLT only), "ark_v1_1", "ark_v2"
 
 # Choose the dataset
-DATASET_TYPE = "crlt" # "gtsqa", "gtsqa_ua" or "crlt"
+DATASET_TYPE = "gtsqa" # "gtsqa", "gtsqa_ua" or "crlt"
 
 # Choose the split. Sample IDs and the Langfuse dataset name come from
 # Dataset/splits/<dataset>_splits.json, so development and test never mix.
@@ -250,7 +250,7 @@ def main() -> None:
                     }
                 elif DATASET_TYPE == "gtsqa":
                     sample_id = int(item.metadata["sample_id"])
-                    sample = load_gtsqa_sample(sample_id)
+                    sample = load_gtsqa_sample(sample_id, split=SPLIT)
                 else:
                     # ARK v1.1 and ARK v2 share this GTSQA_UA loader, so both Agents receive the same samples.
                     from ark_v1_1.adapters.gtsqa_ua import (

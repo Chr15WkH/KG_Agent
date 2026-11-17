@@ -50,3 +50,5 @@ logs/
 /Dataset/gtsqa_with_graphs_test.parquet
 /Dataset/kqapro_kb.json
 /Dataset/kqapro_original_val.json
+# Rebuilt from the source parquet (~200 MB, above GitHub's file limit); see Dataset/README.md.
+/Dataset/gtsqa_test_agent_input.jsonl

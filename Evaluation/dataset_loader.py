@@ -7,10 +7,40 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATASET_DIR = PROJECT_ROOT / "Dataset"
 
+# Local GTSQA files per split: (agent input JSONL, Gold JSON).
+# Built by the scripts in Dataset/; see Dataset/README.md.
+GTSQA_FILES = {
+    "development": (
+        "gtsqa_development_agent_input.jsonl",
+        "gtsqa_development_gold.json",
+    ),
+    "test": (
+        "gtsqa_test_agent_input.jsonl",
+        "gtsqa_test_gold.json",
+    ),
+}
 
-def load_gtsqa_sample(sample_id: int) -> dict:
+
+def _gtsqa_path(split: str, index: int) -> Path:
+    """Return a GTSQA file of a split; an unknown split is an error."""
+    if split not in GTSQA_FILES:
+        raise ValueError(
+            f"Unknown GTSQA split {split!r}; expected one of "
+            f"{tuple(GTSQA_FILES)}."
+        )
+
+    path = DATASET_DIR / GTSQA_FILES[split][index]
+    if not path.exists():
+        raise FileNotFoundError(
+            f"{path.name} not found; build it as described in Dataset/README.md."
+        )
+
+    return path
+
+
+def load_gtsqa_sample(sample_id: int, split: str = "development") -> dict:
     """Load one original GTSQA sample without converting its graph."""
-    input_path = DATASET_DIR / "gtsqa_development_agent_input.jsonl"
+    input_path = _gtsqa_path(split, 0)
 
     with input_path.open("r", encoding="utf-8") as file:
         for line in file:
@@ -22,12 +52,14 @@ def load_gtsqa_sample(sample_id: int) -> dict:
             if str(sample["id"]) == str(sample_id):
                 return sample
 
-    raise ValueError(f"GTSQA sample {sample_id} was not found.")
+    raise ValueError(
+        f"GTSQA sample {sample_id} was not found in {input_path.name}."
+    )
 
 
-def load_gtsqa_gold(sample_id: int) -> dict:
+def load_gtsqa_gold(sample_id: int, split: str = "development") -> dict:
     """Load the GTSQA reference answer and supporting subgraph for evaluation."""
-    gold_path = DATASET_DIR / "gtsqa_development_gold.json"
+    gold_path = _gtsqa_path(split, 1)
 
     with gold_path.open("r", encoding="utf-8") as file:
         data = json.load(file)
