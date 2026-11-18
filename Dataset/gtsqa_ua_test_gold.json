@@ -1,0 +1,2834 @@
+{
+  "dataset_info": {
+    "name": "gtsqa_ua_test",
+    "source_agent_input": "gtsqa_test_agent_input.jsonl",
+    "source_gold": "gtsqa_test_gold.json",
+    "construction_method": "controlled_fact_deletion",
+    "candidate_order": "sorted_qid_pid_triples",
+    "max_deleted_facts": 2,
+    "pair_count": 50,
+    "item_count": 100,
+    "answerability_definition": "The original query returns verified non-empty answers. A deleted variant is unanswerable when the same query executes successfully and returns no answers.",
+    "selection": {
+      "source_split": "GTSQA test split (splits/gtsqa_splits.json)",
+      "pairs_per_structure": 5,
+      "structures": [
+        "(4)",
+        "(3)(1)",
+        "(2)(2)",
+        "((2)(1))",
+        "((1)(1))(1)",
+        "(2(1)(1))",
+        "(1)",
+        "(2)",
+        "(1)(1)",
+        "(3)"
+      ],
+      "seed": 20261117,
+      "rule": "Per structure, the test questions are shuffled with random.Random(f'{seed}:ua-test:{structure}') and tried in that order until the quota is reached; failed builds are skipped and listed under 'skipped'."
+    }
+  },
+  "questions": [
+    {
+      "id": "12226-original",
+      "question": "What ethnic group does the employee of the screenwriter's employer of Lost and Found belong to?",
+      "answerable": true,
+      "gold_answer": [
+        "Q49085"
+      ],
+      "original_gold_answer": [
+        "Q49085"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT DISTINCT ?answer WHERE {wd:Q6684342 wdt:P58 ?writer. ?writer wdt:P108 ?employer. ?person wdt:P108 ?employer. ?person wdt:P172 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q49085"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q49085"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "12226-ua-01",
+      "question": "What ethnic group does the employee of the screenwriter's employer of Lost and Found belong to?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q49085"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q5242608",
+            "P108",
+            "Q5149662"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT DISTINCT ?answer WHERE {wd:Q6684342 wdt:P58 ?writer. ?writer wdt:P108 ?employer. ?person wdt:P108 ?employer. ?person wdt:P172 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q49085"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "35907-original",
+      "question": "Where can you find the burial site of the architect who designed the church named after Carl Johan Bernadotte's mother?",
+      "answerable": true,
+      "gold_answer": [
+        "Q19652332"
+      ],
+      "original_gold_answer": [
+        "Q19652332"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q437019 wdt:P25 ?mother. ?church wdt:P138 ?mother; wdt:P84 ?architect. ?architect wdt:P119 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q19652332"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q19652332"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "35907-ua-01",
+      "question": "Where can you find the burial site of the architect who designed the church named after Carl Johan Bernadotte's mother?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q19652332"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q10421172",
+            "P138",
+            "Q158173"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q437019 wdt:P25 ?mother. ?church wdt:P138 ?mother; wdt:P84 ?architect. ?architect wdt:P119 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q19652332"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "18002-original",
+      "question": "What is the genre of the artist of the album that comes after the album following Chappo?",
+      "answerable": true,
+      "gold_answer": [
+        "Q11399"
+      ],
+      "original_gold_answer": [
+        "Q11399"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q5073408 wdt:P156 ?middle . ?middle wdt:P156 ?album . ?album wdt:P175 ?performer . ?performer wdt:P136 ?answer }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q11399"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q11399"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "18002-ua-01",
+      "question": "What is the genre of the artist of the album that comes after the album following Chappo?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q11399"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q5073408",
+            "P156",
+            "Q6657655"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q5073408 wdt:P156 ?middle . ?middle wdt:P156 ?album . ?album wdt:P175 ?performer . ?performer wdt:P136 ?answer }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q11399"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "36688-original",
+      "question": "Who is the paternal grandmother of the spouse of the mother of Shushi-naishinnō?",
+      "answerable": true,
+      "gold_answer": [
+        "Q5507520"
+      ],
+      "original_gold_answer": [
+        "Q5507520"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q7244872 wdt:P25 ?mother. ?mother wdt:P26 ?father. ?father wdt:P22 ?grandfather. ?grandfather wdt:P25 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q5507520"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q5507520"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "36688-ua-01",
+      "question": "Who is the paternal grandmother of the spouse of the mother of Shushi-naishinnō?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q5507520"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q349284",
+            "P22",
+            "Q464267"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q7244872 wdt:P25 ?mother. ?mother wdt:P26 ?father. ?father wdt:P22 ?grandfather. ?grandfather wdt:P25 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q5507520"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "6573-original",
+      "question": "How did the teacher of the teacher of the teacher of Robert Ardito die?",
+      "answerable": true,
+      "gold_answer": [
+        "Q3739104"
+      ],
+      "original_gold_answer": [
+        "Q3739104"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q15987796 wdt:P1066 ?teacher1. ?teacher1 wdt:P1066 ?teacher2. ?teacher2 wdt:P1066 ?teacher3. ?teacher3 wdt:P1196 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q3739104"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q3739104"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "6573-ua-01",
+      "question": "How did the teacher of the teacher of the teacher of Robert Ardito die?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q3739104"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q15987796",
+            "P1066",
+            "Q6195106"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q15987796 wdt:P1066 ?teacher1. ?teacher1 wdt:P1066 ?teacher2. ?teacher2 wdt:P1066 ?teacher3. ?teacher3 wdt:P1196 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q3739104"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "34672-original",
+      "question": "Which Silver Bauhinia Star recipient has a father with the same last name as Feng Menglong?",
+      "answerable": true,
+      "gold_answer": [
+        "Q8009484"
+      ],
+      "original_gold_answer": [
+        "Q8009484"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?answer wdt:P166 wd:Q839410; wdt:P22 ?father. ?father wdt:P734 ?famname. wd:Q371966 wdt:P734 ?famname. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q8009484"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q8009484"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "34672-ua-01",
+      "question": "Which Silver Bauhinia Star recipient has a father with the same last name as Feng Menglong?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q8009484"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q19801607",
+            "P734",
+            "Q202664"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?answer wdt:P166 wd:Q839410; wdt:P22 ?father. ?father wdt:P734 ?famname. wd:Q371966 wdt:P734 ?famname. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q8009484"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "42599-original",
+      "question": "Which organization owns Rostelecom and is the parent company of the designer responsible for the armament used in the Sovremenny-class destroyer?",
+      "answerable": true,
+      "gold_answer": [
+        "Q1659060"
+      ],
+      "original_gold_answer": [
+        "Q1659060"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1063228 wdt:P520 ?armament. ?armament wdt:P287 ?designer. ?designer wdt:P749 ?answer. wd:Q1477012 wdt:P127 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q1659060"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q1659060"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "42599-ua-01",
+      "question": "Which organization owns Rostelecom and is the parent company of the designer responsible for the armament used in the Sovremenny-class destroyer?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q1659060"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1063228",
+            "P520",
+            "Q950158"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1063228 wdt:P520 ?armament. ?armament wdt:P287 ?designer. ?designer wdt:P749 ?answer. wd:Q1477012 wdt:P127 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q1659060"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "37367-original",
+      "question": "Which administrative organization is paired with Newport Beach, where the publisher of Wasteland 2 is based, as well as New Orleans?",
+      "answerable": true,
+      "gold_answer": [
+        "Q1026520"
+      ],
+      "original_gold_answer": [
+        "Q1026520"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1633410 wdt:P123 ?publisher. ?publisher wdt:P159 ?newport. ?newport wdt:P190 ?answer. wd:Q34404 wdt:P190 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q1026520"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q1026520"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "37367-ua-01",
+      "question": "Which administrative organization is paired with Newport Beach, where the publisher of Wasteland 2 is based, as well as New Orleans?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q1026520"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1633410",
+            "P123",
+            "Q2712143"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1633410 wdt:P123 ?publisher. ?publisher wdt:P159 ?newport. ?newport wdt:P190 ?answer. wd:Q34404 wdt:P190 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q1026520"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "41660-original",
+      "question": "Who among the recipients of the Officer of the Legion of Honour studied under the teacher of the artist behind \"Landscape in Drenthe\"?",
+      "answerable": true,
+      "gold_answer": [
+        "Q633574"
+      ],
+      "original_gold_answer": [
+        "Q633574"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q17329899 wdt:P170 ?creator. ?creator wdt:P1066 ?teacher. ?answer wdt:P1066 ?teacher; wdt:P166 wd:Q10855195. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q633574"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q633574"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "41660-ua-01",
+      "question": "Who among the recipients of the Officer of the Legion of Honour studied under the teacher of the artist behind \"Landscape in Drenthe\"?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q633574"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q17329899",
+            "P170",
+            "Q18603329"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q17329899 wdt:P170 ?creator. ?creator wdt:P1066 ?teacher. ?answer wdt:P1066 ?teacher; wdt:P166 wd:Q10855195. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q633574"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "9239-original",
+      "question": "Which neighboring country of Laos has a province that includes the Na Tan district and the Na Tan subdistrict?",
+      "answerable": true,
+      "gold_answer": [
+        "Q869"
+      ],
+      "original_gold_answer": [
+        "Q869"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q819 wdt:P47 ?answer. ?answer wdt:P150 ?province. ?province wdt:P150 ?district. ?district wdt:P150 wd:Q15738718. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q869"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q869"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "9239-ua-01",
+      "question": "Which neighboring country of Laos has a province that includes the Na Tan district and the Na Tan subdistrict?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q869"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q180037",
+            "P150",
+            "Q15738718"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q819 wdt:P47 ?answer. ?answer wdt:P150 ?province. ?province wdt:P150 ?district. ?district wdt:P150 wd:Q15738718. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q869"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "2351-original",
+      "question": "In which country is the capital of Konin County situated, and which also borders the country where Helmuth Ley has citizenship?",
+      "answerable": true,
+      "gold_answer": [
+        "Q36"
+      ],
+      "original_gold_answer": [
+        "Q36"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q133185 wdt:P36 ?capital. ?capital wdt:P17 ?answer. wd:Q15815035 wdt:P27 ?country. ?country wdt:P47 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q36"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q36"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "2351-ua-01",
+      "question": "In which country is the capital of Konin County situated, and which also borders the country where Helmuth Ley has citizenship?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q36"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q133185",
+            "P36",
+            "Q52845"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q133185 wdt:P36 ?capital. ?capital wdt:P17 ?answer. wd:Q15815035 wdt:P27 ?country. ?country wdt:P47 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q36"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "10897-original",
+      "question": "Which branch of the military owned Rancho Agua Caliente and is also associated with the book \"We Were Soldiers Once… And Young\"?",
+      "answerable": true,
+      "gold_answer": [
+        "Q9212"
+      ],
+      "original_gold_answer": [
+        "Q9212"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {  wd:Q14683730 wdt:P127 ?owner.  ?owner wdt:P241 ?answer.  wd:Q2376852 wdt:P50 ?author.  ?author wdt:P241 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q9212"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q9212"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "10897-ua-01",
+      "question": "Which branch of the military owned Rancho Agua Caliente and is also associated with the book \"We Were Soldiers Once… And Young\"?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q9212"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q14683730",
+            "P127",
+            "Q315597"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {  wd:Q14683730 wdt:P127 ?owner.  ?owner wdt:P241 ?answer.  wd:Q2376852 wdt:P50 ?author.  ?author wdt:P241 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q9212"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "24518-original",
+      "question": "Which organization owns the artwork made in New Orleans that features a pitcher in its collection?",
+      "answerable": true,
+      "gold_answer": [
+        "Q865736"
+      ],
+      "original_gold_answer": [
+        "Q865736"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?artwork1 wdt:P1071 wd:Q34404; wdt:P127 ?answer. ?artwork2 wdt:P180 wd:Q1048902; wdt:P195 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q865736"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q865736"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "24518-ua-01",
+      "question": "Which organization owns the artwork made in New Orleans that features a pitcher in its collection?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q865736"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q18451493",
+            "P180",
+            "Q1048902"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?artwork1 wdt:P1071 wd:Q34404; wdt:P127 ?answer. ?artwork2 wdt:P180 wd:Q1048902; wdt:P195 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q865736"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "28109-original",
+      "question": "Which chromosome in the mouse contains the orthologs for both KRT8 and LIFR?",
+      "answerable": true,
+      "gold_answer": [
+        "Q15305608"
+      ],
+      "original_gold_answer": [
+        "Q15305608"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q14907896 wdt:P684 ?ortholog1. ?ortholog1 wdt:P1057 ?answer. wd:Q14914453 wdt:P684 ?ortholog2. ?ortholog2 wdt:P1057 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q15305608"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q15305608"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "28109-ua-01",
+      "question": "Which chromosome in the mouse contains the orthologs for both KRT8 and LIFR?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q15305608"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q14907896",
+            "P684",
+            "Q14907897"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q14907896 wdt:P684 ?ortholog1. ?ortholog1 wdt:P1057 ?answer. wd:Q14914453 wdt:P684 ?ortholog2. ?ortholog2 wdt:P1057 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q15305608"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "17876-original",
+      "question": "Which language serves as the official language of the country where \"People Meet and Sweet Music Fills the Heart\" originated, and is also the one used in the description of Ludwig von Hofmann?",
+      "answerable": true,
+      "gold_answer": [
+        "Q9027"
+      ],
+      "original_gold_answer": [
+        "Q9027"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q12326643 wdt:P495 ?country. ?country wdt:P37 ?answer. wd:Q318551 wdt:P1343 ?source. ?source wdt:P407 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q9027"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q9027"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "17876-ua-01",
+      "question": "Which language serves as the official language of the country where \"People Meet and Sweet Music Fills the Heart\" originated, and is also the one used in the description of Ludwig von Hofmann?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q9027"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q12326643",
+            "P495",
+            "Q34"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q12326643 wdt:P495 ?country. ?country wdt:P37 ?answer. wd:Q318551 wdt:P1343 ?source. ?source wdt:P407 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q9027"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "419-original",
+      "question": "How did the person born in Budapest, who shares a cemetery with Fridolin Tschudi, die?",
+      "answerable": true,
+      "gold_answer": [
+        "Q10737"
+      ],
+      "original_gold_answer": [
+        "Q10737"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q1456256 wdt:P119 ?cemetery. ?person wdt:P19 wd:Q1781; wdt:P119 ?cemetery; wdt:P1196 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q10737"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q10737"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "419-ua-01",
+      "question": "How did the person born in Budapest, who shares a cemetery with Fridolin Tschudi, die?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q10737"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1456256",
+            "P119",
+            "Q666565"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q1456256 wdt:P119 ?cemetery. ?person wdt:P19 wd:Q1781; wdt:P119 ?cemetery; wdt:P1196 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q10737"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "34486-original",
+      "question": "Which artist put out an album on Capitol Records that was directly followed by an album on 4AD?",
+      "answerable": true,
+      "gold_answer": [
+        "Q270469"
+      ],
+      "original_gold_answer": [
+        "Q270469"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {  ?album1 wdt:P264 wd:Q193023; wdt:P156 ?album2; wdt:P175 ?answer.  ?album2 wdt:P264 wd:Q238095.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q270469"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q270469"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "34486-ua-01",
+      "question": "Which artist put out an album on Capitol Records that was directly followed by an album on 4AD?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q270469"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q3759201",
+            "P264",
+            "Q238095"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {  ?album1 wdt:P264 wd:Q193023; wdt:P156 ?album2; wdt:P175 ?answer.  ?album2 wdt:P264 wd:Q238095.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q270469"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "41302-original",
+      "question": "Which organization runs the building that houses the same team as Kidd Brewer Stadium and was designed by Walter P Moore Engineers and Consultants?",
+      "answerable": true,
+      "gold_answer": [
+        "Q620640"
+      ],
+      "original_gold_answer": [
+        "Q620640"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q6404623 wdt:P466 ?team. ?building wdt:P466 ?team; wdt:P631 wd:Q7965773; wdt:P137 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q620640"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q620640"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "41302-ua-01",
+      "question": "Which organization runs the building that houses the same team as Kidd Brewer Stadium and was designed by Walter P Moore Engineers and Consultants?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q620640"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q5541949",
+            "P137",
+            "Q620640"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q6404623 wdt:P466 ?team. ?building wdt:P466 ?team; wdt:P631 wd:Q7965773; wdt:P137 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q620640"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "35279-original",
+      "question": "Who directed the German film that is adapted from a work by Ingeborg Bachmann?",
+      "answerable": true,
+      "gold_answer": [
+        "Q62323"
+      ],
+      "original_gold_answer": [
+        "Q62323"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?film wdt:P495 wd:Q183; wdt:P144 ?work; wdt:P57 ?answer. ?work wdt:P50 wd:Q78506. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q62323"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q62323"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "35279-ua-01",
+      "question": "Who directed the German film that is adapted from a work by Ingeborg Bachmann?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q62323"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1887393",
+            "P50",
+            "Q78506"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?film wdt:P495 wd:Q183; wdt:P144 ?work; wdt:P57 ?answer. ?work wdt:P50 wd:Q78506. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q62323"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "42561-original",
+      "question": "Who was the cinematographer for the French-language film inspired by the significant work of Heinrich von Kleist?",
+      "answerable": true,
+      "gold_answer": [
+        "Q155423"
+      ],
+      "original_gold_answer": [
+        "Q155423"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q28494 wdt:P800 ?work. ?film wdt:P144 ?work; wdt:P364 wd:Q150; wdt:P344 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q155423"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q155423"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "42561-ua-01",
+      "question": "Who was the cinematographer for the French-language film inspired by the significant work of Heinrich von Kleist?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q155423"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q28494",
+            "P800",
+            "Q1214716"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q28494 wdt:P800 ?work. ?film wdt:P144 ?work; wdt:P364 wd:Q150; wdt:P344 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q155423"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "30484-original",
+      "question": "Which member of the Royal Society was a PhD student of a British Army associate whose doctoral supervisor was Karl Pearson?",
+      "answerable": true,
+      "gold_answer": [
+        "Q727546"
+      ],
+      "original_gold_answer": [
+        "Q727546"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?advisor wdt:P241 wd:Q222595; wdt:P184 wd:Q310794; wdt:P185 ?answer. ?answer wdt:P463 wd:Q123885. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q727546"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q727546"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "30484-ua-01",
+      "question": "Which member of the Royal Society was a PhD student of a British Army associate whose doctoral supervisor was Karl Pearson?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q727546"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q3809681",
+            "P184",
+            "Q310794"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?advisor wdt:P241 wd:Q222595; wdt:P184 wd:Q310794; wdt:P185 ?answer. ?answer wdt:P463 wd:Q123885. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q727546"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "40459-original",
+      "question": "Which member of the Bavarian Academy of Sciences and Humanities was the doctoral advisor to a Royal Society member based in Kiel?",
+      "answerable": true,
+      "gold_answer": [
+        "Q60397"
+      ],
+      "original_gold_answer": [
+        "Q60397"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?student wdt:P463 wd:Q123885; wdt:P937 wd:Q1707; wdt:P184 ?answer. ?answer wdt:P463 wd:Q684415. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q60397"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q60397"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "40459-ua-01",
+      "question": "Which member of the Bavarian Academy of Sciences and Humanities was the doctoral advisor to a Royal Society member based in Kiel?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q60397"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q571690",
+            "P184",
+            "Q60397"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?student wdt:P463 wd:Q123885; wdt:P937 wd:Q1707; wdt:P184 ?answer. ?answer wdt:P463 wd:Q684415. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q60397"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "13330-original",
+      "question": "Which company was behind both the film set in New York City that had Fred Murphy as the director of photography and the movie \"Feast of Love\"?",
+      "answerable": true,
+      "gold_answer": [
+        "Q179200"
+      ],
+      "original_gold_answer": [
+        "Q179200"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?film1 wdt:P344 wd:Q1003717; wdt:P840 wd:Q60; wdt:P272 ?answer. wd:Q148387 wdt:P272 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q179200"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q179200"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "13330-ua-01",
+      "question": "Which company was behind both the film set in New York City that had Fred Murphy as the director of photography and the movie \"Feast of Love\"?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q179200"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q148387",
+            "P272",
+            "Q179200"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?film1 wdt:P344 wd:Q1003717; wdt:P840 wd:Q60; wdt:P272 ?answer. wd:Q148387 wdt:P272 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q179200"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "40468-original",
+      "question": "What genre do both the film produced by the South Australian Film Corporation and filmed in Australia and the film Crackerjack belong to?",
+      "answerable": true,
+      "gold_answer": [
+        "Q1339864"
+      ],
+      "original_gold_answer": [
+        "Q1339864"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {   ?film1 wdt:P272 wd:Q7566109; wdt:P915 wd:Q408; wdt:P136 ?answer.  wd:Q12110058 wdt:P136 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q1339864"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q1339864"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "40468-ua-01",
+      "question": "What genre do both the film produced by the South Australian Film Corporation and filmed in Australia and the film Crackerjack belong to?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q1339864"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q12110058",
+            "P136",
+            "Q1339864"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {   ?film1 wdt:P272 wd:Q7566109; wdt:P915 wd:Q408; wdt:P136 ?answer.  wd:Q12110058 wdt:P136 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q1339864"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "34638-original",
+      "question": "Which mayor passed away in a town that shares borders with both Aci Catena and Acireale?",
+      "answerable": true,
+      "gold_answer": [
+        "Q431980"
+      ],
+      "original_gold_answer": [
+        "Q431980"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?answer wdt:P39 wd:Q30185; wdt:P20 ?place. ?place wdt:P47 wd:Q341299, wd:Q19319. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q431980"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q431980"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "34638-ua-01",
+      "question": "Which mayor passed away in a town that shares borders with both Aci Catena and Acireale?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q431980"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q341293",
+            "P47",
+            "Q19319"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?answer wdt:P39 wd:Q30185; wdt:P20 ?place. ?place wdt:P47 wd:Q341299, wd:Q19319. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q431980"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "11444-original",
+      "question": "What language is used in the source that talks about the cast member of \"Voilà l'ordre\" who was born in Kislovodsk?",
+      "answerable": true,
+      "gold_answer": [
+        "Q7737"
+      ],
+      "original_gold_answer": [
+        "Q7737"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q16682880 wdt:P161 ?person. ?person wdt:P19 wd:Q153676. ?person wdt:P1343 ?source. ?source wdt:P407 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q7737"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q7737"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "11444-ua-01",
+      "question": "What language is used in the source that talks about the cast member of \"Voilà l'ordre\" who was born in Kislovodsk?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q7737"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q16682880",
+            "P161",
+            "Q213582"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q16682880 wdt:P161 ?person. ?person wdt:P19 wd:Q153676. ?person wdt:P1343 ?source. ?source wdt:P407 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q7737"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "14267-original",
+      "question": "Which programming language is used by the shell that is derived from the one used for LXC and has been influenced by ALGOL 68?",
+      "answerable": true,
+      "gold_answer": [
+        "Q15777"
+      ],
+      "original_gold_answer": [
+        "Q15777"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q2597211 wdt:P277 ?shell. ?shell wdt:P737 wd:Q2166735. ?bash wdt:P144 ?shell. ?bash wdt:P277 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q15777"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q15777"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "14267-ua-01",
+      "question": "Which programming language is used by the shell that is derived from the one used for LXC and has been influenced by ALGOL 68?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q15777"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q189248",
+            "P144",
+            "Q844595"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q2597211 wdt:P277 ?shell. ?shell wdt:P737 wd:Q2166735. ?bash wdt:P144 ?shell. ?bash wdt:P277 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q15777"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "41234-original",
+      "question": "Which company was the primary contractor for the arena that houses the team both Martin Jones and Anthony Stewart have played for?",
+      "answerable": true,
+      "gold_answer": [
+        "Q5560727"
+      ],
+      "original_gold_answer": [
+        "Q5560727"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q8837546 wdt:P54 ?team. wd:Q574026 wdt:P54 ?team. ?arena wdt:P466 ?team. ?arena wdt:P193 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q5560727"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q5560727"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "41234-ua-01",
+      "question": "Which company was the primary contractor for the arena that houses the team both Martin Jones and Anthony Stewart have played for?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q5560727"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1568947",
+            "P193",
+            "Q5560727"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q8837546 wdt:P54 ?team. wd:Q574026 wdt:P54 ?team. ?arena wdt:P466 ?team. ?arena wdt:P193 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q5560727"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "7986-original",
+      "question": "What is the time zone of the municipality that is paired with the administrative area in Darmstadt-Dieburg and also has a partnership with Villenave-d'Ornon?",
+      "answerable": true,
+      "gold_answer": [
+        "Q6655"
+      ],
+      "original_gold_answer": [
+        "Q6655"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q235733 wdt:P190 ?sj. wd:Q7916 wdt:P150 ?sj. ?sj wdt:P190 ?cereg. ?cereg wdt:P421 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q6655"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q6655"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "7986-ua-01",
+      "question": "What is the time zone of the municipality that is paired with the administrative area in Darmstadt-Dieburg and also has a partnership with Villenave-d'Ornon?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q6655"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q235733",
+            "P190",
+            "Q574429"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q235733 wdt:P190 ?sj. wd:Q7916 wdt:P150 ?sj. ?sj wdt:P190 ?cereg. ?cereg wdt:P421 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q6655"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "15476-original",
+      "question": "What sport is played at the venue constructed by Skanska and owned by Georgia?",
+      "answerable": true,
+      "gold_answer": [
+        "Q41323"
+      ],
+      "original_gold_answer": [
+        "Q41323"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?venue wdt:P193 wd:Q1537811. ?venue wdt:P127 wd:Q1428. ?venue wdt:P466 ?team. ?team wdt:P641 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q41323"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q41323"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "15476-ua-01",
+      "question": "What sport is played at the venue constructed by Skanska and owned by Georgia?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q41323"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1058931",
+            "P127",
+            "Q1428"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?venue wdt:P193 wd:Q1537811. ?venue wdt:P127 wd:Q1428. ?venue wdt:P466 ?team. ?team wdt:P641 ?answer. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q41323"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "31540-original",
+      "question": "Which Lagrangian point is linked to 1870 Glaukos?",
+      "answerable": true,
+      "gold_answer": [
+        "Q16609647"
+      ],
+      "original_gold_answer": [
+        "Q16609647"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q145034 wdt:P1145 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q16609647"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q16609647"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "31540-ua-01",
+      "question": "Which Lagrangian point is linked to 1870 Glaukos?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q16609647"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q145034",
+            "P1145",
+            "Q16609647"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q145034 wdt:P1145 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q16609647"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "3724-original",
+      "question": "What is the dual polytope of the disdyakis triacontahedron?",
+      "answerable": true,
+      "gold_answer": [
+        "Q592806"
+      ],
+      "original_gold_answer": [
+        "Q592806"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1512266 wdt:P1322 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q592806"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q592806"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "3724-ua-01",
+      "question": "What is the dual polytope of the disdyakis triacontahedron?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q592806"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1512266",
+            "P1322",
+            "Q592806"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1512266 wdt:P1322 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q592806"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "19512-original",
+      "question": "What is the code of nomenclature for Callichthyidae?",
+      "answerable": true,
+      "gold_answer": [
+        "Q13011"
+      ],
+      "original_gold_answer": [
+        "Q13011"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1045611 wdt:P944 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q13011"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q13011"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "19512-ua-01",
+      "question": "What is the code of nomenclature for Callichthyidae?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q13011"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1045611",
+            "P944",
+            "Q13011"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1045611 wdt:P944 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q13011"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "23859-original",
+      "question": "Who was the organizer of the 1990–91 UEFA Cup?",
+      "answerable": true,
+      "gold_answer": [
+        "Q35572"
+      ],
+      "original_gold_answer": [
+        "Q35572"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q754116 wdt:P664 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q35572"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q35572"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "23859-ua-01",
+      "question": "Who was the organizer of the 1990–91 UEFA Cup?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q35572"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q754116",
+            "P664",
+            "Q35572"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q754116 wdt:P664 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q35572"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "19780-original",
+      "question": "What color are Helen Lindes' eyes?",
+      "answerable": true,
+      "gold_answer": [
+        "Q17122854"
+      ],
+      "original_gold_answer": [
+        "Q17122854"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q3784511 wdt:P1340 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q17122854"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q17122854"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "19780-ua-01",
+      "question": "What color are Helen Lindes' eyes?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q17122854"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q3784511",
+            "P1340",
+            "Q17122854"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q3784511 wdt:P1340 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q17122854"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "31276-original",
+      "question": "What is the official residence of the person who appoints the Prime Minister of Portugal?",
+      "answerable": true,
+      "gold_answer": [
+        "Q1144592"
+      ],
+      "original_gold_answer": [
+        "Q1144592"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1723031 wdt:P748 ?position . ?position wdt:P263 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q1144592"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q1144592"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "31276-ua-01",
+      "question": "What is the official residence of the person who appoints the Prime Minister of Portugal?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q1144592"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1723031",
+            "P748",
+            "Q322459"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1723031 wdt:P748 ?position . ?position wdt:P263 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q1144592"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "10058-original",
+      "question": "Who was the father of Princess Magdalena Reuss of Köstritz's husband?",
+      "answerable": true,
+      "gold_answer": [
+        "Q57621"
+      ],
+      "original_gold_answer": [
+        "Q57621"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q7244685 wdt:P26 ?spouse. ?spouse wdt:P22 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q57621"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q57621"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "10058-ua-01",
+      "question": "Who was the father of Princess Magdalena Reuss of Köstritz's husband?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q57621"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q70760",
+            "P22",
+            "Q57621"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q7244685 wdt:P26 ?spouse. ?spouse wdt:P22 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q57621"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "10253-original",
+      "question": "Who wrote the work featuring the character Jon Arbuckle?",
+      "answerable": true,
+      "gold_answer": [
+        "Q318953"
+      ],
+      "original_gold_answer": [
+        "Q318953"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q277545 wdt:P1441 ?work. ?work wdt:P50 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q318953"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q318953"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "10253-ua-01",
+      "question": "Who wrote the work featuring the character Jon Arbuckle?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q318953"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q277545",
+            "P1441",
+            "Q72533"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q277545 wdt:P1441 ?work. ?work wdt:P50 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q318953"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "26180-original",
+      "question": "Who owns the official residence of the President of Malta?",
+      "answerable": true,
+      "gold_answer": [
+        "Q5589242"
+      ],
+      "original_gold_answer": [
+        "Q5589242"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q796593 wdt:P263 ?residence. ?residence wdt:P127 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q5589242"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q5589242"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "26180-ua-01",
+      "question": "Who owns the official residence of the President of Malta?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q5589242"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1549852",
+            "P127",
+            "Q5589242"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q796593 wdt:P263 ?residence. ?residence wdt:P127 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q5589242"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "26805-original",
+      "question": "Where was the Hera of Samos discovered situated?",
+      "answerable": true,
+      "gold_answer": [
+        "Q156882"
+      ],
+      "original_gold_answer": [
+        "Q156882"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1624331 wdt:P189 ?place. ?place wdt:P706 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q156882"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q156882"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "26805-ua-01",
+      "question": "Where was the Hera of Samos discovered situated?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q156882"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1624331",
+            "P189",
+            "Q841207"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q1624331 wdt:P189 ?place. ?place wdt:P706 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q156882"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "22988-original",
+      "question": "Which river that feeds into the Volga includes Lake Seliger?",
+      "answerable": true,
+      "gold_answer": [
+        "Q289638"
+      ],
+      "original_gold_answer": [
+        "Q289638"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {?answer wdt:P403 wd:Q626. ?answer wdt:P469 wd:Q746304.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q289638"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q289638"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "22988-ua-01",
+      "question": "Which river that feeds into the Volga includes Lake Seliger?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q289638"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q289638",
+            "P403",
+            "Q626"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {?answer wdt:P403 wd:Q626. ?answer wdt:P469 wd:Q746304.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q289638"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "6642-original",
+      "question": "What song by Aerosmith came out under the RCA Records label?",
+      "answerable": true,
+      "gold_answer": [
+        "Q4926584"
+      ],
+      "original_gold_answer": [
+        "Q4926584"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?answer wdt:P175 wd:Q126826; wdt:P264 wd:Q202585. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q4926584"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q4926584"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "6642-ua-01",
+      "question": "What song by Aerosmith came out under the RCA Records label?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q4926584"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q4926584",
+            "P175",
+            "Q126826"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?answer wdt:P175 wd:Q126826; wdt:P264 wd:Q202585. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q4926584"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "23537-original",
+      "question": "What hotel structure was designed by Skidmore Owings Merrill?",
+      "answerable": true,
+      "gold_answer": [
+        "Q7591596"
+      ],
+      "original_gold_answer": [
+        "Q7591596"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {?answer wdt:P366 wd:Q27686. ?answer wdt:P631 wd:Q459464.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q7591596"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q7591596"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "23537-ua-01",
+      "question": "What hotel structure was designed by Skidmore Owings Merrill?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q7591596"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q7591596",
+            "P366",
+            "Q27686"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {?answer wdt:P366 wd:Q27686. ?answer wdt:P631 wd:Q459464.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q7591596"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "23270-original",
+      "question": "Which referee was in charge of both the 2012 American League Wild Card Game and the 2013 World Series?",
+      "answerable": true,
+      "gold_answer": [
+        "Q4910193"
+      ],
+      "original_gold_answer": [
+        "Q4910193"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q465519 wdt:P1652 ?answer. wd:Q4630084 wdt:P1652 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q4910193"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q4910193"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "23270-ua-01",
+      "question": "Which referee was in charge of both the 2012 American League Wild Card Game and the 2013 World Series?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q4910193"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q4630084",
+            "P1652",
+            "Q4910193"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q465519 wdt:P1652 ?answer. wd:Q4630084 wdt:P1652 ?answer.}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q4910193"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "10029-original",
+      "question": "Who is the person buried in Powązki Military Cemetery that passed away from esophageal cancer?",
+      "answerable": true,
+      "gold_answer": [
+        "Q451233"
+      ],
+      "original_gold_answer": [
+        "Q451233"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?answer wdt:P119 wd:Q2790054; wdt:P509 wd:Q372701. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q451233"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q451233"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "10029-ua-01",
+      "question": "Who is the person buried in Powązki Military Cemetery that passed away from esophageal cancer?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q451233"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q451233",
+            "P119",
+            "Q2790054"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { ?answer wdt:P119 wd:Q2790054; wdt:P509 wd:Q372701. }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q451233"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "19734-original",
+      "question": "Which continent can you find the river that flows out of the lake where Abactochromis labrosus is found?",
+      "answerable": true,
+      "gold_answer": [
+        "Q15"
+      ],
+      "original_gold_answer": [
+        "Q15"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q115865 wdt:P183 ?lake. ?lake wdt:P201 ?river. ?river wdt:P30 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q15"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q15"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "19734-ua-01",
+      "question": "Which continent can you find the river that flows out of the lake where Abactochromis labrosus is found?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q15"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q115865",
+            "P183",
+            "Q5532"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q115865 wdt:P183 ?lake. ?lake wdt:P201 ?river. ?river wdt:P30 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q15"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "19903-original",
+      "question": "What color are the eyes of the romantic partner of Zaz's lyricist?",
+      "answerable": true,
+      "gold_answer": [
+        "Q17122834"
+      ],
+      "original_gold_answer": [
+        "Q17122834"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q167848 wdt:P676 ?lyricist. ?partner wdt:P451 ?lyricist. ?partner wdt:P1340 ?answer }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q17122834"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q17122834"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "19903-ua-01",
+      "question": "What color are the eyes of the romantic partner of Zaz's lyricist?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q17122834"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q167848",
+            "P676",
+            "Q955347"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE { wd:Q167848 wdt:P676 ?lyricist. ?partner wdt:P451 ?lyricist. ?partner wdt:P1340 ?answer }",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q17122834"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "31562-original",
+      "question": "Which team represents the place where Susan Luery's famous artwork is displayed?",
+      "answerable": true,
+      "gold_answer": [
+        "Q650816"
+      ],
+      "original_gold_answer": [
+        "Q650816"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q15649005 wdt:P800 ?work. ?work wdt:P276 ?location. ?location wdt:P466 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q650816"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q650816"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "31562-ua-01",
+      "question": "Which team represents the place where Susan Luery's famous artwork is displayed?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q650816"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q1141174",
+            "P466",
+            "Q650816"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q15649005 wdt:P800 ?work. ?work wdt:P276 ?location. ?location wdt:P466 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q650816"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "29966-original",
+      "question": "Who is the author whose partner, who wasn't married to them, was the mother of the person seen in the pastel portraits by Édouard Manet?",
+      "answerable": true,
+      "gold_answer": [
+        "Q169150"
+      ],
+      "original_gold_answer": [
+        "Q169150"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q6083241 wdt:P180 ?depicted. ?depicted wdt:P25 ?mother. ?mother wdt:P451 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q169150"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q169150"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "29966-ua-01",
+      "question": "Who is the author whose partner, who wasn't married to them, was the mother of the person seen in the pastel portraits by Édouard Manet?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q169150"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q16999166",
+            "P25",
+            "Q3275679"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q6083241 wdt:P180 ?depicted. ?depicted wdt:P25 ?mother. ?mother wdt:P451 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q169150"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    },
+    {
+      "id": "37686-original",
+      "question": "What is the ancestral home of Richard Howland Hunt's father's family?",
+      "answerable": true,
+      "gold_answer": [
+        "Q899813"
+      ],
+      "original_gold_answer": [
+        "Q899813"
+      ],
+      "modification": {
+        "type": "none",
+        "removed_triples": []
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q7326573 wdt:P22 ?father. ?father wdt:P53 ?family. ?family wdt:P66 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q899813"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [
+          "Q899813"
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "37686-ua-01",
+      "question": "What is the ancestral home of Richard Howland Hunt's father's family?",
+      "answerable": false,
+      "gold_answer": null,
+      "original_gold_answer": [
+        "Q899813"
+      ],
+      "modification": {
+        "type": "fact_deletion",
+        "removed_triples": [
+          [
+            "Q15645448",
+            "P66",
+            "Q899813"
+          ]
+        ]
+      },
+      "sparql_query": "SELECT ?answer WHERE {wd:Q7326573 wdt:P22 ?father. ?father wdt:P53 ?family. ?family wdt:P66 ?answer}",
+      "validation": {
+        "status": "passed",
+        "original_query_answers": [
+          "Q899813"
+        ],
+        "deletion_matches_record": true,
+        "modified_query_answers": [],
+        "error": null
+      }
+    }
+  ],
+  "skipped": []
+}

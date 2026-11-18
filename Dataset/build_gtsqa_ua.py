@@ -133,11 +133,11 @@ def execute_query(graph, query):
     return sorted(answers)
 
 
-def load_source_sample(sample_id):
+def load_source_sample(sample_id, input_path=INPUT_PATH):
     """Stream the source file, retaining one sample graph."""
     match = None
 
-    with INPUT_PATH.open("r", encoding="utf-8") as file:
+    with input_path.open("r", encoding="utf-8") as file:
         for line in file:
             if not line.strip():
                 continue
@@ -217,9 +217,9 @@ def make_record(
     }
 
 
-def build_pair(gold, max_delete):
+def build_pair(gold, max_delete, input_path=INPUT_PATH):
     """Return one verified original/UA pair."""
-    sample = load_source_sample(gold["id"])
+    sample = load_source_sample(gold["id"], input_path)
 
     question = gold["question_profile"]["question"]
     if not isinstance(question, str) or not question.strip():
