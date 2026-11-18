@@ -137,6 +137,10 @@ class RelationVerified(VerifiedModel):
         description="A verified edge of the knowledge graph that matches the relations.",
         default=None,
     )
+    output_limit_reached: bool = Field(
+        description="True if the last attempt was cut off at the output token limit.",
+        default=False,
+    )
 
 
 # Triples models

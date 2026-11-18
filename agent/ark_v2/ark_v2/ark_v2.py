@@ -1055,11 +1055,17 @@ class ARK_V2(Agent):
             summary = ""
             if relation_verified.attempt > 0:
                 if relation_verified.candidate is None:
-                    summary = (
-                        "The previous attempt did not produce a valid structured relation selection. "
-                        "Return both 'value' and 'direction' as top-level fields. "
-                        "Do not place these fields inside 'justification'.\n"
-                    )
+                    if relation_verified.output_limit_reached:
+                        summary = (
+                            "Your previous answer reached the output token limit before the JSON was complete. "
+                            "Keep your reasoning short and write the JSON answer.\n"
+                        )
+                    else:
+                        summary = (
+                            "The previous attempt did not produce a valid structured relation selection. "
+                            "Return both 'value' and 'direction' as top-level fields. "
+                            "Do not place these fields inside 'justification'.\n"
+                        )
                 else:
                     summary = (
                         f'You have previously attempted to select the relation "{relation_verified.candidate.value}" '
@@ -1109,6 +1115,7 @@ class ARK_V2(Agent):
             relation_verified.candidate = None
             relation_verified.edge = None
             relation_verified.valid = False
+            relation_verified.output_limit_reached = False
 
             response = self.llm.with_structured_output(
                 Relation,
@@ -1119,9 +1126,14 @@ class ARK_V2(Agent):
             parsing_error = response["parsing_error"]
 
             if parsing_error is not None:
+                # A cut-off answer needs different feedback than a schema error
+                relation_verified.output_limit_reached = _reached_output_limit(
+                    self.llm, response["raw"]
+                )
                 self.logger.warning(
-                    "Relation output parsing failed (attempt %s): %s",
+                    "Relation output parsing failed (attempt %s, output limit reached: %s): %s",
                     relation_verified.attempt,
+                    relation_verified.output_limit_reached,
                     type(parsing_error).__name__,
                 )
 
