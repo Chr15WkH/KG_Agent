@@ -15,7 +15,7 @@ def prepare_local_items(
 ):
     """Prepare dataset payloads locally without contacting Langfuse.
 
-    For GTSQA, the split selects the local agent input and Gold files.
+    For GTSQA and GTSQA_UA, the split selects the local files.
     """
 
     if not isinstance(dataset_name, str) or not dataset_name.strip():
@@ -50,7 +50,7 @@ def prepare_local_items(
     # Load each sample and verify that its question is valid and matches the Gold data.
     for sample_id in sample_ids:
         if dataset_type == "gtsqa_ua":
-            gold = load_gtsqa_ua_gold(sample_id)
+            gold = load_gtsqa_ua_gold(sample_id, split=split)
 
             prepared_items.append(
                 {

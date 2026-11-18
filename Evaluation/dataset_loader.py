@@ -91,7 +91,37 @@ def load_gtsqa_gold(sample_id: int, split: str = "development") -> dict:
     }
 
 
-def load_gtsqa_ua_gold(sample_id: str) -> dict:
+# GTSQA_UA Gold file per split. UA graphs are rebuilt from the GTSQA agent
+# input of the same split (see GTSQA_FILES).
+GTSQA_UA_GOLD_FILES = {
+    "development": "gtsqa_ua_gold.json",
+    "test": "gtsqa_ua_test_gold.json",
+}
+
+
+def _gtsqa_ua_gold_path(split: str) -> Path:
+    """Return the GTSQA_UA Gold file of a split; an unknown split is an error."""
+    if split not in GTSQA_UA_GOLD_FILES:
+        raise ValueError(
+            f"Unknown GTSQA_UA split {split!r}; expected one of "
+            f"{tuple(GTSQA_UA_GOLD_FILES)}."
+        )
+
+    path = DATASET_DIR / GTSQA_UA_GOLD_FILES[split]
+    if not path.exists():
+        raise FileNotFoundError(
+            f"{path.name} not found; build it as described in Dataset/README.md."
+        )
+
+    return path
+
+
+def gtsqa_ua_paths(split: str = "development") -> tuple:
+    """Return (UA Gold path, GTSQA agent input path) for the UA adapter."""
+    return _gtsqa_ua_gold_path(split), _gtsqa_path(split, 0)
+
+
+def load_gtsqa_ua_gold(sample_id: str, split: str = "development") -> dict:
     """Load answerability Ground Truth for a GTSQA_UA variant.
 
     This function does not reconstruct graphs or execute SPARQL.
@@ -101,7 +131,7 @@ def load_gtsqa_ua_gold(sample_id: str) -> dict:
     if not isinstance(sample_id, str) or not sample_id.strip():
         raise ValueError("GTSQA_UA sample ID must be a non-empty string.")
 
-    gold_path = DATASET_DIR / "gtsqa_ua_gold.json"
+    gold_path = _gtsqa_ua_gold_path(split)
 
     with gold_path.open("r", encoding="utf-8") as file:
         data = json.load(file)

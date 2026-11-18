@@ -15,7 +15,7 @@ from Evaluation.evaluators import (
     graph_grounding_summary_evaluator,
     boolean_exact_match_evaluator,
 )
-from Evaluation.dataset_loader import load_gtsqa_sample
+from Evaluation.dataset_loader import gtsqa_ua_paths, load_gtsqa_sample
 from Evaluation.prepare_dataset import prepare_dataset
 from Evaluation.splits import resolve_selection
 from Evaluation.langfuse_support import (
@@ -258,7 +258,12 @@ def main() -> None:
                     )
 
                     sample_id = str(item.metadata["sample_id"])
-                    sample = load_gtsqa_ua_sample(sample_id)
+                    ua_gold_path, ua_input_path = gtsqa_ua_paths(SPLIT)
+                    sample = load_gtsqa_ua_sample(
+                        sample_id,
+                        gold_path=ua_gold_path,
+                        input_path=ua_input_path,
+                    )
 
                 if sample["question"] != item.input:
                     raise ValueError(

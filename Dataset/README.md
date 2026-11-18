@@ -11,7 +11,7 @@ All commands run from the project root inside `.venv`. The GTSQA scripts need
 | Dataset | Role | Where the items live |
 |---|---|---|
 | GTSQA | Multi-hop KG retrieval and reasoning, analysed by graph structure | Local files in this folder, synchronised to Langfuse (`gtsqa-development`, `gtsqa-test`) |
-| GTSQA_UA | Refusal: answerable original vs. unanswerable variant with deleted facts | `gtsqa_ua_gold.json`, derived from the GTSQA development set |
+| GTSQA_UA | Refusal: answerable original vs. unanswerable variant with deleted facts | `gtsqa_ua_gold.json` (development) and `gtsqa_ua_test_gold.json` (test), derived from the GTSQA split of the same name |
 | CR-LT-KGQA | Boolean questions over small, incomplete graphs | Langfuse dataset `CR-LT-KGQA`; only the split IDs are stored here |
 | KQA Pro | Early pilot (12 questions), not part of the evaluation | `kqapro_*` files |
 
@@ -98,8 +98,8 @@ Quota per structure:
 | `(1)`, `(2)`, `(1)(1)`, `(3)` | 1–3 | 2 each (8) | 10 each (40) |
 | **Total** | | **38** | **148** |
 
-`(1)(1)(1)` and `(1)(1)(1)(1)` are excluded by design; the remaining source
-structures are not used.
+The other four structures of the source test split, `(2)(1)`, `((1)(1))`,
+`(1)(1)(1)` and `(1)(1)(1)(1)`, are not used.
 
 Questions are drawn at random with seed `20261117`, per split and structure,
 from the eligible questions not yet in either split. Questions in all
@@ -127,16 +127,37 @@ of them differs from the file. Re-running a completed split changes nothing.
 
 ## GTSQA_UA
 
-`build_gtsqa_ua.py` derives one pair per development question: the original
-question and an unanswerable variant in which one or two Gold evidence facts
-are deleted from the graph. A variant is unanswerable when the same SPARQL
-query runs and returns no answer. Graphs are rebuilt from the development agent
-input at run time; `gtsqa_ua_gold.json` stores only the deletion records.
+Each GTSQA_UA pair has two items: the original question (`<id>-original`) and
+an unanswerable variant (`<id>-ua-01`) in which one or two Gold evidence facts
+are deleted from the question graph. Deletion candidates are tried in a fixed
+order, single facts before pairs. A variant is unanswerable when the same
+SPARQL query runs and returns no answer. The UA Gold files store the deletion
+records, not graphs; the UA adapter rebuilds each graph at run time from the
+GTSQA agent input of the same split and checks it again.
 
-The current file has 12 pairs (24 items) from the first 12 development
-questions. The script reads the whole development Gold file and refuses to
-overwrite its output, so re-running it would build pairs for all 38 questions
-into a new file given with `--output`.
+| Split | Built by | Source questions | Size | Files |
+|---|---|---|---|---|
+| development | `build_gtsqa_ua.py` | first 12 GTSQA development questions | 12 pairs (24 items) | `gtsqa_ua_gold.json` |
+| test | `build_gtsqa_ua_test.py` | GTSQA test split, 5 per structure | 50 pairs (100 items) | `gtsqa_ua_test_gold.json` |
+
+Both scripts build each pair with the same function (`build_pair` in
+`build_gtsqa_ua.py`). They differ only in which questions they use:
+
+- Development: every question in the development Gold file at the time of
+  building. The script refuses to overwrite its output, so re-running it now
+  would build pairs for all 38 questions into a new file given with `--output`.
+- Test: per structure, the GTSQA test questions are shuffled with seed
+  `20261117` and tried in that order until 5 pairs are built. Questions without
+  a valid deletion are skipped and listed under `skipped` in the output. The
+  script writes nothing if a structure ends with fewer than 5 pairs, and it
+  also writes the test IDs into `splits/gtsqa_ua_splits.json`.
+
+Both UA Gold files are in Git. Running the test set needs
+`gtsqa_test_agent_input.jsonl` (see the GTSQA section).
+
+```bash
+python Dataset/build_gtsqa_ua_test.py      # after the GTSQA test split is built
+```
 
 ## CR-LT-KGQA
 
