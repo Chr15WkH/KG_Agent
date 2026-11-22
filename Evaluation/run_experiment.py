@@ -62,6 +62,8 @@ AGENT_CONFIG = {
     # ARK v2 only: show known entities and their common neighbours in Step 2.1.
     # Written explicitly so the setting is recorded in the experiment metadata.
     "known_entities_hint": True,
+    # ARK v2 only: output token limit of the reasoning node (other nodes keep the LLM default).
+    "reasoning_max_tokens": 3000,
     "llm": {
         # "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
         "model": "qwen3.8:27b", # "deepseek/deepseek-chat" and "qwen/qwen3.8-27b" for openrouter, "qwen3.5:9b" and "qwen3.8:27b" for litellm

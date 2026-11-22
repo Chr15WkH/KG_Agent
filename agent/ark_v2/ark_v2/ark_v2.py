@@ -748,6 +748,12 @@ class ARK_V2(Agent):
         self.extraction_llm = None
         if self.llm is not None:
             self.extraction_llm = self.llm.model_copy(update={"temperature": extraction_temperature})
+        # Copy of the LLM for the reasoning node: the same model and settings,
+        # but its own output token limit, since reasoning steps need longer outputs than other nodes
+        self.reasoning_max_tokens = config.get("reasoning_max_tokens", 3000)
+        self.reasoning_llm = None
+        if self.llm is not None:
+            self.reasoning_llm = self.llm.model_copy(update={"max_tokens": self.reasoning_max_tokens})
 
     def load_configuration_from_file(self, file_path: str) -> None:
         """Load the configuration from a JSON file"""
@@ -1317,7 +1323,7 @@ class ARK_V2(Agent):
 
             raw = None
             try:
-                response = self.llm.with_structured_output(
+                response = self.reasoning_llm.with_structured_output(
                     ReasoningStepResult, include_raw=True
                 ).invoke(state.messages)
                 raw = response["raw"]
@@ -1329,7 +1335,7 @@ class ARK_V2(Agent):
             except Exception as e:
                 verified_result.valid = False
                 # A cut-off answer needs different feedback than a schema error
-                if _reached_output_limit(self.llm, raw):
+                if _reached_output_limit(self.reasoning_llm, raw):
                     print("Failed to reason: output token limit reached")
                     feedback = (
                         "Your previous answer reached the output token limit before the JSON was complete. "
