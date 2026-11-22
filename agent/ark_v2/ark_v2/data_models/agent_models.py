@@ -79,6 +79,35 @@ class KnownEntities(BaseModel):
     )
 
 
+# Request Decomposition Models
+
+
+class RequestConstraint(BaseModel):
+    """One relation that the user request requires"""
+
+    subject: str = Field(
+        description=(
+            "Start of the relation: the number of a known entity (E1, E2, ...), a variable starting with '?', "
+            "or the name of an entity named in the request but not among the known entities."
+        )
+    )
+    relation: str = Field(description="The relation in the words of the user request.")
+    object: str = Field(description="End of the relation, written like the subject.")
+
+
+class RequestDecomposition(BaseModel):
+    """The user request split into constraints"""
+
+    constraints: List[RequestConstraint] = Field(
+        description="Constraints that the answer must satisfy, each with exactly one relation.",
+        default=[],
+    )
+    answer_type: str = Field(
+        description="The kind of entity that the user request asks for, e.g. 'city' or 'language'.",
+        default="",
+    )
+
+
 # Anchor Models
 
 
@@ -455,7 +484,14 @@ class ExplorationRecord(BaseModel):
 
     constraints: List[Dict[str, Any]] = Field(
         default=[],
-        description="Constraint list; filled from stage B on.",
+        description=(
+            "Constraints of the user request, each with one relation. Keys: id (C1, C2, ...), subject, relation, "
+            "object (subject and object: a known entity ID such as E1 or a variable such as ?answer)."
+        ),
+    )
+    answer_type: Optional[str] = Field(
+        default=None,
+        description="The kind of entity that the user request asks for.",
     )
     known_entities: List[Dict[str, Any]] = Field(
         default=[],

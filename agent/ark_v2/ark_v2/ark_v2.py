@@ -54,6 +54,7 @@ from ark_v2.data_models.agent_models import (
     same_entity,
     get_entity_id,
     KnownEntities,
+    RequestDecomposition,
 )
 from ark_v2.data_models.graph_models import NodeVerified
 
@@ -705,6 +706,38 @@ def _render_explored_relations(state: RuntimeState) -> str:
         "do not repeat a pair discarded as irrelevant.\n"
     )
 
+# Request Decomposition
+
+def _constraint_term(term: str, records: List[Dict[str, Any]], entities_exist: Any) -> str:
+    """
+    Turn the subject or object of a constraint written by the LLM into a known entity ID or a variable.
+    records is ExplorationRecord.known_entities; a new known entity is appended to it.
+    entities_exist is the entities_exist tool.
+    - A variable ('?x') or an ID of the form E<number> is returned unchanged
+      (an ID that is not in records also stays as written).
+    - A name equal to an existing mention (ignoring letter case) returns the ID of that mention.
+    - Any other name is verified like an extracted name and appended as a new known entity (E4, E5, ...);
+      its ID is returned. Its entities are empty if the name is not found in the graph.
+    An empty term is returned unchanged.
+    """
+    term = term.strip()
+    if not term or term.startswith("?") or re.fullmatch(r"E\d+", term):
+        return term
+
+    for record in records:
+        if record["mention"].casefold() == term.casefold():
+            return record["id"]
+
+    result: QueryResultEntitiesExist = entities_exist.invoke(
+        {"entities": [term], "retrieve_alternatives": True}
+    )
+    entities = []
+    if result.success and result.results:
+        entities = _resolve_known_entity(result.results[0])
+    new_id = f"E{len(records) + 1}"
+    records.append({"id": new_id, "mention": term, "entities": entities})
+    return new_id
+
 
 class ARK_V2(Agent):
     """A multi-hop reasoning agent that uses a knowledge graph to answer user requests."""
@@ -741,9 +774,10 @@ class ARK_V2(Agent):
         self.max_conclusion_lines = config.get("max_conclusion_lines", 30)
         self.max_candidates_per_group = config.get("max_candidates_per_group", 10)
         self.known_entities_hint = config.get("known_entities_hint", False)
+        self.request_decomposition = config.get("request_decomposition", False)
         self.max_common_neighbors = config.get("max_common_neighbors", 10)
-        # Copy of the LLM for known entity extraction: the same model and settings,
-        # but its own temperature (default 0), since extraction should not vary between runs
+        # Copy of the LLM for known entity extraction and request decomposition: the same model and settings,
+        # but its own temperature (default 0), since both should not vary between runs
         extraction_temperature = config.get("known_entities_temperature", 0.0)
         self.extraction_llm = None
         if self.llm is not None:
@@ -821,6 +855,9 @@ class ARK_V2(Agent):
         self.add_prompt_template(
             "extract_known_entities", prompts.get_prompt_extract_known_entities()
         )
+        self.add_prompt_template(
+            "decompose_request", prompts.get_prompt_decompose_request()
+        )
         self.add_prompt_template("select_anchor", prompts.get_prompt_select_anchor())
         self.add_prompt_template(
             "select_relation", prompts.get_prompt_select_relation()
@@ -854,7 +891,8 @@ class ARK_V2(Agent):
 
         def extract_known_entities(state: RuntimeState) -> RuntimeState:
             """Extract the entities named in the user request and find their common neighbors (once per question)."""
-            if not self.known_entities_hint:
+            # Also needed by request decomposition, whose constraints refer to the known entities
+            if not (self.known_entities_hint or self.request_decomposition):
                 return state
 
             # The prompt is only sent for this call and not kept in the message history
@@ -914,6 +952,47 @@ class ARK_V2(Agent):
             state.append_message(
                 AIMessage(content="Result (Known entities):\n" + ("\n".join(lines) or "none"))
             )
+            return state
+
+        # Request Decomposition
+
+        def decompose_request(state: RuntimeState) -> RuntimeState:
+            """Split the user request into single-relation constraints (once per question)."""
+            if not self.request_decomposition:
+                return state
+
+            # The prompt is only sent for this call and not kept in the message history;
+            # the known entities are already in the history as the result of extract_known_entities
+            prompt = self.get_message_from_prompt_template(
+                "decompose_request",
+                {"schema": json.dumps(RequestDecomposition.model_json_schema())},
+            )
+            try:
+                decomposition = self.extraction_llm.with_structured_output(
+                    RequestDecomposition
+                ).invoke(state.messages + prompt)
+                items = decomposition.constraints
+                answer_type = decomposition.answer_type
+            except Exception as error:
+                self.logger.warning(f"Request decomposition failed: {error}")
+                return state
+
+            # Names are replaced by known entity IDs; names not yet known are verified and added (E4, E5, ...)
+            records = list(state.exploration.known_entities)
+            entities_exist = self.get_tool_by_name("entities_exist")
+            constraints = []
+            for item in items:
+                constraints.append(
+                    {
+                        "id": f"C{len(constraints) + 1}",
+                        "subject": _constraint_term(item.subject, records, entities_exist),
+                        "relation": item.relation.strip(),
+                        "object": _constraint_term(item.object, records, entities_exist),
+                    }
+                )
+            state.exploration.known_entities = records
+            state.exploration.constraints = constraints
+            state.exploration.answer_type = answer_type.strip() or None
             return state
 
         def initialize_reasoning_step(state: RuntimeState) -> RuntimeState:
@@ -1574,6 +1653,9 @@ class ARK_V2(Agent):
         # known entities
         graph_builder.add_node("extract_known_entities", extract_known_entities)
 
+        # request decomposition
+        graph_builder.add_node("decompose_request", decompose_request)
+
         # anchor
         graph_builder.add_node("initialize_reasoning_step", initialize_reasoning_step)
         graph_builder.add_node("prompt_select_anchor", prompt_select_anchor)
@@ -1594,7 +1676,8 @@ class ARK_V2(Agent):
 
         # Connections
         graph_builder.add_edge(START, "extract_known_entities")
-        graph_builder.add_edge("extract_known_entities", "initialize_reasoning_step")
+        graph_builder.add_edge("extract_known_entities", "decompose_request")
+        graph_builder.add_edge("decompose_request", "initialize_reasoning_step")
         graph_builder.add_edge("initialize_reasoning_step", "prompt_select_anchor")
         graph_builder.add_edge("prompt_select_anchor", "select_anchor")
         graph_builder.add_conditional_edges(

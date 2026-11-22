@@ -91,6 +91,37 @@ def get_prompt_extract_known_entities() -> ChatPromptTemplate:
     )
 
 
+def get_prompt_decompose_request() -> ChatPromptTemplate:
+    return ChatPromptTemplate(
+        [
+            (
+                "user",
+                "(Before exploration):\n"
+                "Task: Split the user request into constraints. "
+                "Each constraint is one relation written as subject - relation - object.\n"
+                "Rules:\n"
+                "- Write the subject and the object as one of: the number of a known entity listed above "
+                "(E1, E2, ...), never a QID; a variable for an unknown entity, starting with '?'; "
+                "or the name of an entity that the request names but the list does not contain.\n"
+                "- Use the variable ?answer for the entity that is asked for. "
+                "Use the same variable in every constraint about the same unknown entity.\n"
+                "- Each constraint contains exactly one relation. Use a variable for every unknown entity "
+                "in between, e.g. 'the employer of X's spouse' gives X - spouse - ?spouse and "
+                "?spouse - employer - ?answer.\n"
+                "- Write the relation in the words of the request; do not guess knowledge graph relation names.\n"
+                "- Do not write constraints that only say what kind of thing an entity is "
+                "(e.g. '?answer - is a - company'); give the kind of the answer in answer_type instead.\n"
+                "- Do not add conditions that the request does not state.\n"
+                "Example (known entities: E1: Pelé, E2: Copa Libertadores):\n"
+                "'In which city is the club based that Pelé played for and that won the Copa Libertadores?' ->\n"
+                "constraints: E1 - played for - ?club; ?club - won - E2; ?club - based in - ?answer\n"
+                "answer_type: city\n"
+                "Return your answer in the following structured schema:\n{schema}",
+            )
+        ]
+    )
+
+
 def get_prompt_select_anchor() -> ChatPromptTemplate:
     return ChatPromptTemplate(
         [
