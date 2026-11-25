@@ -91,6 +91,29 @@ def get_prompt_extract_known_entities() -> ChatPromptTemplate:
     )
 
 
+def get_prompt_choose_known_entity() -> ChatPromptTemplate:
+    return ChatPromptTemplate(
+        [
+            (
+                "user",
+                "(Before exploration):\n"
+                "User request: {question}\n"
+                "The request names '{mention}', but no knowledge graph entity has exactly this name. "
+                "Entities with similar names:\n"
+                "{candidates}\n"
+                "Task: Choose the entity that the request means by '{mention}', "
+                "e.g. the same entity under a longer or differently written name.\n"
+                "Rules:\n"
+                "- Copy the chosen entity exactly, including the ID in parentheses.\n"
+                "- Leave entity empty if none of them is the same entity as '{mention}', "
+                "e.g. if they are only different entities with similar names, "
+                "or if '{mention}' only names a kind of thing such as 'city' or 'sports event'.\n"
+                "Return your answer in the following structured schema:\n{schema}",
+            )
+        ]
+    )
+
+
 def get_prompt_decompose_request() -> ChatPromptTemplate:
     return ChatPromptTemplate(
         [

@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Iterable
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
 from langgraph.graph.state import CompiledStateGraph
@@ -54,6 +54,7 @@ from ark_v2.data_models.agent_models import (
     same_entity,
     get_entity_id,
     KnownEntities,
+    KnownEntityChoice,
     RequestDecomposition,
 )
 from ark_v2.data_models.graph_models import NodeVerified
@@ -97,6 +98,36 @@ def _resolve_known_entity(result: NodeVerified) -> List[str]:
         same_case = []
         for node in matches:
             if strip_entity_id(node) == strip_entity_id(result.value):
+                same_case.append(node)
+        if same_case:
+            matches = same_case
+    return matches
+
+
+def _find_known_entity(name: str, nodes: Iterable[str]) -> List[str]:
+    """
+    Find the graph entities that an entity name written by the LLM refers to, by name only.
+    nodes are the names of all graph entities.
+    - The name is a graph name (including its ID): [name].
+    - Otherwise all graph entities whose name without ID equals the name, ignoring letter case
+      and extra spaces. If several match, only those that also match in letter case are kept, if any.
+    Returns [] if no graph entity has the same name.
+    """
+    nodes = list(nodes)
+    if name in nodes:
+        return [name]
+
+    target = normalize_entity_name(name)
+    matches = []
+    for node in nodes:
+        if normalize_entity_name(strip_entity_id(node)) == target:
+            matches.append(node)
+
+    if len(matches) > 1:
+        written = " ".join(name.split())
+        same_case = []
+        for node in matches:
+            if " ".join(strip_entity_id(node).split()) == written:
                 same_case.append(node)
         if same_case:
             matches = same_case
@@ -856,6 +887,9 @@ class ARK_V2(Agent):
             "extract_known_entities", prompts.get_prompt_extract_known_entities()
         )
         self.add_prompt_template(
+            "choose_known_entity", prompts.get_prompt_choose_known_entity()
+        )
+        self.add_prompt_template(
             "decompose_request", prompts.get_prompt_decompose_request()
         )
         self.add_prompt_template("select_anchor", prompts.get_prompt_select_anchor())
@@ -884,6 +918,57 @@ class ARK_V2(Agent):
 
         # vectorize the subgraph
         self._graph_interface.graph.vectorize(head_nodes_only=False)
+
+    # Known Entities
+
+    def _verify_known_entity(self, question: str, name: str) -> List[str]:
+        """
+        Map an entity name written by the LLM to the graph entities it refers to.
+        First by name in the whole graph (_find_known_entity); if no graph entity has the same name,
+        the LLM chooses among the entities with the closest embeddings (_choose_known_entity).
+        Returns [] if neither finds an entity.
+        """
+        entities = _find_known_entity(name, self._graph_interface.graph.graph.nodes)
+        if entities:
+            return entities
+        return self._choose_known_entity(question, name)
+
+    def _choose_known_entity(self, question: str, name: str, k: int = 5) -> List[str]:
+        """
+        Let the LLM choose the graph entity that a name refers to, among the k entities
+        with the closest embeddings (e.g. the same entity under a longer name).
+        Returns [the chosen entity], or [] if the LLM chooses none, its choice is not
+        one of the candidates, or the call fails.
+        """
+        try:
+            candidates = []
+            for hit in self._graph_interface.graph.get_close_nodes(name, k):
+                candidates.append(hit["node"])
+            if not candidates:
+                return []
+            lines = []
+            for candidate in candidates:
+                lines.append(f"- {candidate}")
+            prompt = self.get_message_from_prompt_template(
+                "choose_known_entity",
+                {
+                    "question": question,
+                    "mention": name,
+                    "candidates": "\n".join(lines),
+                    "schema": json.dumps(KnownEntityChoice.model_json_schema()),
+                },
+            )
+            choice = self.extraction_llm.with_structured_output(KnownEntityChoice).invoke(prompt)
+            chosen = choice.entity.strip()
+        except Exception as error:
+            self.logger.warning(f"Known entity choice for '{name}' failed: {error}")
+            return []
+
+        if not chosen:
+            return []
+        # The LLM may leave out the ID; map the choice back to a candidate
+        chosen = _resolve_entity_name(chosen, candidates)
+        return [chosen] if chosen in candidates else []
 
     def _create_graph(self, draw: bool = True) -> CompiledStateGraph:
 
@@ -917,12 +1002,7 @@ class ARK_V2(Agent):
                 if not name or name in seen:
                     continue
                 seen.append(name)
-                result: QueryResultEntitiesExist = self.get_tool_by_name("entities_exist").invoke(
-                    {"entities": [name], "retrieve_alternatives": True}
-                )
-                entities = []
-                if result.success and result.results:
-                    entities = _resolve_known_entity(result.results[0])
+                entities = self._verify_known_entity(state.question, name)
                 records.append(
                     {"id": f"E{len(records) + 1}", "mention": name, "entities": entities}
                 )

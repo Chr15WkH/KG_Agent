@@ -79,6 +79,15 @@ class KnownEntities(BaseModel):
     )
 
 
+class KnownEntityChoice(BaseModel):
+    """The graph entity that a name in the user request refers to"""
+
+    entity: str = Field(
+        description="The chosen entity, copied exactly from the list; empty if none of them is meant.",
+        default="",
+    )
+
+
 # Request Decomposition Models
 
 
