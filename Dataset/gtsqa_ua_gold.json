@@ -4,11 +4,12 @@
     "source_agent_input": "gtsqa_development_agent_input.jsonl",
     "source_gold": "gtsqa_development_gold.json",
     "construction_method": "controlled_fact_deletion",
+    "deletion_unit": "Each deleted Gold evidence fact (h, r, t) counts as one fact. Every edge between h and t, in either direction and with any property, is removed with it, so that no symmetric or inverse statement of the fact remains in the graph.",
     "candidate_order": "sorted_qid_pid_triples",
     "max_deleted_facts": 2,
     "pair_count": 12,
     "item_count": 24,
-    "answerability_definition": "The original query returns verified non-empty answers. A deleted variant is unanswerable when the same query executes successfully and returns no answers."
+    "answerability_definition": "The original query returns verified non-empty answers. A deleted variant is unanswerable when the same query executes successfully and returns no answers after the deletion, and no edge remains between the endpoints of a deleted fact. Paths through other entities that the query does not match are not checked."
   },
   "questions": [
     {
@@ -23,6 +24,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE {wd:Q623459 wdt:P112 ?founder. ?founder wdt:P184 ?advisor2. ?advisor2 wdt:P184 ?advisor1. ?advisor1 wdt:P1050 ?answer}",
@@ -48,6 +50,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q1373397",
+            "P184",
+            "Q62866"
+          ]
+        ],
         "removed_triples": [
           [
             "Q1373397",
@@ -79,6 +88,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE {wd:Q7693351 wdt:P102 ?party. ?party wdt:P488 ?chair. ?chair wdt:P119 ?cemetery. ?cemetery wdt:P276 ?answer}",
@@ -104,6 +114,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q1104026",
+            "P488",
+            "Q3081656"
+          ]
+        ],
         "removed_triples": [
           [
             "Q1104026",
@@ -135,6 +152,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE {?answer wdt:P118 wd:Q912431; wdt:P115 ?venue. ?venue wdt:P84 ?architect. ?architect wdt:P740 wd:Q25319}",
@@ -160,6 +178,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q1523646",
+            "P84",
+            "Q1757868"
+          ]
+        ],
         "removed_triples": [
           [
             "Q1523646",
@@ -191,6 +216,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE {wd:Q5965835 wdt:P161 ?actor. ?actor wdt:P802 ?student. ?student wdt:P166 ?answer. ?answer wdt:P138 wd:Q157040.}",
@@ -216,6 +242,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q1105174",
+            "P166",
+            "Q637399"
+          ]
+        ],
         "removed_triples": [
           [
             "Q1105174",
@@ -247,6 +280,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE {  wd:Q8030746 wdt:P50 ?author1.  ?author1 wdt:P69 ?answer.  wd:Q7762526 wdt:P50 ?author2.  ?author2 wdt:P69 ?answer.}",
@@ -272,6 +306,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q273385",
+            "P69",
+            "Q309350"
+          ]
+        ],
         "removed_triples": [
           [
             "Q273385",
@@ -303,6 +344,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE {wd:Q6019939 wdt:P106 ?occ. ?occ wdt:P425 ?answer. wd:Q195064 wdt:P463 ?org. ?org wdt:P37 ?answer.}",
@@ -328,6 +370,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q129516",
+            "P37",
+            "Q143"
+          ]
+        ],
         "removed_triples": [
           [
             "Q129516",
@@ -359,6 +408,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE {wd:Q6582 wdt:P190 ?eggenfelden. ?eggenfelden wdt:P190 ?balatonalmadi. ?balatonalmadi wdt:P47 wd:Q646115. ?balatonalmadi wdt:P421 ?answer.}",
@@ -384,11 +434,23 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q255201",
+            "P190",
+            "Q789256"
+          ]
+        ],
         "removed_triples": [
           [
             "Q255201",
             "P190",
             "Q789256"
+          ],
+          [
+            "Q789256",
+            "P190",
+            "Q255201"
           ]
         ]
       },
@@ -415,6 +477,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE { wd:Q5184947 wdt:P408 ?series. ?game wdt:P179 ?series; wdt:P400 wd:Q99775; wdt:P123 ?answer. }",
@@ -440,6 +503,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q2073676",
+            "P123",
+            "Q173941"
+          ]
+        ],
         "removed_triples": [
           [
             "Q2073676",
@@ -471,6 +541,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE { ?painting wdt:P170 ?answer. ?painting wdt:P136 wd:Q170571. ?painting wdt:P180 wd:Q8338. ?answer wdt:P463 wd:Q18508801. }",
@@ -496,6 +567,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q18809992",
+            "P136",
+            "Q170571"
+          ]
+        ],
         "removed_triples": [
           [
             "Q18809992",
@@ -527,6 +605,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE {  ?person wdt:P607 wd:Q8663;          wdt:P1412 wd:Q150;          wdt:P102 ?answer.  ?answer wdt:P1142 wd:Q209158.}",
@@ -552,6 +631,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q1605951",
+            "P102",
+            "Q3366715"
+          ]
+        ],
         "removed_triples": [
           [
             "Q1605951",
@@ -583,6 +669,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE { wd:Q11291 wdt:P47 ?place. wd:Q13611 wdt:P47 ?place. ?place wdt:P6 ?head. ?head wdt:P106 ?answer. }",
@@ -608,6 +695,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q11247",
+            "P6",
+            "Q14074345"
+          ]
+        ],
         "removed_triples": [
           [
             "Q11247",
@@ -639,6 +733,7 @@
       ],
       "modification": {
         "type": "none",
+        "removed_facts": [],
         "removed_triples": []
       },
       "sparql_query": "SELECT ?answer WHERE { wd:Q4961038 wdt:P1344 ?olympics. wd:Q4894072 wdt:P1344 ?olympics. ?olympics wdt:P156 ?next1. ?next1 wdt:P156 ?answer. }",
@@ -664,6 +759,13 @@
       ],
       "modification": {
         "type": "fact_deletion",
+        "removed_facts": [
+          [
+            "Q4894072",
+            "P1344",
+            "Q8438"
+          ]
+        ],
         "removed_triples": [
           [
             "Q4894072",

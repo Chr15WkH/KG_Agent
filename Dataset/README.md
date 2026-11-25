@@ -130,10 +130,19 @@ of them differs from the file. Re-running a completed split changes nothing.
 Each GTSQA_UA pair has two items: the original question (`<id>-original`) and
 an unanswerable variant (`<id>-ua-01`) in which one or two Gold evidence facts
 are deleted from the question graph. Deletion candidates are tried in a fixed
-order, single facts before pairs. A variant is unanswerable when the same
-SPARQL query runs and returns no answer. The UA Gold files store the deletion
-records, not graphs; the UA adapter rebuilds each graph at run time from the
-GTSQA agent input of the same split and checks it again.
+order, single facts before pairs. A deleted fact (h, r, t) takes every edge
+between h and t with it, in either direction and with any property, because
+Wikidata often stores the same fact twice: in both directions for symmetric
+properties (P190, P47) or as an inverse statement (P184/P185, P22/P40,
+P155/P156). A variant is unanswerable when the same SPARQL query runs and
+returns no answer, and no edge remains between the endpoints of a deleted
+fact. Paths through other entities that the query does not match are not
+checked; this is a known limitation.
+
+The UA Gold files store the deletion records, not graphs: `removed_facts`
+holds the Gold facts counted against the deletion limit, `removed_triples`
+every edge removed with them. The UA adapter rebuilds each graph at run time
+from the GTSQA agent input of the same split and checks it again.
 
 | Split | Built by | Source questions | Size | Files |
 |---|---|---|---|---|
@@ -157,6 +166,15 @@ Both UA Gold files are in Git. Running the test set needs
 
 ```bash
 python Dataset/build_gtsqa_ua_test.py      # after the GTSQA test split is built
+```
+
+`check_gtsqa_ua.py` checks a UA Gold file without changing it. It rebuilds each
+variant graph and flags variants whose query still returns answers or where an
+edge remains between the endpoints of a deleted fact:
+
+```bash
+python Dataset/check_gtsqa_ua.py Dataset/gtsqa_ua_test_gold.json            # flagged variants in detail
+python Dataset/check_gtsqa_ua.py Dataset/gtsqa_ua_test_gold.json --verbose  # every variant in detail
 ```
 
 ## CR-LT-KGQA

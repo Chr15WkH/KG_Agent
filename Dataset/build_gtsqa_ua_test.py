@@ -23,7 +23,13 @@ import sys
 
 from build_gtsqa_gold import GOLD_PATHS, load_split_ids, read_json, serialize, write_atomic
 from build_gtsqa_splits import SEED, STRUCTURES
-from build_gtsqa_ua import DATASET_DIR, build_pair
+from build_gtsqa_ua import (
+    ANSWERABILITY_DEFINITION,
+    CONSTRUCTION_METHOD,
+    DATASET_DIR,
+    DELETION_UNIT,
+    build_pair,
+)
 
 
 INPUT_PATH = DATASET_DIR / "gtsqa_test_agent_input.jsonl"
@@ -91,8 +97,12 @@ def main():
 
             records.extend(pair)
             built += 1
-            removed = len(pair[1]["modification"]["removed_triples"])
-            print(f"  {sample_id}: passed — deleted {removed} fact(s)")
+            modification = pair[1]["modification"]
+            print(
+                f"  {sample_id}: passed — deleted "
+                f"{len(modification['removed_facts'])} fact(s), "
+                f"{len(modification['removed_triples'])} edge(s)"
+            )
 
         if built < PAIRS_PER_STRUCTURE:
             shortages.append(f"{structure}: {built} of {PAIRS_PER_STRUCTURE} pairs")
@@ -109,16 +119,13 @@ def main():
             "name": "gtsqa_ua_test",
             "source_agent_input": INPUT_PATH.name,
             "source_gold": GOLD_PATH.name,
-            "construction_method": "controlled_fact_deletion",
+            "construction_method": CONSTRUCTION_METHOD,
+            "deletion_unit": DELETION_UNIT,
             "candidate_order": "sorted_qid_pid_triples",
             "max_deleted_facts": MAX_DELETE,
             "pair_count": len(records) // 2,
             "item_count": len(records),
-            "answerability_definition": (
-                "The original query returns verified non-empty answers. "
-                "A deleted variant is unanswerable when the same query "
-                "executes successfully and returns no answers."
-            ),
+            "answerability_definition": ANSWERABILITY_DEFINITION,
             "selection": {
                 "source_split": "GTSQA test split (splits/gtsqa_splits.json)",
                 "pairs_per_structure": PAIRS_PER_STRUCTURE,

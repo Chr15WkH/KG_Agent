@@ -34,6 +34,27 @@ PREFIXES = (
 # Bound candidate enumeration if larger samples are added later.
 MAX_CANDIDATE_FACTS = 8
 
+CONSTRUCTION_METHOD = "controlled_fact_deletion"
+
+# Wikidata often stores one fact twice: in both directions for symmetric
+# properties (P190, P47) or as an inverse statement (P184/P185, P22/P40).
+# Removing only the Gold edge would leave the fact recoverable, so a deleted
+# fact takes every edge between its two endpoints with it.
+DELETION_UNIT = (
+    "Each deleted Gold evidence fact (h, r, t) counts as one fact. Every "
+    "edge between h and t, in either direction and with any property, is "
+    "removed with it, so that no symmetric or inverse statement of the "
+    "fact remains in the graph."
+)
+
+ANSWERABILITY_DEFINITION = (
+    "The original query returns verified non-empty answers. A deleted "
+    "variant is unanswerable when the same query executes successfully "
+    "and returns no answers after the deletion, and no edge remains "
+    "between the endpoints of a deleted fact. Paths through other "
+    "entities that the query does not match are not checked."
+)
+
 
 def read_json(path):
     with path.open("r", encoding="utf-8") as file:
@@ -156,8 +177,22 @@ def load_source_sample(sample_id, input_path=INPUT_PATH):
     return match
 
 
-def find_deletion(graph, evidence, query, max_delete):
-    """Try single facts first, then pairs; return the first valid deletion."""
+def endpoint_edges(triples, facts):
+    """Return every edge between the two endpoints of any given fact."""
+    endpoints = {frozenset((head, tail)) for head, _, tail in facts}
+    return sorted(
+        triple
+        for triple in triples
+        if frozenset((triple[0], triple[2])) in endpoints
+    )
+
+
+def find_deletion(graph, triples, evidence, query, max_delete):
+    """Try single facts first, then pairs; return the first valid deletion.
+
+    Returns (facts, removed): the Gold facts counted against max_delete and
+    every edge removed with them (see DELETION_UNIT).
+    """
     candidates = sorted(set(evidence))
 
     if not candidates:
@@ -170,13 +205,14 @@ def find_deletion(graph, evidence, query, max_delete):
         )
 
     for count in range(1, min(max_delete, len(candidates)) + 1):
-        for removed in combinations(candidates, count):
+        for facts in combinations(candidates, count):
+            removed = endpoint_edges(triples, facts)
             try:
                 for triple in removed:
                     graph.remove(rdf_triple(triple))
 
                 if not execute_query(graph, query):
-                    return list(removed)
+                    return list(facts), removed
 
             finally:
                 for triple in removed:
@@ -189,6 +225,7 @@ def make_record(
     sample,
     suffix,
     original_answers,
+    facts,
     removed,
     query,
     modified_answers,
@@ -204,6 +241,7 @@ def make_record(
         "original_gold_answer": original_answers,
         "modification": {
             "type": "fact_deletion" if removed else "none",
+            "removed_facts": [list(triple) for triple in facts],
             "removed_triples": [list(triple) for triple in removed],
         },
         "sparql_query": query,
@@ -259,10 +297,11 @@ def build_pair(gold, max_delete, input_path=INPUT_PATH):
     if not evidence.issubset(triples):
         raise ValueError("Some Gold evidence facts are absent from the graph.")
 
-    removed = find_deletion(graph, evidence, query, max_delete)
-    if removed is None:
+    deletion = find_deletion(graph, triples, evidence, query, max_delete)
+    if deletion is None:
         raise ValueError("No valid deletion found within the configured limit.")
 
+    facts, removed = deletion
     removed_set = set(removed)
 
     # Reconstruct from the original labeled graph for an independent
@@ -283,11 +322,18 @@ def build_pair(gold, max_delete, input_path=INPUT_PATH):
     if modified_answers:
         raise ValueError("Reconstructed UA graph still returns answers.")
 
+    remaining = endpoint_edges(modified_triples, facts)
+    if remaining:
+        raise ValueError(
+            f"Edges remain between deleted fact endpoints: {remaining}."
+        )
+
     return [
         make_record(
             sample,
             "original",
             original_answers,
+            [],
             [],
             query,
             original_answers,
@@ -296,6 +342,7 @@ def build_pair(gold, max_delete, input_path=INPUT_PATH):
             sample,
             "ua-01",
             original_answers,
+            facts,
             removed,
             query,
             modified_answers,
@@ -334,24 +381,25 @@ def build_dataset(output_path, max_delete):
             continue
 
         records.extend(pair)
-        removed_count = len(pair[1]["modification"]["removed_triples"])
-        print(f"{gold['id']}: passed — deleted {removed_count} fact(s)")
+        modification = pair[1]["modification"]
+        print(
+            f"{gold['id']}: passed — deleted "
+            f"{len(modification['removed_facts'])} fact(s), "
+            f"{len(modification['removed_triples'])} edge(s)"
+        )
 
     dataset = {
         "dataset_info": {
             "name": "gtsqa_ua_development",
             "source_agent_input": INPUT_PATH.name,
             "source_gold": GOLD_PATH.name,
-            "construction_method": "controlled_fact_deletion",
+            "construction_method": CONSTRUCTION_METHOD,
+            "deletion_unit": DELETION_UNIT,
             "candidate_order": "sorted_qid_pid_triples",
             "max_deleted_facts": max_delete,
             "pair_count": len(records) // 2,
             "item_count": len(records),
-            "answerability_definition": (
-                "The original query returns verified non-empty answers. "
-                "A deleted variant is unanswerable when the same query "
-                "executes successfully and returns no answers."
-            ),
+            "answerability_definition": ANSWERABILITY_DEFINITION,
         },
         "questions": records,
         "skipped": skipped,
