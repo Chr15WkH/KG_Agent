@@ -2,6 +2,9 @@
 
 import os
 import logging
+import sys
+import json
+from datetime import datetime
 from pathlib import Path
 from functools import partial
 from dotenv import load_dotenv
@@ -53,6 +56,8 @@ SYNC_MISSING_ITEMS = True
 # Update existing items when local content changes.
 UPDATE_EXISTING_ITEMS = False
 ENV_FILE = PROJECT_ROOT / ".env"
+# Terminal output (.log) and a compact record of each run (.json) are saved here.
+RESULTS_DIR = PROJECT_ROOT / "results" / "experiments"
 
 # Print detailed Agent messages when debugging.
 AGENT_VERBOSE = False
@@ -76,18 +81,81 @@ AGENT_CONFIG = {
 }
 
 
+class _Tee:
+    """Send everything written to a terminal stream also to a log file."""
+
+    def __init__(self, stream, log_file):
+        self.stream = stream
+        self.log_file = log_file
+
+    def write(self, text):
+        self.stream.write(text)
+        self.log_file.write(text)
+        return len(text)
+
+    def flush(self):
+        self.stream.flush()
+        self.log_file.flush()
+
+    def __getattr__(self, name):
+        # isatty, fileno, encoding, ... come from the terminal stream
+        return getattr(self.stream, name)
+
+
+def _write_run_record(path, *, result, execution_records, experiment_name, started_at):
+    """
+    Save a compact record of one run: run identifiers, agent configuration, run-level scores,
+    and one entry per planned item. Failed items are not in result.item_results,
+    so they appear with their execution record only (no answer, no scores).
+    """
+    item_results = {
+        getattr(item_result.item, "id", None): item_result
+        for item_result in result.item_results
+    }
+
+    items = []
+    for item_id, record in execution_records.items():
+        item_result = item_results.get(item_id)
+        output = item_result.output if item_result and isinstance(item_result.output, dict) else {}
+        # Only ARK v2 returns an exploration trace with steps
+        steps = (output.get("exploration") or {}).get("steps")
+        items.append(
+            {
+                **record,
+                "answer": output.get("answer_payload"),
+                "steps": len(steps) if steps is not None else None,
+                "scores": (
+                    {evaluation.name: evaluation.value for evaluation in item_result.evaluations}
+                    if item_result
+                    else {}
+                ),
+            }
+        )
+
+    data = {
+        "run": {
+            "experiment_name": experiment_name,
+            "run_name": result.run_name,
+            "dataset_run_id": result.dataset_run_id,
+            "dataset_run_url": result.dataset_run_url,
+            "started_at": f"{started_at:%Y-%m-%d %H:%M:%S}",
+            "agent_version": AGENT_VERSION,
+            "dataset_type": DATASET_TYPE,
+            "split": SPLIT,
+            "agent_config": AGENT_CONFIG,
+        },
+        "summary": {evaluation.name: evaluation.value for evaluation in result.run_evaluations},
+        "items": items,
+    }
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+
+
 def main() -> None:
     # Resolve the sample selection first, before any remote call.
     selection = resolve_selection(DATASET_TYPE, SPLIT, SAMPLE_IDS)
     dataset_name = selection["dataset_name"]
     sample_ids = selection["sample_ids"]
     selection_mode = selection["selection_mode"]
-
-    print(
-        f"Selection: {DATASET_TYPE} | split={SPLIT} | mode={selection_mode} | "
-        f"items={len(sample_ids)} | Langfuse dataset={dataset_name}",
-        flush=True,
-    )
 
     # Select item and run evaluators for the dataset.
     if DATASET_TYPE == "gtsqa":
@@ -117,7 +185,31 @@ def main() -> None:
         raise ValueError(f"Unsupported dataset type: {DATASET_TYPE}")
     # Define the Experiment name: agent-model-dataset-split[-manual]-evaluator-item count.
     split_label = SPLIT if selection_mode == "full_split" else f"{SPLIT}-manual"
-    experiment_name = f"{AGENT_VERSION}-{AGENT_CONFIG['llm']['model']}-{DATASET_TYPE}-{split_label}-{evaluator_label}-{len(sample_ids)}items"
+    # ARK v2 runs carry the switch settings, e.g. h1d0 = known entities hint on, request decomposition off.
+    config_label = ""
+    if AGENT_VERSION == "ark_v2":
+        config_label = (
+            f"-h{int(AGENT_CONFIG.get('known_entities_hint', False))}"
+            f"d{int(AGENT_CONFIG.get('request_decomposition', False))}"
+        )
+    experiment_name = f"{AGENT_VERSION}{config_label}-{AGENT_CONFIG['llm']['model']}-{DATASET_TYPE}-{split_label}-{evaluator_label}-{len(sample_ids)}items"
+
+    # From here on, everything printed in the terminal also goes to results/experiments/<start time>_<name>.log.
+    # The log is line buffered, so it is complete up to the last line even if the run stops early;
+    # the streams are not restored because the process ends with main().
+    started_at = datetime.now()
+    file_stem = f"{started_at:%Y%m%d-%H%M%S}_{experiment_name.replace(':', '_')}"
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = open(RESULTS_DIR / f"{file_stem}.log", "w", encoding="utf-8", buffering=1)
+    sys.stdout = _Tee(sys.stdout, log_file)
+    sys.stderr = _Tee(sys.stderr, log_file)
+
+    print(f"Experiment: {experiment_name}", flush=True)
+    print(
+        f"Selection: {DATASET_TYPE} | split={SPLIT} | mode={selection_mode} | "
+        f"items={len(sample_ids)} | Langfuse dataset={dataset_name}",
+        flush=True,
+    )
 
     if not ENV_FILE.is_file():
         raise FileNotFoundError(
@@ -372,6 +464,16 @@ def main() -> None:
         print(result.format())
         print("Dataset run ID:", result.dataset_run_id)
         print("Dataset run URL:", result.dataset_run_url)
+
+        record_path = RESULTS_DIR / f"{file_stem}.json"
+        _write_run_record(
+            record_path,
+            result=result,
+            execution_records=execution_records,
+            experiment_name=experiment_name,
+            started_at=started_at,
+        )
+        print("Run record:", record_path)
 
     finally:
         client.shutdown()
