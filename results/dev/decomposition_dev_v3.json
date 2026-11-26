@@ -1,0 +1,1739 @@
+[
+  {
+    "id": 16154,
+    "question": "What time zone is the city, which borders Balatonkenese and is a twin town of one of Carcassonne's twin towns, in?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Balatonkenese",
+        "entities": [
+          "Balatonkenese (Q646115)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Carcassonne",
+        "entities": [
+          "Carcassonne (Q6582)",
+          "Carcassonne (Q17262)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?city",
+        "relation": "borders",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "E2",
+        "relation": "twin town",
+        "object": "?twin_town"
+      },
+      {
+        "id": "C3",
+        "subject": "?city",
+        "relation": "twin town",
+        "object": "?twin_town"
+      },
+      {
+        "id": "C4",
+        "subject": "?city",
+        "relation": "time zone",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "time zone",
+    "seconds": 17.0
+  },
+  {
+    "id": 31606,
+    "question": "Which company released the game that belongs to the same video game series as the engine used in Cricket 2005 and was made available on the Commodore 64?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Cricket 2005",
+        "entities": [
+          "Cricket 2005 (Q5184947)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Commodore 64",
+        "entities": [
+          "Commodore 64 (Q99775)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "uses",
+        "object": "?engine"
+      },
+      {
+        "id": "C2",
+        "subject": "?engine",
+        "relation": "belongs to",
+        "object": "?series"
+      },
+      {
+        "id": "C3",
+        "subject": "?game",
+        "relation": "belongs to",
+        "object": "?series"
+      },
+      {
+        "id": "C4",
+        "subject": "?game",
+        "relation": "made available on",
+        "object": "E2"
+      },
+      {
+        "id": "C5",
+        "subject": "?answer",
+        "relation": "released",
+        "object": "?game"
+      }
+    ],
+    "answer_type": "company",
+    "seconds": 14.1
+  },
+  {
+    "id": 13311,
+    "question": "What medical condition did the doctoral advisor of the founder of Silicon Graphics' doctoral advisor have?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Silicon Graphics",
+        "entities": [
+          "Silicon Graphics (Q623459)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "founder",
+        "object": "?founder"
+      },
+      {
+        "id": "C2",
+        "subject": "?founder",
+        "relation": "doctoral advisor",
+        "object": "?advisor1"
+      },
+      {
+        "id": "C3",
+        "subject": "?advisor1",
+        "relation": "doctoral advisor",
+        "object": "?advisor2"
+      },
+      {
+        "id": "C4",
+        "subject": "?advisor2",
+        "relation": "medical condition",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "medical condition",
+    "seconds": 6.4
+  },
+  {
+    "id": 37715,
+    "question": "Which heritage site contains the burial place of the chairperson of the political party that Ted Jolliffe was a member of?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Ted Jolliffe",
+        "entities": [
+          "Ted Jolliffe (Q7693351)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "member of",
+        "object": "?party"
+      },
+      {
+        "id": "C2",
+        "subject": "?party",
+        "relation": "chairperson",
+        "object": "?chairperson"
+      },
+      {
+        "id": "C3",
+        "subject": "?chairperson",
+        "relation": "burial place",
+        "object": "?burial_place"
+      },
+      {
+        "id": "C4",
+        "subject": "?burial_place",
+        "relation": "contained in",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "heritage site",
+    "seconds": 6.1
+  },
+  {
+    "id": 4519,
+    "question": "Which university did the authors of \"Woman on the Edge of Time\" and \"The School Story\" both go to?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Woman on the Edge of Time",
+        "entities": [
+          "Woman on the Edge of Time (Q8030746)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "The School Story",
+        "entities": [
+          "The School Story (Q7762526)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "author",
+        "object": "?author1"
+      },
+      {
+        "id": "C2",
+        "subject": "E2",
+        "relation": "author",
+        "object": "?author2"
+      },
+      {
+        "id": "C3",
+        "subject": "?author1",
+        "relation": "went to",
+        "object": "?answer"
+      },
+      {
+        "id": "C4",
+        "subject": "?author2",
+        "relation": "went to",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "university",
+    "seconds": 6.0
+  },
+  {
+    "id": 8865,
+    "question": "Which language is the professional focus of Paul Nylén and also the official language of the organization that Wim De Smet belongs to?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Paul Nylén",
+        "entities": [
+          "Paul Nylén (Q6019939)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Wim De Smet",
+        "entities": [
+          "Wim De Smet (Q195064)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "professional focus",
+        "object": "?answer"
+      },
+      {
+        "id": "C2",
+        "subject": "E2",
+        "relation": "belongs to",
+        "object": "?org"
+      },
+      {
+        "id": "C3",
+        "subject": "?org",
+        "relation": "official language",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "language",
+    "seconds": 6.9
+  },
+  {
+    "id": 40154,
+    "question": "Which team in the Danish Women's Handball League plays at a venue designed by an architecture firm based in Aarhus?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Danish Women's Handball League",
+        "entities": [
+          "Danish Women's Handball League (Q912431)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Aarhus",
+        "entities": [
+          "Aarhus (Q25319)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?answer",
+        "relation": "plays in",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?answer",
+        "relation": "plays at",
+        "object": "?venue"
+      },
+      {
+        "id": "C3",
+        "subject": "?venue",
+        "relation": "designed by",
+        "object": "?firm"
+      },
+      {
+        "id": "C4",
+        "subject": "?firm",
+        "relation": "based in",
+        "object": "E2"
+      }
+    ],
+    "answer_type": "team",
+    "seconds": 9.5
+  },
+  {
+    "id": 42587,
+    "question": "What award, named after Lajos Kossuth, did János Rajz's student, who acted in \"I'll Go to the Minister,\" receive?",
+    "n_extracted": 3,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Lajos Kossuth",
+        "entities": [
+          "Lajos Kossuth (Q157040)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "János Rajz",
+        "entities": [
+          "János Rajz (Q1245585)"
+        ]
+      },
+      {
+        "id": "E3",
+        "mention": "I'll Go to the Minister",
+        "entities": [
+          "I'll Go to the Minister (Q5965835)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?student",
+        "relation": "student of",
+        "object": "E2"
+      },
+      {
+        "id": "C2",
+        "subject": "?student",
+        "relation": "acted in",
+        "object": "E3"
+      },
+      {
+        "id": "C3",
+        "subject": "?student",
+        "relation": "received",
+        "object": "?answer"
+      },
+      {
+        "id": "C4",
+        "subject": "?answer",
+        "relation": "named after",
+        "object": "E1"
+      }
+    ],
+    "answer_type": "award",
+    "seconds": 6.9
+  },
+  {
+    "id": 1012,
+    "question": "What is the occupation of the head of government of the municipality that shares a border with both Cistella and Esponellà?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Cistella",
+        "entities": [
+          "Cistella (Q11291)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Esponellà",
+        "entities": [
+          "Esponellà (Q13611)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "shares a border with",
+        "object": "?municipality"
+      },
+      {
+        "id": "C2",
+        "subject": "E2",
+        "relation": "shares a border with",
+        "object": "?municipality"
+      },
+      {
+        "id": "C3",
+        "subject": "?municipality",
+        "relation": "head of government",
+        "object": "?head"
+      },
+      {
+        "id": "C4",
+        "subject": "?head",
+        "relation": "occupation",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "occupation",
+    "seconds": 6.0
+  },
+  {
+    "id": 41371,
+    "question": "Which Olympic event took place after the one that followed the event featuring both Brendan O'Connell and Bernd Uhlig?",
+    "n_extracted": 3,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Brendan O'Connell",
+        "entities": [
+          "Brendan O'Connell (Q4961038)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Bernd Uhlig",
+        "entities": [
+          "Bernd Uhlig (Q4894072)"
+        ]
+      },
+      {
+        "id": "E3",
+        "mention": "Olympic event",
+        "entities": []
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?event1",
+        "relation": "featured",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?event1",
+        "relation": "featured",
+        "object": "E2"
+      },
+      {
+        "id": "C3",
+        "subject": "?event2",
+        "relation": "followed",
+        "object": "?event1"
+      },
+      {
+        "id": "C4",
+        "subject": "?answer",
+        "relation": "took place after",
+        "object": "?event2"
+      }
+    ],
+    "answer_type": "Olympic event",
+    "seconds": 14.7
+  },
+  {
+    "id": 33122,
+    "question": "Who from the Antwerp Guild of Saint Luke created a still life painting featuring a trumpet?",
+    "n_extracted": 3,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Antwerp Guild of Saint Luke",
+        "entities": [
+          "Antwerp Guild of Saint Luke (Q18508801)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "still life",
+        "entities": [
+          "still life (Q170571)"
+        ]
+      },
+      {
+        "id": "E3",
+        "mention": "trumpet",
+        "entities": [
+          "trumpet (Q8338)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?answer",
+        "relation": "member of",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?answer",
+        "relation": "created",
+        "object": "?painting"
+      },
+      {
+        "id": "C3",
+        "subject": "?painting",
+        "relation": "is a",
+        "object": "E2"
+      },
+      {
+        "id": "C4",
+        "subject": "?painting",
+        "relation": "features",
+        "object": "E3"
+      }
+    ],
+    "answer_type": "person",
+    "seconds": 10.8
+  },
+  {
+    "id": 40487,
+    "question": "Which political party linked to Christian democracy had a French-speaking member who took part in the Korean War?",
+    "n_extracted": 3,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Christian democracy",
+        "entities": [
+          "Christian democracy (Q209158)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "French",
+        "entities": [
+          "French (Q150)"
+        ]
+      },
+      {
+        "id": "E3",
+        "mention": "Korean War",
+        "entities": [
+          "Korean War (Q8663)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?answer",
+        "relation": "linked to",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?answer",
+        "relation": "had member",
+        "object": "?member"
+      },
+      {
+        "id": "C3",
+        "subject": "?member",
+        "relation": "speaks",
+        "object": "E2"
+      },
+      {
+        "id": "C4",
+        "subject": "?member",
+        "relation": "took part in",
+        "object": "E3"
+      }
+    ],
+    "answer_type": "political party",
+    "seconds": 11.7
+  },
+  {
+    "id": 38861,
+    "question": "Who designed the residential building situated on the same street as Cours Florent?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Cours Florent",
+        "entities": [
+          "Cours Florent (Q916444)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "situated on",
+        "object": "?street"
+      },
+      {
+        "id": "C2",
+        "subject": "?building",
+        "relation": "situated on",
+        "object": "?street"
+      },
+      {
+        "id": "C3",
+        "subject": "?building",
+        "relation": "designed by",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "person",
+    "seconds": 9.4
+  },
+  {
+    "id": 42600,
+    "question": "What is the capital of the province that borders the one with Malabo, which is an administrative division of Equatorial Guinea?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Malabo",
+        "entities": [
+          "Malabo (Q3818)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Equatorial Guinea",
+        "entities": [
+          "Equatorial Guinea (Q983)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "is in",
+        "object": "?province1"
+      },
+      {
+        "id": "C2",
+        "subject": "?province1",
+        "relation": "is an administrative division of",
+        "object": "E2"
+      },
+      {
+        "id": "C3",
+        "subject": "?province1",
+        "relation": "borders",
+        "object": "?province2"
+      },
+      {
+        "id": "C4",
+        "subject": "?province2",
+        "relation": "capital",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "city",
+    "seconds": 7.6
+  },
+  {
+    "id": 32536,
+    "question": "What does the producer of Wild America, who is the child of the person married to Preston Robert Tisch, do for a living?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Wild America",
+        "entities": [
+          "Wild America (Q221982)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Preston Robert Tisch",
+        "entities": [
+          "Preston Robert Tisch (Q1270995)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?producer",
+        "relation": "producer of",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?producer",
+        "relation": "child of",
+        "object": "?parent"
+      },
+      {
+        "id": "C3",
+        "subject": "?parent",
+        "relation": "married to",
+        "object": "E2"
+      },
+      {
+        "id": "C4",
+        "subject": "?producer",
+        "relation": "occupation",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "occupation",
+    "seconds": 6.4
+  },
+  {
+    "id": 29248,
+    "question": "Who established the institution that educated the spouse of Princess Louise of Belgium's mother?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Princess Louise of Belgium",
+        "entities": [
+          "Princess Louise of Belgium (Q2051575)",
+          "Princess Louise of Belgium (Q237318)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "mother",
+        "object": "?mother"
+      },
+      {
+        "id": "C2",
+        "subject": "?mother",
+        "relation": "spouse",
+        "object": "?spouse"
+      },
+      {
+        "id": "C3",
+        "subject": "?spouse",
+        "relation": "educated at",
+        "object": "?institution"
+      },
+      {
+        "id": "C4",
+        "subject": "?institution",
+        "relation": "established by",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "person",
+    "seconds": 9.0
+  },
+  {
+    "id": 35550,
+    "question": "What does the company whose headquarters are in a town that is twinned with a town twinned with Ploemeur produce?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Ploemeur",
+        "entities": [
+          "Ploemeur (Q128369)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "twinned with",
+        "object": "?town1"
+      },
+      {
+        "id": "C2",
+        "subject": "?town1",
+        "relation": "twinned with",
+        "object": "?town2"
+      },
+      {
+        "id": "C3",
+        "subject": "?company",
+        "relation": "headquarters in",
+        "object": "?town2"
+      },
+      {
+        "id": "C4",
+        "subject": "?company",
+        "relation": "produces",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "product",
+    "seconds": 8.1
+  },
+  {
+    "id": 37564,
+    "question": "Who is the father of the individual buried at the church designed by the architect of Kampen Church?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Kampen Church",
+        "entities": [
+          "Kampen Church (Q10297259)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "architect",
+        "object": "?architect"
+      },
+      {
+        "id": "C2",
+        "subject": "?architect",
+        "relation": "designed",
+        "object": "?church"
+      },
+      {
+        "id": "C3",
+        "subject": "?individual",
+        "relation": "buried at",
+        "object": "?church"
+      },
+      {
+        "id": "C4",
+        "subject": "?individual",
+        "relation": "father",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "person",
+    "seconds": 8.5
+  },
+  {
+    "id": 14105,
+    "question": "What instruments are used in Prélude No. 3 in G major, Op. 28?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Prélude No. 3 in G major, Op. 28",
+        "entities": [
+          "Prélude no. 3 in G major, op. 28 (Q3910272)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "instruments used",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "musical instrument",
+    "seconds": 6.1
+  },
+  {
+    "id": 27579,
+    "question": "From which source is William Williams mentioned?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "William Williams",
+        "entities": [
+          "William Williams (Q8020385)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "mentioned in",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "source",
+    "seconds": 4.6
+  },
+  {
+    "id": 5902,
+    "question": "What job do both the illustrator of \"Grandfather's Journey\" and Jinvijay's student have in common?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Grandfather's Journey",
+        "entities": [
+          "Grandfather's Journey (Q3228274)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Jinvijay",
+        "entities": [
+          "Jinvijay (Q15677761)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "illustrator",
+        "object": "?illustrator"
+      },
+      {
+        "id": "C2",
+        "subject": "E2",
+        "relation": "student",
+        "object": "?student"
+      },
+      {
+        "id": "C3",
+        "subject": "?illustrator",
+        "relation": "job",
+        "object": "?answer"
+      },
+      {
+        "id": "C4",
+        "subject": "?student",
+        "relation": "job",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "job",
+    "seconds": 6.1
+  },
+  {
+    "id": 10699,
+    "question": "In which military branch did both Paul Hindemith's student and Maxine Elliott's spouse serve?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Paul Hindemith",
+        "entities": [
+          "Paul Hindemith (Q57244)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Maxine Elliott",
+        "entities": [
+          "Maxine Elliott (Q434022)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "student",
+        "object": "?student"
+      },
+      {
+        "id": "C2",
+        "subject": "E2",
+        "relation": "spouse",
+        "object": "?spouse"
+      },
+      {
+        "id": "C3",
+        "subject": "?student",
+        "relation": "served in",
+        "object": "?answer"
+      },
+      {
+        "id": "C4",
+        "subject": "?spouse",
+        "relation": "served in",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "military branch",
+    "seconds": 5.9
+  },
+  {
+    "id": 26818,
+    "question": "What type of voice do both the lyricist of \"Don't Leave Home\" and Stas Piekha's relative have in common?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Don't Leave Home",
+        "entities": [
+          "Don't Leave Home (Q2604626)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Stas Piekha",
+        "entities": [
+          "Stas Piekha (Q1340169)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "lyricist",
+        "object": "?lyricist"
+      },
+      {
+        "id": "C2",
+        "subject": "E2",
+        "relation": "relative",
+        "object": "?relative"
+      },
+      {
+        "id": "C3",
+        "subject": "?lyricist",
+        "relation": "type of voice",
+        "object": "?answer"
+      },
+      {
+        "id": "C4",
+        "subject": "?relative",
+        "relation": "type of voice",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "type of voice",
+    "seconds": 6.7
+  },
+  {
+    "id": 31330,
+    "question": "What is the highest point of the country where Microcobitis is endemic?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Microcobitis",
+        "entities": [
+          "Microcobitis (Q17456319)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "endemic to",
+        "object": "?country"
+      },
+      {
+        "id": "C2",
+        "subject": "?country",
+        "relation": "highest point",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "mountain",
+    "seconds": 5.9
+  },
+  {
+    "id": 24958,
+    "question": "What is the native language of the person whose ancestral home is Meizhou?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Meizhou",
+        "entities": [
+          "Meizhou (Q59184)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?person",
+        "relation": "ancestral home",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?person",
+        "relation": "native language",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "language",
+    "seconds": 4.8
+  },
+  {
+    "id": 1734,
+    "question": "What is the capital of the country that borders Alfred Berthoud's home country and is also featured as a setting in the movie \"Inglourious Basterds\"?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Alfred Berthoud",
+        "entities": [
+          "Alfred Berthoud (Q4722324)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Inglourious Basterds",
+        "entities": [
+          "Inglourious Basterds (Q153723)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "home country",
+        "object": "?home_country"
+      },
+      {
+        "id": "C2",
+        "subject": "?bordering_country",
+        "relation": "borders",
+        "object": "?home_country"
+      },
+      {
+        "id": "C3",
+        "subject": "E2",
+        "relation": "setting",
+        "object": "?bordering_country"
+      },
+      {
+        "id": "C4",
+        "subject": "?bordering_country",
+        "relation": "capital",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "capital",
+    "seconds": 8.8
+  },
+  {
+    "id": 34508,
+    "question": "Which adjacent station of Dillingen (Saar) is directly connected to a station that is two stations away from Bouzonville?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Dillingen (Saar)",
+        "entities": [
+          "Dillingen (Saar) station (Q13423541)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Bouzonville",
+        "entities": [
+          "Bouzonville (Q22933)",
+          "Bouzonville (Q3096047)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "adjacent station",
+        "object": "?answer"
+      },
+      {
+        "id": "C2",
+        "subject": "?answer",
+        "relation": "directly connected to",
+        "object": "?station2"
+      },
+      {
+        "id": "C3",
+        "subject": "?station2",
+        "relation": "adjacent station",
+        "object": "?station3"
+      },
+      {
+        "id": "C4",
+        "subject": "?station3",
+        "relation": "adjacent station",
+        "object": "E2"
+      }
+    ],
+    "answer_type": "station",
+    "seconds": 17.5
+  },
+  {
+    "id": 37366,
+    "question": "Which institution is home to both \"The Departure\" and a piece from the series that features the \"Reclining Figure\" sculpture?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "The Departure",
+        "entities": [
+          "The Departure (Q19900688)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Reclining Figure",
+        "entities": [
+          "Reclining Figure (Q19759270)",
+          "Reclining Figure (Q19760156)",
+          "Reclining Figure (Q19759282)",
+          "Reclining Figure (Q7302581)",
+          "Reclining Figure (Q19729910)",
+          "Reclining Figure (Q19760157)",
+          "Reclining Figure (Q19759275)",
+          "Reclining Figure (Q19759285)",
+          "Reclining Figure (Q19759286)",
+          "Reclining Figure (Q19760158)",
+          "Reclining Figure (Q19759257)",
+          "Reclining Figure (Q19759266)",
+          "Reclining Figure (Q19760155)",
+          "Reclining Figure (Q19759279)",
+          "Reclining Figure (Q19759274)",
+          "Reclining Figure (Q19759264)",
+          "Reclining Figure (Q19759278)",
+          "Reclining Figure (Q19759276)",
+          "Reclining Figure (Q19759284)",
+          "Reclining Figure (Q19759265)",
+          "Reclining Figure (Q19759280)",
+          "Reclining Figure (Q19759271)",
+          "Reclining Figure (Q19759287)",
+          "Reclining Figure (Q19760154)",
+          "Reclining Figure (Q19759258)",
+          "Reclining Figure (Q19759273)",
+          "Reclining Figure (Q19759253)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "home to",
+        "object": "?answer"
+      },
+      {
+        "id": "C2",
+        "subject": "E2",
+        "relation": "part of series",
+        "object": "?series"
+      },
+      {
+        "id": "C3",
+        "subject": "?piece",
+        "relation": "part of series",
+        "object": "?series"
+      },
+      {
+        "id": "C4",
+        "subject": "?piece",
+        "relation": "home to",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "institution",
+    "seconds": 8.7
+  },
+  {
+    "id": 38738,
+    "question": "Which stock exchange is the organizer of the event that Kenneth McKellar took part in listed on?",
+    "n_extracted": 1,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Kenneth McKellar",
+        "entities": [
+          "Kenneth McKellar (Q1245757)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "took part in",
+        "object": "?event"
+      },
+      {
+        "id": "C2",
+        "subject": "?event",
+        "relation": "organizer",
+        "object": "?organizer"
+      },
+      {
+        "id": "C3",
+        "subject": "?organizer",
+        "relation": "listed on",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "stock exchange",
+    "seconds": 5.8
+  },
+  {
+    "id": 24883,
+    "question": "Which company was the primary contractor for the stadium that is home to the team that occupies Giants Stadium and is in the NFC East?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Giants Stadium",
+        "entities": [
+          "Giants Stadium (Q375365)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "NFC East",
+        "entities": [
+          "NFC East (Q594428)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?team",
+        "relation": "occupies",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?team",
+        "relation": "is in",
+        "object": "E2"
+      },
+      {
+        "id": "C3",
+        "subject": "E1",
+        "relation": "primary contractor",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "company",
+    "seconds": 13.8
+  },
+  {
+    "id": 16747,
+    "question": "Which country is home to the rural district where Karl Benjamin Preusker and Ernst Freiherr von Althaus both worked?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Karl Benjamin Preusker",
+        "entities": [
+          "Karl Benjamin Preusker (Q1730465)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Ernst Freiherr von Althaus",
+        "entities": [
+          "Ernst Freiherr von Althaus (Q5394988)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "worked in",
+        "object": "?rural_district"
+      },
+      {
+        "id": "C2",
+        "subject": "E2",
+        "relation": "worked in",
+        "object": "?rural_district"
+      },
+      {
+        "id": "C3",
+        "subject": "?rural_district",
+        "relation": "located in",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "country",
+    "seconds": 8.4
+  },
+  {
+    "id": 39707,
+    "question": "Which publisher released the book that inspired the movie filmed in both Paris and Florence?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Paris",
+        "entities": [
+          "Paris (Q90)",
+          "Paris (Q1451948)",
+          "Paris (Q631707)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Florence",
+        "entities": [
+          "Florence (Q2044)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?movie",
+        "relation": "filmed in",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?movie",
+        "relation": "filmed in",
+        "object": "E2"
+      },
+      {
+        "id": "C3",
+        "subject": "?movie",
+        "relation": "inspired by",
+        "object": "?book"
+      },
+      {
+        "id": "C4",
+        "subject": "?book",
+        "relation": "released by",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "publisher",
+    "seconds": 10.8
+  },
+  {
+    "id": 11794,
+    "question": "What language is spoken natively by the winger who took part in the 2014 Winter Olympics, and is also the name of the language associated with the 2008 Dakar Rally that got canceled due to a terrorist threat?",
+    "n_extracted": 3,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "winger",
+        "entities": [
+          "winger (Q2827965)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "2014 Winter Olympics",
+        "entities": [
+          "2014 Winter Olympics (Q9678)"
+        ]
+      },
+      {
+        "id": "E3",
+        "mention": "2008 Dakar Rally",
+        "entities": [
+          "2008 Dakar Rally cancelled over terrorist threat (Q17600542)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?winger",
+        "relation": "position",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?winger",
+        "relation": "took part in",
+        "object": "E2"
+      },
+      {
+        "id": "C3",
+        "subject": "?winger",
+        "relation": "natively speaks",
+        "object": "?answer"
+      },
+      {
+        "id": "C4",
+        "subject": "E3",
+        "relation": "language",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "language",
+    "seconds": 13.4
+  },
+  {
+    "id": 40560,
+    "question": "Who was the partner of the academic artist buried at Père Lachaise Cemetery as mentioned in \"Women Painters of the World\"?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Père Lachaise Cemetery",
+        "entities": [
+          "Père Lachaise Cemetery (Q311)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Women Painters of the World",
+        "entities": [
+          "Women Painters of the World (Q19507487)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?artist",
+        "relation": "buried at",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?artist",
+        "relation": "mentioned in",
+        "object": "E2"
+      },
+      {
+        "id": "C3",
+        "subject": "?artist",
+        "relation": "partner",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "person",
+    "seconds": 9.5
+  },
+  {
+    "id": 40448,
+    "question": "Who was the doctoral advisor in algebraic geometry for someone who speaks English as their first language and also knows Hebrew?",
+    "n_extracted": 3,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "English",
+        "entities": [
+          "English (Q1860)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "Hebrew",
+        "entities": [
+          "Hebrew (Q9288)"
+        ]
+      },
+      {
+        "id": "E3",
+        "mention": "algebraic geometry",
+        "entities": [
+          "algebraic geometry (Q180969)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?person",
+        "relation": "first language",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?person",
+        "relation": "speaks",
+        "object": "E2"
+      },
+      {
+        "id": "C3",
+        "subject": "?person",
+        "relation": "doctoral advisor",
+        "object": "?answer"
+      },
+      {
+        "id": "C4",
+        "subject": "?answer",
+        "relation": "field",
+        "object": "E3"
+      }
+    ],
+    "answer_type": "person",
+    "seconds": 13.6
+  },
+  {
+    "id": 24117,
+    "question": "What major event is Osama bin Laden linked to that involved an attack on the World Trade Center?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Osama bin Laden",
+        "entities": [
+          "Osama bin Laden (Q1317)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "World Trade Center",
+        "entities": [
+          "World Trade Center (Q11235)",
+          "World Trade Center (Q828547)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "linked to",
+        "object": "?answer"
+      },
+      {
+        "id": "C2",
+        "subject": "?answer",
+        "relation": "involved an attack on",
+        "object": "E2"
+      }
+    ],
+    "answer_type": "event",
+    "seconds": 6.8
+  },
+  {
+    "id": 9858,
+    "question": "Who with the last name Keller has worked at the University of New Mexico?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Keller",
+        "entities": [
+          "Keller (Q1738213)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "University of New Mexico",
+        "entities": [
+          "University of New Mexico (Q1190812)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "?answer",
+        "relation": "last name",
+        "object": "E1"
+      },
+      {
+        "id": "C2",
+        "subject": "?answer",
+        "relation": "worked at",
+        "object": "E2"
+      }
+    ],
+    "answer_type": "person",
+    "seconds": 7.0
+  },
+  {
+    "id": 13321,
+    "question": "Who wrote the lyrics to the national anthem of the country featured in \"Looking for Fidel\"?",
+    "n_extracted": 2,
+    "known_entities": [
+      {
+        "id": "E1",
+        "mention": "Looking for Fidel",
+        "entities": [
+          "Looking for Fidel (Q2249437)"
+        ]
+      },
+      {
+        "id": "E2",
+        "mention": "national anthem",
+        "entities": [
+          "national anthem (Q23691)"
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "subject": "E1",
+        "relation": "featured country",
+        "object": "?country"
+      },
+      {
+        "id": "C2",
+        "subject": "?country",
+        "relation": "national anthem",
+        "object": "E2"
+      },
+      {
+        "id": "C3",
+        "subject": "E2",
+        "relation": "lyrics written by",
+        "object": "?answer"
+      }
+    ],
+    "answer_type": "person",
+    "seconds": 10.7
+  }
+]

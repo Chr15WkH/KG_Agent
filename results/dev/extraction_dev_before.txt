@@ -1,0 +1,689 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:ARK_V2.ark_v2:Setting LLM: ChatLiteLLM
+Extraction temperature: 0.0 (other steps: 0.9)
+
+==== 16154
+Q: What time zone is the city, which borders Balatonkenese and is a twin town of one of Carcassonne's twin towns, in?
+Gold seeds: Carcassonne (Q6582); Balatonkenese (Q646115)
+run 1 (2.5 s)
+Extracted:
+  E1 "Balatonkenese" -> Balatonkenese (Q646115)  [gold seed]
+  E2 "Carcassonne" -> Carcassonne (Q17262)  [not gold]
+  E2 "Carcassonne" -> Carcassonne (Q6582)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Balatonkenese (Q646115) x Carcassonne (Q17262): 0
+  Balatonkenese (Q646115) x Carcassonne (Q6582): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Balatonkenese (Q646115); Carcassonne (Q17262) / Carcassonne (Q6582) (same name)
+run 2 (1.7 s): mentions ['Balatonkenese', 'Carcassonne']; missed: none; extra: Carcassonne (Q17262)
+run 3 (1.6 s): mentions ['Balatonkenese', 'Carcassonne']; missed: none; extra: Carcassonne (Q17262)
+
+==== 31606
+Q: Which company released the game that belongs to the same video game series as the engine used in Cricket 2005 and was made available on the Commodore 64?
+Gold seeds: Cricket 2005 (Q5184947); Commodore 64 (Q99775)
+run 1 (6.5 s)
+Extracted:
+  E1 "Cricket 2005" -> Cricket 2005 (Q5184947)  [gold seed]
+  E2 "Commodore 64" -> Commodore 64 (Q99775)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Cricket 2005 (Q5184947) x Commodore 64 (Q99775): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Cricket 2005 (Q5184947); Commodore 64 (Q99775)
+run 2 (6.2 s): mentions ['Cricket 2005', 'Commodore 64']; missed: none; extra: none
+run 3 (6.3 s): mentions ['Cricket 2005', 'Commodore 64']; missed: none; extra: none
+
+==== 13311
+Q: What medical condition did the doctoral advisor of the founder of Silicon Graphics' doctoral advisor have?
+Gold seeds: Silicon Graphics (Q623459)
+run 1 (2.9 s)
+Extracted:
+  E1 "Silicon Graphics" -> Silicon Graphics (Q623459)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Silicon Graphics (Q623459)
+run 2 (2.3 s): mentions ['Silicon Graphics']; missed: none; extra: none
+run 3 (2.2 s): mentions ['Silicon Graphics']; missed: none; extra: none
+
+==== 37715
+Q: Which heritage site contains the burial place of the chairperson of the political party that Ted Jolliffe was a member of?
+Gold seeds: Ted Jolliffe (Q7693351)
+run 1 (2.7 s)
+Extracted:
+  E1 "Ted Jolliffe" -> Ted Jolliffe (Q7693351)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Ted Jolliffe (Q7693351)
+run 2 (2.4 s): mentions ['Ted Jolliffe']; missed: none; extra: none
+run 3 (2.3 s): mentions ['Ted Jolliffe']; missed: none; extra: none
+
+==== 4519
+Q: Which university did the authors of "Woman on the Edge of Time" and "The School Story" both go to?
+Gold seeds: Woman on the Edge of Time (Q8030746); The School Story (Q7762526)
+run 1 (2.2 s)
+Extracted:
+  E1 "Woman on the Edge of Time" -> Woman on the Edge of Time (Q8030746)  [gold seed]
+  E2 "The School Story" -> The School Story (Q7762526)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Woman on the Edge of Time (Q8030746) x The School Story (Q7762526): 2 -> English (Q1860); book (Q571)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Woman on the Edge of Time (Q8030746); The School Story (Q7762526)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Woman on the Edge of Time (Q8030746) and The School Story (Q7762526): English (Q1860); book (Q571)
+run 2 (1.8 s): mentions ['Woman on the Edge of Time', 'The School Story']; missed: none; extra: none
+run 3 (1.8 s): mentions ['Woman on the Edge of Time', 'The School Story']; missed: none; extra: none
+
+==== 8865
+Q: Which language is the professional focus of Paul Nylén and also the official language of the organization that Wim De Smet belongs to?
+Gold seeds: Paul Nylén (Q6019939); Wim De Smet (Q195064)
+run 1 (1.9 s)
+Extracted:
+  E1 "Paul Nylén" -> Paul Nylén (Q6019939)  [gold seed]
+  E2 "Wim De Smet" -> Wim De Smet (Q195064)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Paul Nylén (Q6019939) x Wim De Smet (Q195064): 4 -> Esperantist (Q860918) [gold path]; Esperanto (Q143) [gold path]; human (Q5); male (Q6581097)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Paul Nylén (Q6019939); Wim De Smet (Q195064)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Paul Nylén (Q6019939) and Wim De Smet (Q195064): Esperantist (Q860918); Esperanto (Q143); human (Q5); male (Q6581097)
+run 2 (1.6 s): mentions ['Paul Nylén', 'Wim De Smet']; missed: none; extra: none
+run 3 (1.6 s): mentions ['Paul Nylén', 'Wim De Smet']; missed: none; extra: none
+
+==== 40154
+Q: Which team in the Danish Women's Handball League plays at a venue designed by an architecture firm based in Aarhus?
+Gold seeds: Danish Women's Handball League (Q912431); Aarhus (Q25319)
+run 1 (4.6 s)
+Extracted:
+  E1 "Danish Women's Handball League" -> Danish Women's Handball League (Q912431)  [gold seed]
+  E2 "Aarhus" -> Aarhus (Q25319)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Danish Women's Handball League (Q912431) x Aarhus (Q25319): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Danish Women's Handball League (Q912431); Aarhus (Q25319)
+run 2 (4.4 s): mentions ["Danish Women's Handball League", 'Aarhus']; missed: none; extra: none
+run 3 (4.4 s): mentions ["Danish Women's Handball League", 'Aarhus']; missed: none; extra: none
+
+==== 42587
+Q: What award, named after Lajos Kossuth, did János Rajz's student, who acted in "I'll Go to the Minister," receive?
+Gold seeds: Lajos Kossuth (Q157040); I'll Go to the Minister (Q5965835)
+run 1 (2.7 s)
+Extracted:
+  E1 "Lajos Kossuth" -> Lajos Kossuth (Q157040)  [gold seed]
+  E2 "János Rajz" -> János Rajz (Q1245585)  [gold path]
+  E3 "I'll Go to the Minister" -> I'll Go to the Minister (Q5965835)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Lajos Kossuth (Q157040) x János Rajz (Q1245585): 4 -> Hungary (Q28); Kossuth Prize (Q637399) [gold path]; human (Q5); male (Q6581097)
+  Lajos Kossuth (Q157040) x I'll Go to the Minister (Q5965835): 1 -> Hungarian (Q9067)
+  János Rajz (Q1245585) x I'll Go to the Minister (Q5965835): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Lajos Kossuth (Q157040); János Rajz (Q1245585); I'll Go to the Minister (Q5965835)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Lajos Kossuth (Q157040) and János Rajz (Q1245585): Hungary (Q28); Kossuth Prize (Q637399); human (Q5); male (Q6581097)
+  - Lajos Kossuth (Q157040) and I'll Go to the Minister (Q5965835): Hungarian (Q9067)
+run 2 (2.1 s): mentions ['Lajos Kossuth', 'János Rajz', "I'll Go to the Minister"]; missed: none; extra: János Rajz (Q1245585)
+run 3 (2.1 s): mentions ['Lajos Kossuth', 'János Rajz', "I'll Go to the Minister"]; missed: none; extra: János Rajz (Q1245585)
+
+==== 1012
+Q: What is the occupation of the head of government of the municipality that shares a border with both Cistella and Esponellà?
+Gold seeds: Cistella (Q11291); Esponellà (Q13611)
+run 1 (2.0 s)
+Extracted:
+  E1 "Cistella" -> Cistella (Q11291)  [gold seed]
+  E2 "Esponellà" -> Esponellà (Q13611)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Cistella (Q11291) x Esponellà (Q13611): 3 -> Cabanelles (Q11247) [gold path]; Spain (Q29); municipality of Spain (Q2074737)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Cistella (Q11291); Esponellà (Q13611)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Cistella (Q11291) and Esponellà (Q13611): Cabanelles (Q11247); Spain (Q29); municipality of Spain (Q2074737)
+run 2 (1.5 s): mentions ['Cistella', 'Esponellà']; missed: none; extra: none
+run 3 (1.5 s): mentions ['Cistella', 'Esponellà']; missed: none; extra: none
+
+==== 41371
+Q: Which Olympic event took place after the one that followed the event featuring both Brendan O'Connell and Bernd Uhlig?
+Gold seeds: Brendan O'Connell (Q4961038); Bernd Uhlig (Q4894072)
+run 1 (2.2 s)
+Extracted:
+  E1 "Brendan O'Connell" -> Brendan O'Connell (Q4961038)  [gold seed]
+  E2 "Bernd Uhlig" -> Bernd Uhlig (Q4894072)  [gold seed]
+  E3 "Olympic event" -> not found
+Missed gold seeds: none
+Common neighbors:
+  Brendan O'Connell (Q4961038) x Bernd Uhlig (Q4894072): 3 -> 1972 Summer Olympics (Q8438) [gold path]; human (Q5); male (Q6581097)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Brendan O'Connell (Q4961038); Bernd Uhlig (Q4894072)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Brendan O'Connell (Q4961038) and Bernd Uhlig (Q4894072): 1972 Summer Olympics (Q8438); human (Q5); male (Q6581097)
+run 2 (1.9 s): mentions ["Brendan O'Connell", 'Bernd Uhlig', 'Olympic event']; missed: none; extra: none
+run 3 (1.9 s): mentions ["Brendan O'Connell", 'Bernd Uhlig', 'Olympic event']; missed: none; extra: none
+
+==== 33122
+Q: Who from the Antwerp Guild of Saint Luke created a still life painting featuring a trumpet?
+Gold seeds: Antwerp Guild of Saint Luke (Q18508801); trumpet (Q8338); still life (Q170571)
+run 1 (2.8 s)
+Extracted:
+  E1 "Antwerp Guild of Saint Luke" -> Antwerp Guild of Saint Luke (Q18508801)  [gold seed]
+  E2 "still life" -> Still life (Q3873319)  [not gold]
+  E2 "still life" -> Still life (Q17334924)  [not gold]
+  E2 "still life" -> Still life (Q17338833)  [not gold]
+  E2 "still life" -> Still life (Q17341871)  [not gold]
+  E2 "still life" -> Still Life (Q19857343)  [not gold]
+  E3 "trumpet" -> trumpet (Q8338)  [gold seed]
+Missed gold seeds: still life (Q170571)
+Common neighbors:
+  Antwerp Guild of Saint Luke (Q18508801) x Still life (Q3873319): 0
+  Antwerp Guild of Saint Luke (Q18508801) x Still life (Q17334924): 0
+  Antwerp Guild of Saint Luke (Q18508801) x Still life (Q17338833): 1 -> Osias Beert (Q1857977)
+  Antwerp Guild of Saint Luke (Q18508801) x Still life (Q17341871): 0
+  Antwerp Guild of Saint Luke (Q18508801) x Still Life (Q19857343): 0
+  Antwerp Guild of Saint Luke (Q18508801) x trumpet (Q8338): 0
+  Still life (Q3873319) x trumpet (Q8338): 0
+  Still life (Q17334924) x trumpet (Q8338): 0
+  Still life (Q17338833) x trumpet (Q8338): 0
+  Still life (Q17341871) x trumpet (Q8338): 0
+  Still Life (Q19857343) x trumpet (Q8338): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Antwerp Guild of Saint Luke (Q18508801); Still life (Q3873319) / Still life (Q17334924) / Still life (Q17338833) / Still life (Q17341871) / Still Life (Q19857343) (same name); trumpet (Q8338)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Antwerp Guild of Saint Luke (Q18508801) and Still life (Q17338833): Osias Beert (Q1857977)
+run 2 (2.5 s): mentions ['Antwerp Guild of Saint Luke', 'still life', 'trumpet']; missed: still life (Q170571); extra: Still life (Q3873319); Still life (Q17334924); Still life (Q17338833); Still life (Q17341871); Still Life (Q19857343)
+run 3 (2.4 s): mentions ['Antwerp Guild of Saint Luke', 'still life', 'trumpet']; missed: still life (Q170571); extra: Still life (Q3873319); Still life (Q17334924); Still life (Q17338833); Still life (Q17341871); Still Life (Q19857343)
+
+==== 40487
+Q: Which political party linked to Christian democracy had a French-speaking member who took part in the Korean War?
+Gold seeds: Christian democracy (Q209158); French (Q150); Korean War (Q8663)
+run 1 (1.9 s)
+Extracted:
+  E1 "Christian democracy" -> Christian democracy (Q209158)  [gold seed]
+  E2 "French" -> French (Q150)  [gold seed]
+  E3 "Korean War" -> Korean War (Q8663)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Christian democracy (Q209158) x French (Q150): 0
+  Christian democracy (Q209158) x Korean War (Q8663): 0
+  French (Q150) x Korean War (Q8663): 1 -> Henri Moreau de Melen (Q1605951) [gold path]
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Christian democracy (Q209158); French (Q150); Korean War (Q8663)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - French (Q150) and Korean War (Q8663): Henri Moreau de Melen (Q1605951)
+run 2 (1.6 s): mentions ['Christian democracy', 'French', 'Korean War']; missed: none; extra: none
+run 3 (1.6 s): mentions ['Christian democracy', 'French', 'Korean War']; missed: none; extra: none
+
+==== 38861
+Q: Who designed the residential building situated on the same street as Cours Florent?
+Gold seeds: Cours Florent (Q916444); residence (Q699405)
+run 1 (3.9 s)
+Extracted:
+  E1 "Cours Florent" -> Cours Florent (Q916444)  [gold seed]
+Missed gold seeds: residence (Q699405)
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Cours Florent (Q916444)
+run 2 (3.6 s): mentions ['Cours Florent']; missed: residence (Q699405); extra: none
+run 3 (3.6 s): mentions ['Cours Florent']; missed: residence (Q699405); extra: none
+
+==== 42600
+Q: What is the capital of the province that borders the one with Malabo, which is an administrative division of Equatorial Guinea?
+Gold seeds: Malabo (Q3818); Equatorial Guinea (Q983)
+run 1 (2.2 s)
+Extracted:
+  E1 "Malabo" -> Malabo (Q3818)  [gold seed]
+  E2 "Equatorial Guinea" -> Equatorial Guinea (Q983)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Malabo (Q3818) x Equatorial Guinea (Q983): 12 -> Bioko Norte Province (Q845834) [gold path]; Democratic Party of Equatorial Guinea (Q945167); Diosdado Mbele (Q16728580); Francisco Macías Nguema (Q211936); Genoveva Añonma (Q432020); Gregorio Manuel Salvador (Q3776536); Juanjo Muko Nsue (Q3810959); Kike Boula (Q18758216); Nuevo Estadio de Malabo (Q1510743); Spanish Guinea (Q1232509); and 2 more
+    gold path entities among all 12: Bioko Norte Province (Q845834)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Malabo (Q3818); Equatorial Guinea (Q983)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Malabo (Q3818) and Equatorial Guinea (Q983): 12 entities, not listed
+run 2 (1.7 s): mentions ['Malabo', 'Equatorial Guinea']; missed: none; extra: none
+run 3 (1.6 s): mentions ['Malabo', 'Equatorial Guinea']; missed: none; extra: none
+
+==== 32536
+Q: What does the producer of Wild America, who is the child of the person married to Preston Robert Tisch, do for a living?
+Gold seeds: Preston Robert Tisch (Q1270995); Wild America (Q221982)
+run 1 (2.3 s)
+Extracted:
+  E1 "Wild America" -> Wild America (Q221982)  [gold seed]
+  E2 "Preston Robert Tisch" -> Preston Robert Tisch (Q1270995)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Wild America (Q221982) x Preston Robert Tisch (Q1270995): 2 -> Steve Tisch (Q7482626) [gold path]; United States of America (Q30)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Wild America (Q221982); Preston Robert Tisch (Q1270995)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Wild America (Q221982) and Preston Robert Tisch (Q1270995): Steve Tisch (Q7482626); United States of America (Q30)
+run 2 (1.8 s): mentions ['Wild America', 'Preston Robert Tisch']; missed: none; extra: none
+run 3 (1.8 s): mentions ['Wild America', 'Preston Robert Tisch']; missed: none; extra: none
+
+==== 29248
+Q: Who established the institution that educated the spouse of Princess Louise of Belgium's mother?
+Gold seeds: Princess Louise of Belgium (Q2051575)
+run 1 (2.8 s)
+Extracted:
+  E1 "Princess Louise of Belgium" -> Princess Louise of Belgium (Q2051575)  [gold seed]
+  E1 "Princess Louise of Belgium" -> Princess Louise of Belgium (Q237318)  [not gold]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Princess Louise of Belgium (Q2051575) / Princess Louise of Belgium (Q237318) (same name)
+run 2 (2.4 s): mentions ['Princess Louise of Belgium']; missed: none; extra: Princess Louise of Belgium (Q237318)
+run 3 (2.4 s): mentions ['Princess Louise of Belgium']; missed: none; extra: Princess Louise of Belgium (Q237318)
+
+==== 35550
+Q: What does the company whose headquarters are in a town that is twinned with a town twinned with Ploemeur produce?
+Gold seeds: Ploemeur (Q128369)
+run 1 (2.6 s)
+Extracted:
+  E1 "Ploemeur" -> Ploemeur (Q128369)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Ploemeur (Q128369)
+run 2 (1.8 s): mentions ['Ploemeur']; missed: none; extra: none
+run 3 (1.7 s): mentions ['Ploemeur']; missed: none; extra: none
+
+==== 37564
+Q: Who is the father of the individual buried at the church designed by the architect of Kampen Church?
+Gold seeds: Kampen Church (Q10297259)
+run 1 (2.3 s)
+Extracted:
+  E1 "Kampen Church" -> Kampen Church (Q10297259)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Kampen Church (Q10297259)
+run 2 (1.8 s): mentions ['Kampen Church']; missed: none; extra: none
+run 3 (1.8 s): mentions ['Kampen Church']; missed: none; extra: none
+
+==== 14105
+Q: What instruments are used in Prélude No. 3 in G major, Op. 28?
+Gold seeds: Prélude no. 3 in G major, op. 28 (Q3910272)
+run 1 (2.6 s)
+Extracted:
+  E1 "Prélude No. 3 in G major, Op. 28" -> Prélude no. 3 in G major, op. 28 (Q3910272)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Prélude no. 3 in G major, op. 28 (Q3910272)
+run 2 (2.0 s): mentions ['Prélude No. 3 in G major, Op. 28']; missed: none; extra: none
+run 3 (2.0 s): mentions ['Prélude No. 3 in G major, Op. 28']; missed: none; extra: none
+
+==== 27579
+Q: From which source is William Williams mentioned?
+Gold seeds: William Williams (Q8020385)
+run 1 (1.7 s)
+Extracted:
+  E1 "William Williams" -> William Williams (Q8020385)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: William Williams (Q8020385)
+run 2 (1.2 s): mentions ['William Williams']; missed: none; extra: none
+run 3 (1.2 s): mentions ['William Williams']; missed: none; extra: none
+
+==== 5902
+Q: What job do both the illustrator of "Grandfather's Journey" and Jinvijay's student have in common?
+Gold seeds: Grandfather's Journey (Q3228274); Jinvijay (Q15677761)
+run 1 (2.1 s)
+Extracted:
+  E1 "Grandfather's Journey" -> Grandfather's Journey (Q3228274)  [gold seed]
+  E2 "Jinvijay" -> Jinvijay (Q15677761)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Grandfather's Journey (Q3228274) x Jinvijay (Q15677761): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Grandfather's Journey (Q3228274); Jinvijay (Q15677761)
+run 2 (1.8 s): mentions ["Grandfather's Journey", 'Jinvijay']; missed: none; extra: none
+run 3 (1.8 s): mentions ["Grandfather's Journey", 'Jinvijay']; missed: none; extra: none
+
+==== 10699
+Q: In which military branch did both Paul Hindemith's student and Maxine Elliott's spouse serve?
+Gold seeds: Paul Hindemith (Q57244); Maxine Elliott (Q434022)
+run 1 (2.3 s)
+Extracted:
+  E1 "Paul Hindemith" -> Paul Hindemith (Q57244)  [gold seed]
+  E2 "Maxine Elliott" -> Maxine Elliott (Q434022)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Paul Hindemith (Q57244) x Maxine Elliott (Q434022): 1 -> human (Q5)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Paul Hindemith (Q57244); Maxine Elliott (Q434022)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Paul Hindemith (Q57244) and Maxine Elliott (Q434022): human (Q5)
+run 2 (1.7 s): mentions ['Paul Hindemith', 'Maxine Elliott']; missed: none; extra: none
+run 3 (1.8 s): mentions ['Paul Hindemith', 'Maxine Elliott']; missed: none; extra: none
+
+==== 26818
+Q: What type of voice do both the lyricist of "Don't Leave Home" and Stas Piekha's relative have in common?
+Gold seeds: Stas Piekha (Q1340169); Don't Leave Home (Q2604626)
+run 1 (2.7 s)
+Extracted:
+  E1 "Don't Leave Home" -> Don't Leave Home (Q2604626)  [gold seed]
+  E2 "Stas Piekha" -> Stas Piekha (Q1340169)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Don't Leave Home (Q2604626) x Stas Piekha (Q1340169): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Don't Leave Home (Q2604626); Stas Piekha (Q1340169)
+run 2 (2.1 s): mentions ["Don't Leave Home", 'Stas Piekha']; missed: none; extra: none
+run 3 (2.1 s): mentions ["Don't Leave Home", 'Stas Piekha']; missed: none; extra: none
+
+==== 31330
+Q: What is the highest point of the country where Microcobitis is endemic?
+Gold seeds: Microcobitis (Q17456319)
+run 1 (2.2 s)
+Extracted:
+  E1 "Microcobitis" -> Microcobitis (Q17456319)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Microcobitis (Q17456319)
+run 2 (1.6 s): mentions ['Microcobitis']; missed: none; extra: none
+run 3 (1.6 s): mentions ['Microcobitis']; missed: none; extra: none
+
+==== 24958
+Q: What is the native language of the person whose ancestral home is Meizhou?
+Gold seeds: Meizhou (Q59184)
+run 1 (2.0 s)
+Extracted:
+  E1 "Meizhou" -> Meizhou (Q59184)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Meizhou (Q59184)
+run 2 (1.5 s): mentions ['Meizhou']; missed: none; extra: none
+run 3 (1.4 s): mentions ['Meizhou']; missed: none; extra: none
+
+==== 1734
+Q: What is the capital of the country that borders Alfred Berthoud's home country and is also featured as a setting in the movie "Inglourious Basterds"?
+Gold seeds: Alfred Berthoud (Q4722324); Inglourious Basterds (Q153723)
+run 1 (2.4 s)
+Extracted:
+  E1 "Alfred Berthoud" -> Alfred Berthoud (Q4722324)  [gold seed]
+  E2 "Inglourious Basterds" -> Inglourious Basterds (Q153723)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Alfred Berthoud (Q4722324) x Inglourious Basterds (Q153723): 1 -> French (Q150)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Alfred Berthoud (Q4722324); Inglourious Basterds (Q153723)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Alfred Berthoud (Q4722324) and Inglourious Basterds (Q153723): French (Q150)
+run 2 (1.8 s): mentions ['Alfred Berthoud', 'Inglourious Basterds']; missed: none; extra: none
+run 3 (1.8 s): mentions ['Alfred Berthoud', 'Inglourious Basterds']; missed: none; extra: none
+
+==== 34508
+Q: Which adjacent station of Dillingen (Saar) is directly connected to a station that is two stations away from Bouzonville?
+Gold seeds: Dillingen (Saar) station (Q13423541); Bouzonville (Q3096047)
+run 1 (4.0 s)
+Extracted:
+  E1 "Dillingen (Saar)" -> not found
+  E2 "Bouzonville" -> Bouzonville (Q22933)  [not gold]
+  E2 "Bouzonville" -> Bouzonville (Q3096047)  [gold seed]
+Missed gold seeds: Dillingen (Saar) station (Q13423541)
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Bouzonville (Q22933) / Bouzonville (Q3096047) (same name)
+run 2 (3.3 s): mentions ['Dillingen (Saar)', 'Bouzonville']; missed: Dillingen (Saar) station (Q13423541); extra: Bouzonville (Q22933)
+run 3 (3.3 s): mentions ['Dillingen (Saar)', 'Bouzonville']; missed: Dillingen (Saar) station (Q13423541); extra: Bouzonville (Q22933)
+
+==== 37366
+Q: Which institution is home to both "The Departure" and a piece from the series that features the "Reclining Figure" sculpture?
+Gold seeds: The Departure (Q19900688); Reclining Figure (Q19759271)
+run 1 (3.0 s)
+Extracted:
+  E1 "The Departure" -> The Departure (Q19900688)  [gold seed]
+  E2 "Reclining Figure" -> Reclining Figure (Q19729910)  [not gold]
+  E2 "Reclining Figure" -> Reclining Figure (Q19759274)  [not gold]
+  E2 "Reclining Figure" -> Reclining Figure (Q19759275)  [not gold]
+  E2 "Reclining Figure" -> Reclining Figure (Q19759278)  [not gold]
+  E2 "Reclining Figure" -> Reclining Figure (Q19759279)  [not gold]
+Missed gold seeds: Reclining Figure (Q19759271)
+Common neighbors:
+  The Departure (Q19900688) x Reclining Figure (Q19729910): 0
+  The Departure (Q19900688) x Reclining Figure (Q19759274): 0
+  The Departure (Q19900688) x Reclining Figure (Q19759275): 0
+  The Departure (Q19900688) x Reclining Figure (Q19759278): 0
+  The Departure (Q19900688) x Reclining Figure (Q19759279): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: The Departure (Q19900688); Reclining Figure (Q19729910) / Reclining Figure (Q19759274) / Reclining Figure (Q19759275) / Reclining Figure (Q19759278) / Reclining Figure (Q19759279) (same name)
+run 2 (2.5 s): mentions ['The Departure', 'Reclining Figure']; missed: Reclining Figure (Q19759271); extra: Reclining Figure (Q19729910); Reclining Figure (Q19759274); Reclining Figure (Q19759275); Reclining Figure (Q19759278); Reclining Figure (Q19759279)
+run 3 (2.5 s): mentions ['The Departure', 'Reclining Figure']; missed: Reclining Figure (Q19759271); extra: Reclining Figure (Q19729910); Reclining Figure (Q19759274); Reclining Figure (Q19759275); Reclining Figure (Q19759278); Reclining Figure (Q19759279)
+
+==== 38738
+Q: Which stock exchange is the organizer of the event that Kenneth McKellar took part in listed on?
+Gold seeds: Kenneth McKellar (Q1245757)
+run 1 (2.0 s)
+Extracted:
+  E1 "Kenneth McKellar" -> Kenneth McKellar (Q1245757)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Kenneth McKellar (Q1245757)
+run 2 (1.4 s): mentions ['Kenneth McKellar']; missed: none; extra: none
+run 3 (1.5 s): mentions ['Kenneth McKellar']; missed: none; extra: none
+
+==== 24883
+Q: Which company was the primary contractor for the stadium that is home to the team that occupies Giants Stadium and is in the NFC East?
+Gold seeds: Giants Stadium (Q375365); NFC East (Q594428)
+run 1 (3.8 s)
+Extracted:
+  E1 "Giants Stadium" -> Giants Stadium (Q375365)  [gold seed]
+  E2 "NFC East" -> NFC East (Q594428)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Giants Stadium (Q375365) x NFC East (Q594428): 2 -> New York Giants (Q190618) [gold path]; United States of America (Q30)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Giants Stadium (Q375365); NFC East (Q594428)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Giants Stadium (Q375365) and NFC East (Q594428): New York Giants (Q190618); United States of America (Q30)
+run 2 (3.3 s): mentions ['Giants Stadium', 'NFC East']; missed: none; extra: none
+run 3 (3.3 s): mentions ['Giants Stadium', 'NFC East']; missed: none; extra: none
+
+==== 16747
+Q: Which country is home to the rural district where Karl Benjamin Preusker and Ernst Freiherr von Althaus both worked?
+Gold seeds: Karl Benjamin Preusker (Q1730465); Ernst Freiherr von Althaus (Q5394988)
+run 1 (4.0 s)
+Extracted:
+  E1 "Karl Benjamin Preusker" -> Karl Benjamin Preusker (Q1730465)  [gold seed]
+  E2 "Ernst Freiherr von Althaus" -> Ernst Freiherr von Althaus (Q5394988)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Karl Benjamin Preusker (Q1730465) x Ernst Freiherr von Althaus (Q5394988): 4 -> Germany (Q183); Großenhain (Q8714) [gold path]; human (Q5); male (Q6581097)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Karl Benjamin Preusker (Q1730465); Ernst Freiherr von Althaus (Q5394988)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Karl Benjamin Preusker (Q1730465) and Ernst Freiherr von Althaus (Q5394988): Germany (Q183); Großenhain (Q8714); human (Q5); male (Q6581097)
+run 2 (3.5 s): mentions ['Karl Benjamin Preusker', 'Ernst Freiherr von Althaus']; missed: none; extra: none
+run 3 (3.5 s): mentions ['Karl Benjamin Preusker', 'Ernst Freiherr von Althaus']; missed: none; extra: none
+
+==== 39707
+Q: Which publisher released the book that inspired the movie filmed in both Paris and Florence?
+Gold seeds: Paris (Q90); Florence (Q2044)
+run 1 (2.1 s)
+Extracted:
+  E1 "Paris" -> Paris (Q1451948)  [not gold]
+  E1 "Paris" -> Paris (Q631707)  [not gold]
+  E1 "Paris" -> Paris (Q90)  [gold seed]
+  E2 "Florence" -> Florence (Q2044)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  Paris (Q1451948) x Florence (Q2044): 0
+  Paris (Q631707) x Florence (Q2044): 0
+  Paris (Q90) x Florence (Q2044): 53 -> Albert de Gondi (Q1968726); Alexandre-Dominique Denuelle (Q2833591); Anatoly Nikolaievich Demidov, 1st Prince of San Donato (Q487488); Andreas Møller (Q499694); André Noufflard (Q2848358); Angiolo Vestris (Q539635); Antonio Sacchini (Q366727); Arthur Gamgee (Q4798780); Bertrand de Sauvan d'Aramon (Q2899755); Bobby Deerfield (Q2329314) [gold path]; and 43 more
+    gold path entities among all 53: Bobby Deerfield (Q2329314)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Paris (Q1451948) / Paris (Q631707) / Paris (Q90) (same name); Florence (Q2044)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Paris (Q90) and Florence (Q2044): 53 entities, not listed
+run 2 (1.5 s): mentions ['Paris', 'Florence']; missed: none; extra: Paris (Q1451948); Paris (Q631707)
+run 3 (1.5 s): mentions ['Paris', 'Florence']; missed: none; extra: Paris (Q1451948); Paris (Q631707)
+
+==== 11794
+Q: What language is spoken natively by the winger who took part in the 2014 Winter Olympics, and is also the name of the language associated with the 2008 Dakar Rally that got canceled due to a terrorist threat?
+Gold seeds: winger (Q2827965); 2014 Winter Olympics (Q9678); 2008 Dakar Rally cancelled over terrorist threat (Q17600542)
+run 1 (3.3 s)
+Extracted:
+  E1 "winger" -> winger (Q2827965)  [gold seed]
+  E2 "2014 Winter Olympics" -> 2014 Winter Olympics (Q9678)  [gold seed]
+  E3 "2008 Dakar Rally" -> not found
+Missed gold seeds: 2008 Dakar Rally cancelled over terrorist threat (Q17600542)
+Common neighbors:
+  winger (Q2827965) x 2014 Winter Olympics (Q9678): 1 -> Juhamatti kakaaka (Q129141) [gold path]
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: winger (Q2827965); 2014 Winter Olympics (Q9678)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - winger (Q2827965) and 2014 Winter Olympics (Q9678): Juhamatti kakaaka (Q129141)
+run 2 (2.5 s): mentions ['winger', '2014 Winter Olympics', '2008 Dakar Rally']; missed: 2008 Dakar Rally cancelled over terrorist threat (Q17600542); extra: none
+run 3 (2.6 s): mentions ['winger', '2014 Winter Olympics', '2008 Dakar Rally']; missed: 2008 Dakar Rally cancelled over terrorist threat (Q17600542); extra: none
+
+==== 40560
+Q: Who was the partner of the academic artist buried at Père Lachaise Cemetery as mentioned in "Women Painters of the World"?
+Gold seeds: Women Painters of the World (Q19507487); academic art (Q189458); Père Lachaise Cemetery (Q311)
+run 1 (2.6 s)
+Extracted:
+  E1 "Père Lachaise Cemetery" -> Père Lachaise Cemetery (Q311)  [gold seed]
+  E2 "Women Painters of the World" -> Women Painters of the World (Q19507487)  [gold seed]
+Missed gold seeds: academic art (Q189458)
+Common neighbors:
+  Père Lachaise Cemetery (Q311) x Women Painters of the World (Q19507487): 6 -> Constance Mayer (Q463270); Consuelo Fould (Q2995309); Jacqueline Comerre-Paton (Q1677808) [gold path]; Madeleine Carpentier (Q16943821); Marie-Gabrielle Capet (Q453187); Rosa Bonheur (Q241732)
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Père Lachaise Cemetery (Q311); Women Painters of the World (Q19507487)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Père Lachaise Cemetery (Q311) and Women Painters of the World (Q19507487): Constance Mayer (Q463270); Consuelo Fould (Q2995309); Jacqueline Comerre-Paton (Q1677808); Madeleine Carpentier (Q16943821); Marie-Gabrielle Capet (Q453187); Rosa Bonheur (Q241732)
+run 2 (2.0 s): mentions ['Père Lachaise Cemetery', 'Women Painters of the World']; missed: academic art (Q189458); extra: none
+run 3 (2.0 s): mentions ['Père Lachaise Cemetery', 'Women Painters of the World']; missed: academic art (Q189458); extra: none
+
+==== 40448
+Q: Who was the doctoral advisor in algebraic geometry for someone who speaks English as their first language and also knows Hebrew?
+Gold seeds: algebraic geometry (Q180969); English (Q1860); Hebrew (Q9288)
+run 1 (2.8 s)
+Extracted:
+  E1 "English" -> English (Q1860)  [gold seed]
+  E2 "Hebrew" -> Hebrew (Q9288)  [gold seed]
+  E3 "algebraic geometry" -> algebraic geometry (Q180969)  [gold seed]
+Missed gold seeds: none
+Common neighbors:
+  English (Q1860) x Hebrew (Q9288): 26 -> Alila (Q2836922); Amos Elon (Q329124); Benzion Netanyahu (Q818507); Charles Berlitz (Q472147); Dan Mikhman (Q1159123); Daniel J. Elazar (Q5217613); Eitan Tchernov (Q6818293); Eva Baer (Q2828759); Former U.S. President Gerald Ford dies (Q17595927); Gabriel Baer (Q17628792); and 16 more
+    gold path entities among all 26: Malka Elisheva Schaps (Q7028517)
+  English (Q1860) x algebraic geometry (Q180969): 3 -> David Mumford (Q334021) [gold path]; Hyman Bass (Q517990); Shreeram Shankar Abhyankar (Q899635)
+  Hebrew (Q9288) x algebraic geometry (Q180969): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: English (Q1860); Hebrew (Q9288); algebraic geometry (Q180969)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - English (Q1860) and Hebrew (Q9288): 26 entities, not listed
+  - English (Q1860) and algebraic geometry (Q180969): David Mumford (Q334021); Hyman Bass (Q517990); Shreeram Shankar Abhyankar (Q899635)
+run 2 (2.1 s): mentions ['English', 'Hebrew', 'algebraic geometry']; missed: none; extra: none
+run 3 (2.1 s): mentions ['English', 'Hebrew', 'algebraic geometry']; missed: none; extra: none
+
+==== 24117
+Q: What major event is Osama bin Laden linked to that involved an attack on the World Trade Center?
+Gold seeds: Osama bin Laden (Q1317); World Trade Center (Q11235)
+run 1 (2.8 s)
+Extracted:
+  E1 "Osama bin Laden" -> Osama bin Laden (Q1317)  [gold seed]
+  E2 "World Trade Center" -> World Trade Center (Q11235)  [gold seed]
+  E2 "World Trade Center" -> World Trade Center (Q828547)  [not gold]
+Missed gold seeds: none
+Common neighbors:
+  Osama bin Laden (Q1317) x World Trade Center (Q11235): 1 -> September 11 attack (Q10806) [gold path]
+  Osama bin Laden (Q1317) x World Trade Center (Q828547): 1 -> September 11 attack (Q10806) [gold path]
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Osama bin Laden (Q1317); World Trade Center (Q11235) / World Trade Center (Q828547) (same name)
+  Entities directly linked to two of them (found by the program; not yet retrieved in a reasoning step):
+  - Osama bin Laden (Q1317) and World Trade Center (Q11235): September 11 attack (Q10806)
+  - Osama bin Laden (Q1317) and World Trade Center (Q828547): September 11 attack (Q10806)
+run 2 (2.3 s): mentions ['Osama bin Laden', 'World Trade Center']; missed: none; extra: World Trade Center (Q828547)
+run 3 (2.2 s): mentions ['Osama bin Laden', 'World Trade Center']; missed: none; extra: World Trade Center (Q828547)
+
+==== 9858
+Q: Who with the last name Keller has worked at the University of New Mexico?
+Gold seeds: Keller (Q1738213); University of New Mexico (Q1190812)
+run 1 (2.1 s)
+Extracted:
+  E1 "Keller" -> not found
+  E2 "University of New Mexico" -> University of New Mexico (Q1190812)  [gold seed]
+Missed gold seeds: Keller (Q1738213)
+Common neighbors:
+  no pairs
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: University of New Mexico (Q1190812)
+run 2 (1.5 s): mentions ['Keller', 'University of New Mexico']; missed: Keller (Q1738213); extra: none
+run 3 (1.5 s): mentions ['Keller', 'University of New Mexico']; missed: Keller (Q1738213); extra: none
+
+==== 13321
+Q: Who wrote the lyrics to the national anthem of the country featured in "Looking for Fidel"?
+Gold seeds: Looking for Fidel (Q2249437)
+run 1 (4.5 s)
+Extracted:
+  E1 "Looking for Fidel" -> Looking for Fidel (Q2249437)  [gold seed]
+  E2 "national anthem" -> national anthem (Q23691)  [not gold]
+Missed gold seeds: none
+Common neighbors:
+  Looking for Fidel (Q2249437) x national anthem (Q23691): 0
+Hint shown in Step 2.1:
+  Entities of the user request found in the knowledge graph: Looking for Fidel (Q2249437); national anthem (Q23691)
+run 2 (4.0 s): mentions ['Looking for Fidel', 'national anthem']; missed: none; extra: national anthem (Q23691)
+run 3 (4.0 s): mentions ['Looking for Fidel', 'national anthem']; missed: none; extra: national anthem (Q23691)
+
+==== Summary (gold seeds found per run / extra entities per run)
+ 16154: seeds 2, found [2, 2, 2], extra [1, 1, 1]
+ 31606: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 13311: seeds 1, found [1, 1, 1], extra [0, 0, 0]
+ 37715: seeds 1, found [1, 1, 1], extra [0, 0, 0]
+  4519: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+  8865: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 40154: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 42587: seeds 2, found [2, 2, 2], extra [1, 1, 1]
+  1012: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 41371: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 33122: seeds 3, found [2, 2, 2], extra [5, 5, 5]
+ 40487: seeds 3, found [3, 3, 3], extra [0, 0, 0]
+ 38861: seeds 2, found [1, 1, 1], extra [0, 0, 0]
+ 42600: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 32536: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 29248: seeds 1, found [1, 1, 1], extra [1, 1, 1]
+ 35550: seeds 1, found [1, 1, 1], extra [0, 0, 0]
+ 37564: seeds 1, found [1, 1, 1], extra [0, 0, 0]
+ 14105: seeds 1, found [1, 1, 1], extra [0, 0, 0]
+ 27579: seeds 1, found [1, 1, 1], extra [0, 0, 0]
+  5902: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 10699: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 26818: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 31330: seeds 1, found [1, 1, 1], extra [0, 0, 0]
+ 24958: seeds 1, found [1, 1, 1], extra [0, 0, 0]
+  1734: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 34508: seeds 2, found [1, 1, 1], extra [1, 1, 1]
+ 37366: seeds 2, found [1, 1, 1], extra [5, 5, 5]
+ 38738: seeds 1, found [1, 1, 1], extra [0, 0, 0]
+ 24883: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 16747: seeds 2, found [2, 2, 2], extra [0, 0, 0]
+ 39707: seeds 2, found [2, 2, 2], extra [2, 2, 2]
+ 11794: seeds 3, found [2, 2, 2], extra [0, 0, 0]
+ 40560: seeds 3, found [2, 2, 2], extra [0, 0, 0]
+ 40448: seeds 3, found [3, 3, 3], extra [0, 0, 0]
+ 24117: seeds 2, found [2, 2, 2], extra [1, 1, 1]
+  9858: seeds 2, found [1, 1, 1], extra [0, 0, 0]
+ 13321: seeds 1, found [1, 1, 1], extra [1, 1, 1]
