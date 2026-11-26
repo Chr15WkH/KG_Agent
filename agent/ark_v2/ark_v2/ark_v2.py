@@ -56,6 +56,7 @@ from ark_v2.data_models.agent_models import (
     KnownEntities,
     KnownEntityChoice,
     RequestDecomposition,
+    ConstrainedReasoningStepResult,
 )
 from ark_v2.data_models.graph_models import NodeVerified
 
@@ -156,11 +157,14 @@ def _record_step_conclusions(
 
     records: List[ConclusionRecord] = []
     for conclusion in result.conclusions:
+        # Only conclusions of a constrained step have a constraint_id; it is kept as written
+        constraint_id = getattr(conclusion, "constraint_id", None)
         record = ConclusionRecord(
             conclusion_id=len(exploration.conclusions) + 1,
             iteration=state.iteration,
             candidate=conclusion.candidate,
             condition=conclusion.condition,
+            constraint_id=constraint_id.strip() if constraint_id else None,
             status=conclusion.status,
             evidence_type=conclusion.evidence_type,
             absent_entity=conclusion.absent_entity,
@@ -337,8 +341,14 @@ def _render_exploration_summary(
     """
     exploration = state.exploration
 
+    # Constraint list with status first, if the request was decomposed
+    lines = []
+    constraints = _render_constraints(state, with_status=True)
+    if constraints:
+        lines.extend([constraints, ""])
+
     # Reasoning steps: only valid results; a discarded step gets one line
-    lines = ["Detailed Reasoning Steps:"]
+    lines.append("Detailed Reasoning Steps:")
     n_lines = len(lines)
     for i, step in enumerate(state.reasoningSteps, start=1):
         if not step.finished or step.result is None or not step.result.valid:
@@ -770,6 +780,86 @@ def _constraint_term(term: str, records: List[Dict[str, Any]], entities_exist: A
     return new_id
 
 
+def _render_constraints(state: RuntimeState, with_status: bool, max_candidates: int = 5) -> str:
+    """
+    Render the constraint list of the user request with the known entities it refers to.
+    with_status adds to each constraint the candidates of its latest conclusions, grouped as
+    satisfied / not satisfied (verified) and unverified, or 'not yet checked' if there are none.
+    A conclusion counts only if its constraint_id, ignoring letter case, is an ID of the list;
+    per candidate the latest conclusion is used, and a verified one hides unverified ones.
+    At most max_candidates candidates are shown per group.
+    Returns "" if there are no constraints (e.g. when request decomposition is switched off).
+    """
+    exploration = state.exploration
+    if not exploration.constraints:
+        return ""
+
+    # Known entities: one graph name, a few names of the same name, a count, or not found
+    entity_parts = []
+    for record in exploration.known_entities:
+        entities = record["entities"]
+        if not entities:
+            shown = f"'{record['mention']}' (not found in the knowledge graph)"
+        elif len(entities) == 1:
+            shown = entities[0]
+        elif len(entities) <= 3:
+            shown = " / ".join(entities) + " (same name)"
+        else:
+            shown = f"'{record['mention']}' ({len(entities)} graph entities with this name)"
+        entity_parts.append(f"{record['id']} = {shown}")
+
+    lines = [
+        "Constraints of the request (written before exploration; E = known entity, ?x = unknown entity):"
+    ]
+    if entity_parts:
+        lines.append("; ".join(entity_parts))
+
+    # Latest conclusion per constraint and candidate; key: (constraint ID in upper case, candidate)
+    latest = {}
+    if with_status:
+        valid_ids = {constraint["id"].upper() for constraint in exploration.constraints}
+        for record in exploration.conclusions:
+            constraint_id = (record.constraint_id or "").upper()
+            if constraint_id not in valid_ids:
+                continue
+            key = (constraint_id, normalize_entity_name(record.candidate))
+            previous = latest.get(key)
+            if previous is not None and previous.verified and not record.verified:
+                continue
+            latest[key] = record
+
+    for constraint in exploration.constraints:
+        line = (
+            f"- {constraint['id']}: {constraint['subject']} - {constraint['relation']} - "
+            f"{constraint['object']}"
+        )
+        if with_status:
+            groups = {"satisfied": [], "not satisfied": [], "unverified": []}
+            for (constraint_id, _), record in latest.items():
+                if constraint_id != constraint["id"].upper():
+                    continue
+                if record.verified and record.status == "satisfied":
+                    label = "satisfied"
+                elif record.verified and record.status == "not_satisfied":
+                    label = "not satisfied"
+                else:
+                    label = "unverified"
+                groups[label].append(f"{record.candidate} [Step {record.iteration}]")
+            parts = []
+            for label, items in groups.items():
+                if not items:
+                    continue
+                shown = "; ".join(items[:max_candidates])
+                if len(items) > max_candidates:
+                    shown += f"; and {len(items) - max_candidates} more"
+                parts.append(f"{label}: {shown}")
+            line += " | " + (" | ".join(parts) if parts else "not yet checked")
+        lines.append(line)
+
+    lines.append(prompts.CONSTRAINTS_NOTE)
+    return "\n".join(lines)
+
+
 class ARK_V2(Agent):
     """A multi-hop reasoning agent that uses a knowledge graph to answer user requests."""
 
@@ -1073,6 +1163,11 @@ class ARK_V2(Agent):
             state.exploration.known_entities = records
             state.exploration.constraints = constraints
             state.exploration.answer_type = answer_type.strip() or None
+
+            # The constraint list is shown before the first step; later the summary shows it
+            rendered = _render_constraints(state, with_status=False)
+            if rendered:
+                state.append_message(AIMessage(content="Result (Constraints):\n" + rendered))
             return state
 
         def initialize_reasoning_step(state: RuntimeState) -> RuntimeState:
@@ -1469,13 +1564,17 @@ class ARK_V2(Agent):
             verified_result.triples = []
             verified_result.invalid_keys = []
 
+            # With a constraint list, each conclusion also names the constraint it checks
+            has_constraints = bool(state.exploration.constraints)
+            result_model = ConstrainedReasoningStepResult if has_constraints else ReasoningStepResult
             prompt = self.get_message_from_prompt_template(
                 "perform_reasoning",
                 {
                     "iteration": state.iteration,
                     "attempt": verified_result.attempt,
                     "allowed_keys": current_reasoning_step.get_keys_triples_retrieved(),
-                    "schema": json.dumps(ReasoningStepResult.model_json_schema()),
+                    "constraint_rules": prompts.CONSTRAINT_RULES if has_constraints else "",
+                    "schema": json.dumps(result_model.model_json_schema()),
                 },
             )
             state.extend_messages(prompt)
@@ -1483,7 +1582,7 @@ class ARK_V2(Agent):
             raw = None
             try:
                 response = self.reasoning_llm.with_structured_output(
-                    ReasoningStepResult, include_raw=True
+                    result_model, include_raw=True
                 ).invoke(state.messages)
                 raw = response["raw"]
                 if response["parsing_error"] is not None:
@@ -1608,6 +1707,10 @@ class ARK_V2(Agent):
                 "summarize_reasoning",
                 {
                     "number_of_steps": len(state.reasoningSteps),
+                    "section_count": "seven" if state.exploration.constraints else "six",
+                    "constraints_section": (
+                        prompts.CONSTRAINTS_SECTION if state.exploration.constraints else ""
+                    ),
                     "summary": _render_exploration_summary(
                         state, self.max_conclusion_lines, self.max_candidates_per_group
                     ),

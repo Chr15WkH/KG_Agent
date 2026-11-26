@@ -301,6 +301,26 @@ class ReasoningStepResult(Keys):
     )
 
 
+class ConstrainedConclusion(Conclusion):
+    """A conclusion that also names the constraint of the user request it checks."""
+
+    constraint_id: Optional[str] = Field(
+        default=None,
+        description=(
+            "The ID of the constraint from the constraint list (e.g. 'C2') that this conclusion checks; "
+            "null if the condition is not in the list."
+        ),
+    )
+
+
+class ConstrainedReasoningStepResult(ReasoningStepResult):
+    """The LLM output of one reasoning step when the user request has a constraint list."""
+
+    conclusions: List[ConstrainedConclusion] = Field(
+        description=ReasoningStepResult.model_fields["conclusions"].description,
+    )
+
+
 class ReasoningStepResultVerified(VerifiedModel):
     """A model that holds the verified results of selected triples for a specific anchor entity and relations"""
 
@@ -462,7 +482,10 @@ class ConclusionRecord(BaseModel):
     condition: str
     constraint_id: Optional[str] = Field(
         default=None,
-        description="Reference to the constraint list.",
+        description=(
+            "ID of the checked constraint as written by the LLM, e.g. 'C2'; null if none. "
+            "It counts only if it is an ID of the constraint list, ignoring letter case."
+        ),
     )
     status: ConclusionStatus
     evidence_type: EvidenceType

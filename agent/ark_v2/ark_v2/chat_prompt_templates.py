@@ -45,7 +45,8 @@ def get_prompt_summarize_reasoning() -> ChatPromptTemplate:
             (
                 "user",
                 "This is a summary of {number_of_steps} reasoning steps completed so far. "
-                "It has six sections:\n"
+                "It has {section_count} sections:\n"
+                "{constraints_section}"
                 "- Detailed Reasoning Steps: the anchor and relation of each valid step, the triples it used "
                 "(Used Triples) and its implications. "
                 "A step discarded as irrelevant has no Used Triples or Implications.\n"
@@ -63,6 +64,26 @@ def get_prompt_summarize_reasoning() -> ChatPromptTemplate:
             )
         ]
     )
+
+
+# Texts inserted only when the user request has a constraint list (request decomposition)
+CONSTRAINTS_SECTION = (
+    "- Constraints of the request: the conditions of the request, split before exploration, "
+    "with the candidates that satisfy or fail each of them.\n"
+)
+CONSTRAINT_RULES = (
+    "- constraint_id: the ID of the constraint from the constraint list above (C1, C2, ...) that the "
+    "conclusion checks. Each conclusion checks one constraint; split a condition that covers several "
+    "constraints into several conclusions. Use null for a condition that is not in the list.\n"
+)
+CONSTRAINTS_NOTE = (
+    "These are the conditions that the answer must meet. They do not fix the order of exploration: "
+    "an entity linked to several known entities (see the hints in Step 2.1) can check several "
+    "constraints at once. The constraints were written before exploration and can be wrong or "
+    "incomplete; only if the retrieved triples show that a constraint is wrong (e.g. two of its "
+    "entities are the same entity), explain this in the implications and continue with what the "
+    "request asks."
+)
 
 
 def get_prompt_extract_known_entities() -> ChatPromptTemplate:
@@ -252,6 +273,7 @@ def get_prompt_perform_reasoning() -> ChatPromptTemplate:
                 "e.g. (X, occupation, painter) alone does not show that X never studied law, and "
                 "(Y, date of birth, 1820) alone does not show that Y never used a telephone.\n"
                 "- If the summary already contains the same condition, copy its condition text exactly.\n"
+                "{constraint_rules}"
                 "Rules for the next action:\n"
                 "- If previous reasoning steps exist, integrate them without contradiction.\n"
                 "- To check the same condition for several candidates, prefer one step on the entity they "
