@@ -903,8 +903,8 @@ class ARK_V2(Agent):
         self.extraction_llm = None
         if self.llm is not None:
             self.extraction_llm = self.llm.model_copy(update={"temperature": extraction_temperature})
-        # Copy of the LLM for the reasoning node: the same model and settings,
-        # but its own output token limit, since reasoning steps need longer outputs than other nodes
+        # Copy of the LLM for the reasoning and answer generation nodes: the same model and settings,
+        # but its own output token limit, since both think longer than other nodes
         self.reasoning_max_tokens = config.get("reasoning_max_tokens", 3000)
         self.reasoning_llm = None
         if self.llm is not None:
@@ -1766,7 +1766,7 @@ class ARK_V2(Agent):
                 },
             )
             state.extend_messages(prompt)
-            result = self.llm.with_structured_output(answer).invoke(state.messages)
+            result = self.reasoning_llm.with_structured_output(answer).invoke(state.messages)
 
             # Complete missing QIDs from entities used in the reasoning steps when enabled.
             if self.complete_answer_qids and isinstance(result, FinalAnswerEntityList):

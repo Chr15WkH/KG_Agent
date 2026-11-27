@@ -69,7 +69,7 @@ AGENT_CONFIG = {
     "known_entities_hint": True,
     # ARK v2 only: split the request into constraints and show them with their status in the summary.
     "request_decomposition": False,
-    # ARK v2 only: output token limit of the reasoning node (other nodes keep the LLM default).
+    # ARK v2 only: output token limit of the reasoning and answer generation nodes (other nodes keep the LLM default).
     "reasoning_max_tokens": 3000,
     "llm": {
         # "model": "deepseek/deepseek-chat", # "deepseek/deepseek-chat" for openrouter, "qwen3.5:9b" and "qwen3.8:2.7b" for litellm
